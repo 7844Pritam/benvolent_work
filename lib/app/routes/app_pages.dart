@@ -17,7 +17,7 @@ class AppPages {
   static final routes = [
     GetPage(
       name: AppRoutes.createPassword,
-      page: () => const CreatePasswordScreen(email: ''),
+      page: () => const CreatePasswordScreen(email: '', flag: 0),
     ),
     GetPage(
       name: AppRoutes.verify,

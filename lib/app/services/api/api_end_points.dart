@@ -7,4 +7,8 @@ class ApiEndPoints {
   static const CHANGE_PASSWORD_URL = "/change-password";
   static const DASHBOARD_URL = "/dashboard";
   static const LEADS_URL = "/leads";
+  static const GET_AGENTS = "/agents";
+  static const GET_STATUS = "/status";
+  static const GET_CAMPAIGNS = "/campaigns";
+  static const GET_SOURCE = "/source";
 }

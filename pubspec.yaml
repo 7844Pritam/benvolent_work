@@ -45,6 +45,7 @@ dependencies:
   flutter_advanced_drawer: ^1.5.0
   image_picker: ^1.1.2
   double_tap_to_exit: ^1.0.3
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:

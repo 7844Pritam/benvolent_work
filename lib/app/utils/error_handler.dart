@@ -13,7 +13,7 @@ class ErrorHandler {
   static ApiException _handleDioException(DioException error) {
     final statusCode = error.response?.statusCode;
     final errorData = error.response?.data;
-    String message = 'Server error occurred';
+    String message = 'Server error occurred (Method is not allowed)';
     String? errorCode;
 
     if (errorData is Map && errorData.containsKey('error')) {

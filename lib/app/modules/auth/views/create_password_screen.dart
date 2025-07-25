@@ -10,7 +10,12 @@ import 'package:get/get.dart';
 
 class CreatePasswordScreen extends StatefulWidget {
   final String email;
-  const CreatePasswordScreen({Key? key, required this.email}) : super(key: key);
+  final int flag;
+  const CreatePasswordScreen({
+    Key? key,
+    required this.email,
+    required this.flag,
+  }) : super(key: key);
   @override
   State<CreatePasswordScreen> createState() => _CreatePasswordScreenState();
 }
@@ -96,7 +101,9 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                                                     .value
                                                     ?.success ??
                                                 false) {
-                                              Get.offAllNamed('/login');
+                                              if (widget.flag == 1) {
+                                                Get.offAllNamed('/login');
+                                              }
                                             }
                                           });
                                     }

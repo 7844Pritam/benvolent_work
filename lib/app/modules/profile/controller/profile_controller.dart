@@ -21,6 +21,8 @@ class ProfileController extends GetxController {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController userIdController = TextEditingController();
   final TextEditingController imageUrlController = TextEditingController();
+  final TextEditingController alternateController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
   @override
   void onInit() {
@@ -40,6 +42,8 @@ class ProfileController extends GetxController {
       phoneController.text = result.data.phone.toString();
       userIdController.text = result.data.id.toString();
       imageUrlController.text = result.data.imageUrl;
+      alternateController.text = result.data.atContact ?? "";
+      addressController.text = result.data.address ?? "";
     } catch (e) {
       CustomSnackbar.show(
         title: "Error",

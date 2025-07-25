@@ -1,8 +1,7 @@
 import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
-import 'package:benevolent_crm_app/app/widgets/bottom_nav_widget.dart';
-import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
+
 import 'package:benevolent_crm_app/app/widgets/drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,8 +17,6 @@ class Dashboard extends StatelessWidget {
   Future<void> _refresh() async {
     await controller.getDashboardData();
   }
-
-  final Rx<DateTime?> _lastBackPressTime = Rx<DateTime?>(null);
 
   @override
   Widget build(BuildContext context) {
@@ -46,15 +43,19 @@ class Dashboard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _statCard(Icons.call, data.totColdCall, "Cold Calls"),
                       _statCard(
                         onTap: () => {Get.to(AllLeadsPage())},
                         Icons.person,
                         data.totLeads,
-                        "Leads",
+                        " Total \nLeads",
                       ),
+                      _statCard(Icons.call, data.totColdCall, "Cold \nCalls"),
 
-                      _statCard(Icons.home, data.totProperties, "Properties"),
+                      _statCard(
+                        Icons.home,
+                        data.totProperties,
+                        "Converted Cold Calls",
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
+import 'package:benevolent_crm_app/app/utils/validators.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
@@ -170,6 +171,7 @@ class _UserProfileCardState extends State<UserProfileCard> {
                               ? buildEditableField(
                                   "Email",
                                   controller.emailController,
+                                  validator: Validators.validateEmail,
                                 )
                               : buildReadOnlyText(
                                   controller.emailController.text,
@@ -191,22 +193,20 @@ class _UserProfileCardState extends State<UserProfileCard> {
                                       "+91 ${controller.phoneController.text}",
                                 ),
 
-                          /// User ID
                           isEditMode
                               ? buildEditableField(
-                                  "User ID",
-                                  controller.userIdController,
+                                  "Alt Contact",
+                                  controller.alternateController,
                                 )
                               : InfoRow(
-                                  label: "User ID",
+                                  label: "Alt Contact",
                                   value: controller.userIdController.text,
                                 ),
 
-                          /// Image URL (optional)
                           isEditMode
                               ? buildEditableField(
-                                  "Image URL",
-                                  controller.imageUrlController,
+                                  "Address",
+                                  controller.addressController,
                                 )
                               : const SizedBox.shrink(),
                         ],
@@ -231,10 +231,18 @@ class _UserProfileCardState extends State<UserProfileCard> {
     );
   }
 
-  Widget buildEditableField(String label, TextEditingController controller) {
+  Widget buildEditableField(
+    String label,
+    TextEditingController controller, {
+    final String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: CustomInputField(controller: controller, label: label),
+      child: CustomInputField(
+        controller: controller,
+        label: label,
+        validator: validator,
+      ),
     );
   }
 

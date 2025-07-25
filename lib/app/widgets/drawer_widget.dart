@@ -1,12 +1,16 @@
 import 'dart:io';
 
+import 'package:benevolent_crm_app/app/modules/auth/views/create_password_screen.dart';
+import 'package:benevolent_crm_app/app/modules/auth/views/reset_password_screen%20copy.dart';
 import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
+import 'package:benevolent_crm_app/app/routes/app_routes.dart';
 import 'package:benevolent_crm_app/app/widgets/bottom_bar.dart';
 import 'package:benevolent_crm_app/app/widgets/confirm_status_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
@@ -71,6 +75,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
           final firstName = controller.firstNameController.text;
           final lastName = controller.lastNameController.text;
           final userId = controller.userIdController.text;
+          final email = controller.emailController.text;
           final availability = profile?.availability ?? 'Available';
 
           return ListView(
@@ -193,9 +198,14 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   },
                 ),
               ),
+
               const Divider(color: Colors.white38, height: 32),
+
               ListTile(
-                leading: const Icon(Icons.dashboard, color: Colors.white),
+                leading: const Icon(
+                  LucideIcons.layoutDashboard,
+                  color: Colors.white,
+                ),
                 title: const Text(
                   'Dashboard',
                   style: TextStyle(color: Colors.white),
@@ -203,15 +213,51 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 onTap: () => Get.toNamed('/dashboard'),
               ),
               ListTile(
-                leading: const Icon(Icons.info, color: Colors.white),
+                leading: const Icon(LucideIcons.user, color: Colors.white),
                 title: const Text(
-                  'About',
+                  'Leads',
                   style: TextStyle(color: Colors.white),
                 ),
-                onTap: () => Get.toNamed('/about'),
+                onTap: () => Get.toNamed('/leads'),
               ),
               ListTile(
-                leading: const Icon(Icons.logout, color: Colors.white),
+                leading: const Icon(LucideIcons.phoneCall, color: Colors.white),
+                title: const Text(
+                  'Cold Calls',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () => Get.toNamed('/cold-calls'),
+              ),
+              ListTile(
+                leading: const Icon(
+                  LucideIcons.checkCircle2,
+                  color: Colors.white,
+                ),
+                title: const Text(
+                  'Converted Cold Calls',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () => Get.toNamed('/converted-calls'),
+              ),
+              ListTile(
+                leading: const Icon(LucideIcons.bell, color: Colors.white),
+                title: const Text(
+                  'Notifications',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () => Get.toNamed('/notifications'),
+              ),
+              ListTile(
+                leading: const Icon(LucideIcons.eye, color: Colors.white),
+                title: const Text(
+                  'Change Passworod',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () =>
+                    Get.to(CreatePasswordScreen(email: email, flag: 2)),
+              ),
+              ListTile(
+                leading: const Icon(LucideIcons.logOut, color: Colors.white),
                 title: const Text(
                   'Logout',
                   style: TextStyle(color: Colors.white),

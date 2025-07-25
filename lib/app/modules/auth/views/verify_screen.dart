@@ -90,6 +90,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
                                               Get.to(
                                                 () => CreatePasswordScreen(
                                                   email: widget.email,
+                                                  flag: 1,
                                                 ),
                                               );
                                             }

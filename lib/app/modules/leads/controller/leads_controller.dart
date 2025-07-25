@@ -1,7 +1,6 @@
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
 import 'package:benevolent_crm_app/app/services/leads_service.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 
@@ -36,6 +35,8 @@ class LeadsController extends GetxController {
       );
       isLoading.value = true;
       final result = await _leadService.fetchLeads(requestModel);
+      print("sdlkfsdfjlsdlfdslf");
+      print(result.message);
       leads.value = result.data.data;
     } catch (e) {
       print("eororororororororor");
