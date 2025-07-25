@@ -1,79 +1,127 @@
-// import 'package:benevolent_crm_app/app/themes/text_styles.dart';
-// import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
-// import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import '../widgets/custom_input_field.dart';
-// import '../widgets/custom_button.dart';
-// import '../widgets/text_styles.dart';
+import 'package:benevolent_crm_app/app/modules/auth/controllers/auth_controller.dart';
+import 'package:benevolent_crm_app/app/themes/app_themes.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
+import 'package:benevolent_crm_app/app/utils/validators.dart';
+import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
+import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
-// class CreatePasswordScreen extends StatefulWidget {
-//   const CreatePasswordScreen({super.key});
+class CreatePasswordScreen extends StatefulWidget {
+  final String email;
+  const CreatePasswordScreen({Key? key, required this.email}) : super(key: key);
+  @override
+  State<CreatePasswordScreen> createState() => _CreatePasswordScreenState();
+}
 
-//   @override
-//   State<CreatePasswordScreen> createState() => _CreatePasswordScreenState();
-// }
+class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _pass = TextEditingController();
+  final _confirm = TextEditingController();
+  final auth = Get.find<AuthController>();
 
-// class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
-//   final TextEditingController _passwordController = TextEditingController();
-//   final TextEditingController _confirmPasswordController =
-//       TextEditingController();
-//   String? _errorText;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFF0B3946),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             const Icon(Icons.home, size: 60, color: Color(0xFF0B3946)),
-//             const SizedBox(height: 16),
-//             Text('Create password', style: TextStyles.heading),
-//             const SizedBox(height: 8),
-//             Text(
-//               'We use OTP to Login or Register in to the App',
-//               style: TextStyles.subheading,
-//             ),
-//             const SizedBox(height: 32),
-//             CustomInputField(
-//               label: 'Password',
-//               obscureText: true,
-//               controller: _passwordController,
-//               suffixIcon: const Icon(Icons.visibility_off),
-//             ),
-//             CustomInputField(
-//               label: 'Confirm Password',
-//               obscureText: true,
-//               controller: _confirmPasswordController,
-//               suffixIcon: const Icon(Icons.visibility_off),
-//               errorText: _errorText,
-//             ),
-//             const SizedBox(height: 16),
-//             CustomButton(
-//               text: 'Verify',
-//               onPressed: () {
-//                 if (_passwordController.text !=
-//                     _confirmPasswordController.text) {
-//                   setState(() {
-//                     _errorText = 'Password didn\'t match';
-//                   });
-//                 } else {
-//                   Get.offNamed('/verify'); // Navigate to verify screen
-//                 }
-//               },
-//             ),
-//             const SizedBox(height: 16),
-//             Text(
-//               'By signing up I agree to the Terms and Conditions and Privacy Policy',
-//               style: TextStyles.terms,
-//               textAlign: TextAlign.center,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext c) {
+    return Scaffold(
+      backgroundColor: AppThemes.primaryColor,
+      body: Obx(
+        () => Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 10),
+                      ],
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.lock,
+                            size: 60,
+                            color: AppThemes.primaryColor,
+                          ),
+                          SizedBox(height: 16),
+                          Text('Create Password', style: TextStyles.Text13400),
+                          SizedBox(height: 8),
+                          Text(
+                            'Set a new password for your account',
+                            style: TextStyles.Text13400,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 32),
+                          CustomInputField(
+                            label: 'Password',
+                            controller: _pass,
+                            obscureText: true,
+                            validator: Validators.validatePassword,
+                          ),
+                          SizedBox(height: 16),
+                          CustomInputField(
+                            label: 'Confirm Password',
+                            controller: _confirm,
+                            obscureText: true,
+                            // validator: (v) =>
+                            //     Validators.validateConfirmPassword(
+                            //       _pass.text.trim(),
+                            //       v,
+                            //     ),
+                          ),
+                          SizedBox(height: 16),
+                          CustomButton(
+                            text: 'Submit',
+                            onPressed: auth.isLoading.value
+                                ? null
+                                : () {
+                                    if (_formKey.currentState!.validate()) {
+                                      auth
+                                          .changePassword(
+                                            widget.email,
+                                            _pass.text.trim(),
+                                            _confirm.text.trim(),
+                                          )
+                                          .then((_) {
+                                            if (auth
+                                                    .pwdResponse
+                                                    .value
+                                                    ?.success ??
+                                                false) {
+                                              Get.offAllNamed('/login');
+                                            }
+                                          });
+                                    }
+                                  },
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Terms & Privacy Policy apply',
+                            style: TextStyles.terms,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (auth.isLoading.value) ...[
+              Container(color: Colors.black45),
+              Center(child: CircularProgressIndicator()),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

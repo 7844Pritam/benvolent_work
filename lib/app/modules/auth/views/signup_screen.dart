@@ -1,3 +1,4 @@
+import 'package:benevolent_crm_app/app/modules/auth/views/verify_screen.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
@@ -125,7 +126,7 @@ class SignupScreen extends StatelessWidget {
                       CustomButton(
                         isFilled: false,
                         text: 'Signup',
-                        onPressed: () => Get.toNamed('/verify'),
+                        onPressed: () => Get.to(() => VerifyScreen(email: '')),
                       ),
                       const SizedBox(height: 22),
                       RichText(

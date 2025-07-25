@@ -6,18 +6,18 @@ class CustomInputField extends StatelessWidget {
   final String label;
   final bool obscureText;
   final Widget? suffixIcon;
-  final String? errorText;
   final TextEditingController? controller;
   final VoidCallback? onSuffixTap;
+  final String? Function(String?)? validator;
 
   const CustomInputField({
     super.key,
     required this.label,
     this.obscureText = false,
     this.suffixIcon,
-    this.errorText,
     this.controller,
     this.onSuffixTap,
+    this.validator,
   });
 
   @override
@@ -26,10 +26,12 @@ class CustomInputField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: obscureText,
-          style: TextStyle(color: AppThemes.primaryColor),
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: validator,
+          style: const TextStyle(color: AppThemes.primaryColor),
           decoration: InputDecoration(
             labelText: label,
             floatingLabelBehavior: FloatingLabelBehavior.auto,
@@ -42,16 +44,21 @@ class CustomInputField extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: AppThemes.primaryColor),
             ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
             suffixIcon: suffixIcon != null
                 ? IconButton(icon: suffixIcon!, onPressed: onSuffixTap)
                 : null,
-            errorText: errorText,
-            focusColor: AppThemes.darkGrey,
-            fillColor: Colors.red,
             labelStyle: TextStyles.label.copyWith(color: AppThemes.lightGrey),
           ),
         ),
-        if (errorText != null) const SizedBox(height: 8),
+        const SizedBox(height: 8),
       ],
     );
   }

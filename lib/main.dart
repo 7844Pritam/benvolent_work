@@ -5,6 +5,7 @@ import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'My App',
       theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.lightTheme,
+      // darkTheme: AppThemes.lightTheme,
       themeMode: ThemeMode.light,
       initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,

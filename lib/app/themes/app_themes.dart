@@ -80,15 +80,4 @@ class AppThemes {
   );
 
   // Gradients for UI elements
-  static const LinearGradient lightGradient = LinearGradient(
-    colors: [backgroundColor, textColorSecondary],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient darkGradient = LinearGradient(
-    colors: [darkGrey, backgroundColor],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
 }
