@@ -2,7 +2,6 @@ import 'package:benevolent_crm_app/app/modules/converted_call/controller/convert
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/widgets/date_range_bottom.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
-
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +64,7 @@ class _FilterPageState extends State<FilterPage> {
                     (status) => multiSelectTile(
                       label: status.name,
                       selectedSet: selectedStatuses,
-                      id: 1,
+                      id: status.id,
                     ),
                   )
                   .toList(),
@@ -110,11 +109,13 @@ class _FilterPageState extends State<FilterPage> {
                   ),
                 );
               },
-              icon: const Icon(Icons.date_range),
-              label: const Text("Pick Date Range"),
+              icon: const Icon(Icons.date_range, color: Colors.white),
+              label: const Text(
+                "Pick Date Range",
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white.withOpacity(0.08),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primaryColor,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 14,
@@ -122,9 +123,10 @@ class _FilterPageState extends State<FilterPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 4,
+                elevation: 3,
               ),
             ),
+
             const SizedBox(height: 16),
             if (selectedDateRange.isNotEmpty)
               Container(
@@ -132,11 +134,10 @@ class _FilterPageState extends State<FilterPage> {
                   horizontal: 16,
                   vertical: 10,
                 ),
-                margin: const EdgeInsets.only(top: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
+                  color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,22 +146,19 @@ class _FilterPageState extends State<FilterPage> {
                       child: Text(
                         selectedDateRange,
                         style: const TextStyle(
-                          color: Colors.white70,
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
                         ),
                       ),
                     ),
                     IconButton(
                       onPressed: () {
-                        setState(() {
-                          selectedDateRange = '';
-                        });
+                        setState(() => selectedDateRange = '');
                       },
                       icon: const Icon(
                         Icons.close,
                         size: 18,
-                        color: Colors.white60,
+                        color: Colors.black54,
                       ),
                       splashRadius: 18,
                     ),
@@ -173,12 +171,10 @@ class _FilterPageState extends State<FilterPage> {
       case 'Keyword':
         return TextField(
           onChanged: (val) => setState(() => keyword = val),
-          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: 'Enter keyword...',
-            hintStyle: const TextStyle(color: Colors.white70),
             filled: true,
-            fillColor: Colors.white.withOpacity(0.08),
+            fillColor: Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -191,12 +187,7 @@ class _FilterPageState extends State<FilterPage> {
         );
 
       default:
-        return const Center(
-          child: Text(
-            'Select a filter option',
-            style: TextStyle(color: AppColors.grey),
-          ),
-        );
+        return const Center(child: Text('Select a filter option'));
     }
   }
 
@@ -209,19 +200,18 @@ class _FilterPageState extends State<FilterPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.accentColor.withOpacity(0.2)
-              : AppColors.white.withOpacity(0.05),
+          color: isSelected ? Colors.blue.shade50 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.accentColor : Colors.transparent,
-            width: 1.8,
+            color: isSelected ? Colors.blue : Colors.transparent,
+            width: 1.5,
           ),
         ),
         child: Text(
           name,
           style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.greyLight,
+            color: isSelected ? Colors.blue.shade900 : Colors.grey.shade800,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -233,7 +223,6 @@ class _FilterPageState extends State<FilterPage> {
     required Set<int> selectedSet,
     required int id,
   }) {
-    print(selectedSet);
     final isSelected = selectedSet.contains(id);
     return GestureDetector(
       onTap: () {
@@ -250,19 +239,18 @@ class _FilterPageState extends State<FilterPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
+          color: isSelected ? Colors.green.shade50 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
-          color: isSelected
-              ? AppColors.accentColor.withOpacity(0.2)
-              : AppColors.white.withOpacity(0.05),
           border: Border.all(
-            color: isSelected ? AppColors.accentColor : Colors.transparent,
-            width: 1.8,
+            color: isSelected ? Colors.green : Colors.transparent,
+            width: 1.5,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.greyLight,
+            color: isSelected ? Colors.green.shade900 : Colors.grey.shade800,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -273,10 +261,11 @@ class _FilterPageState extends State<FilterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Filter"),
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: AppColors.primaryColor,
+        title: const Text("Filter", style: TextStyle(color: Colors.white)),
       ),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Expanded(
@@ -284,7 +273,7 @@ class _FilterPageState extends State<FilterPage> {
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width * 0.33,
-                  color: AppColors.primaryColor.withOpacity(0.95),
+                  color: Colors.grey.shade100,
                   child: ListView(
                     padding: const EdgeInsets.all(12),
                     children: filterOptions.map((option) {
@@ -299,16 +288,21 @@ class _FilterPageState extends State<FilterPage> {
                           margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
                             color: isActive
-                                ? AppColors.accentColor.withOpacity(0.2)
-                                : Colors.transparent,
+                                ? Colors.blue.shade100
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isActive
+                                  ? Colors.blue
+                                  : Colors.grey.shade300,
+                            ),
                           ),
                           child: Text(
                             option,
                             style: TextStyle(
                               color: isActive
-                                  ? AppColors.white
-                                  : AppColors.grey,
+                                  ? Colors.blue.shade800
+                                  : Colors.black87,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -320,7 +314,7 @@ class _FilterPageState extends State<FilterPage> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    color: AppColors.white.withOpacity(0.05),
+                    color: Colors.white,
                     child: buildRightPanel(),
                   ),
                 ),
@@ -328,90 +322,51 @@ class _FilterPageState extends State<FilterPage> {
             ),
           ),
           Container(
-            color: AppColors.primaryColor,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              border: Border(top: BorderSide(color: Colors.grey.shade300)),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton.icon(
                   onPressed: clearFilters,
-                  icon: const Icon(
-                    Icons.close,
-                    color: Colors.white70,
-                    size: 16,
-                  ),
+                  icon: const Icon(Icons.clear, color: Colors.black54),
                   label: const Text(
                     'Clear Filters',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: Colors.black87,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                // fromColdCalls
-                // fromConvertedCalls
-                // fromAllLeads
                 ElevatedButton(
                   onPressed: () async {
-                    if (widget.flag == "fromAllLeads") {
-                      final controller = Get.find<LeadsController>();
-                      await controller.applyFilters(
-                        LeadRequestModel(
-                          agentId: "",
-                          fromDate: "",
-                          toDate: "",
-                          status: "",
-                          campaign: selectedCampaigns.isNotEmpty
-                              ? selectedCampaigns.first.toString()
-                              : "",
-                          keyword: "",
-                          developerId: '',
-                          propertyId: '',
-                          priority: '',
-                        ),
-                      );
-                    } else if (widget.flag == "fromConvertedCalls") {
-                      final controller = Get.find<ConvertedCallController>();
-                      await controller.applyFilters(
-                        LeadRequestModel(
-                          agentId: "",
-                          fromDate: "",
-                          toDate: "",
-                          status: "",
-                          campaign: selectedCampaigns.isNotEmpty
-                              ? selectedCampaigns.first.toString()
-                              : "",
-                          keyword: "",
-                          developerId: '',
-                          propertyId: '',
-                          priority: '',
-                        ),
-                      );
-                    } else {
-                      final controller = Get.find<LeadsController>();
-                      await controller.applyFilters(
-                        LeadRequestModel(
-                          agentId: "",
-                          fromDate: "",
-                          toDate: "",
-                          status: "",
-                          campaign: selectedCampaigns.isNotEmpty
-                              ? selectedCampaigns.first.toString()
-                              : "",
-                          keyword: "",
-                          developerId: '',
-                          propertyId: '',
-                          priority: '',
-                        ),
-                      );
-                    }
+                    final controller = widget.flag == "fromConvertedCalls"
+                        ? Get.find<ConvertedCallController>()
+                        : Get.find<LeadsController>();
 
+                    // await controller.applyFilters(
+                    //   LeadRequestModel(
+                    //     agentId: selectedAgent,
+                    //     fromDate: '',
+                    //     toDate: '',
+                    //     status: '',
+                    //     campaign: selectedCampaigns.isNotEmpty
+                    //         ? selectedCampaigns.first.toString()
+                    //         : '',
+                    //     keyword: keyword,
+                    //     developerId: '',
+                    //     propertyId: '',
+                    //     priority: '',
+                    //   ),
+                    // );
                     Get.back();
                   },
-
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentColor,
-                    foregroundColor: AppColors.primaryColor,
+                    backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,

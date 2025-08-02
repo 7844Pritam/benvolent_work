@@ -5,6 +5,7 @@ import 'package:benevolent_crm_app/app/utils/validators.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class CreatePasswordScreen extends StatefulWidget {
@@ -32,6 +33,14 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
       body: Obx(
         () => Stack(
           children: [
+            Positioned(
+              top: 60,
+              left: 20,
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: SvgPicture.asset("assets/vectors/back.svg"),
+              ),
+            ),
             Padding(
               padding: EdgeInsets.all(16),
               child: Center(

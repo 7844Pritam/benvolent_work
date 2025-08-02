@@ -1,6 +1,10 @@
 import 'dart:io';
 
 import 'package:benevolent_crm_app/app/modules/auth/views/create_password_screen.dart';
+import 'package:benevolent_crm_app/app/modules/cold_calls/views/cold_call_page.dart';
+import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
+import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
+import 'package:benevolent_crm_app/app/modules/notification/view/notification_page.dart';
 import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
 import 'package:benevolent_crm_app/app/widgets/confirm_status_dialog.dart';
 import 'package:flutter/material.dart';
@@ -210,7 +214,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   'Dashboard',
                   style: TextStyle(color: Colors.white),
                 ),
-                onTap: () => Get.toNamed('/dashboard'),
+                onTap: () => _advancedDrawerController.toggleDrawer(),
               ),
               ListTile(
                 leading: const Icon(LucideIcons.user, color: Colors.white),
@@ -218,7 +222,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   'Leads',
                   style: TextStyle(color: Colors.white),
                 ),
-                onTap: () => Get.toNamed('/leads'),
+                onTap: () => Get.to(AllLeadsPage()),
               ),
               ListTile(
                 leading: const Icon(LucideIcons.phoneCall, color: Colors.white),
@@ -226,7 +230,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   'Cold Calls',
                   style: TextStyle(color: Colors.white),
                 ),
-                onTap: () => Get.toNamed('/cold-calls'),
+                onTap: () => Get.to(ColdCallPage()),
               ),
               ListTile(
                 leading: const Icon(
@@ -237,7 +241,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   'Converted Cold Calls',
                   style: TextStyle(color: Colors.white),
                 ),
-                onTap: () => Get.toNamed('/converted-calls'),
+                onTap: () => Get.to(ConvertedCallsPage()),
               ),
               ListTile(
                 leading: const Icon(LucideIcons.bell, color: Colors.white),
@@ -245,7 +249,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   'Notifications',
                   style: TextStyle(color: Colors.white),
                 ),
-                onTap: () => Get.toNamed('/notifications'),
+                onTap: () => Get.to(NotificationPage()),
               ),
               ListTile(
                 leading: const Icon(LucideIcons.eye, color: Colors.white),
@@ -294,7 +298,9 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
               iconSize: 30,
               icon: const Icon(Icons.notifications),
               color: Colors.white,
-              onPressed: () {},
+              onPressed: () {
+                Get.to(NotificationPage());
+              },
             ),
             const SizedBox(width: 4),
             IconButton(
