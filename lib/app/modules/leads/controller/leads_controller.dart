@@ -10,37 +10,59 @@ class LeadsController extends GetxController {
   var leads = <Lead>[].obs;
   var selectedLead = Rxn<Lead>();
   var isLoading = false.obs;
-  var isCreating = false.obs;
-  var isUpdating = false.obs;
-  var isDeleting = false.obs;
+  var isPaginating = false.obs;
+  var currentPage = 1.obs;
+  var lastPage = 1.obs;
+
+  // 👇 Add filter fields
+  var filters = LeadRequestModel(
+    agentId: "",
+    fromDate: "",
+    toDate: "",
+    developerId: "",
+    propertyId: "",
+    status: "",
+    campaign: "",
+    priority: "",
+    keyword: "",
+  ).obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchLeads();
+    fetchLeads(reset: true);
   }
 
-  Future<void> fetchLeads() async {
-    try {
-      LeadRequestModel requestModel = LeadRequestModel(
-        agentId: "",
-        fromDate: "",
-        toDate: "",
-        developerId: "",
-        propertyId: "",
-        status: "",
-        campaign: "",
-        priority: "",
-        keyword: "",
-      );
+  void applyFilters(LeadRequestModel newFilters) {
+    filters.value = newFilters;
+    print("new filter");
+    print(filters.value.campaign);
+
+    fetchLeads(reset: true);
+  }
+
+  Future<void> fetchLeads({bool reset = false}) async {
+    if (reset) {
+      currentPage.value = 1;
+      leads.clear();
+    }
+
+    if (reset) {
       isLoading.value = true;
-      final result = await _leadService.fetchLeads(requestModel);
-      print("sdlkfsdfjlsdlfdslf");
-      print(result.message);
-      leads.value = result.data.data;
+    } else {
+      isPaginating.value = true;
+    }
+
+    try {
+      final result = await _leadService.fetchLeads(
+        requestModel: filters.value,
+        page: currentPage.value,
+      );
+
+      lastPage.value = result.data.lastPage;
+      leads.addAll(result.data.leads);
+      currentPage.value++;
     } catch (e) {
-      print("eororororororororor");
-      print(e.toString());
       CustomSnackbar.show(
         title: 'Error',
         message: e.toString(),
@@ -48,6 +70,9 @@ class LeadsController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+      isPaginating.value = false;
     }
   }
+
+  bool get canLoadMore => currentPage.value <= lastPage.value;
 }

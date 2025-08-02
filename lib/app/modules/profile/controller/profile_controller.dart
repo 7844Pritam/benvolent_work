@@ -45,6 +45,7 @@ class ProfileController extends GetxController {
       alternateController.text = result.data.atContact ?? "";
       addressController.text = result.data.address ?? "";
     } catch (e) {
+      print("from profile controller");
       CustomSnackbar.show(
         title: "Error",
         message: e.toString(),

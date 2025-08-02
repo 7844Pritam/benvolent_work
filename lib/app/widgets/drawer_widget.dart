@@ -1,10 +1,7 @@
 import 'dart:io';
 
 import 'package:benevolent_crm_app/app/modules/auth/views/create_password_screen.dart';
-import 'package:benevolent_crm_app/app/modules/auth/views/reset_password_screen%20copy.dart';
 import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
-import 'package:benevolent_crm_app/app/routes/app_routes.dart';
-import 'package:benevolent_crm_app/app/widgets/bottom_bar.dart';
 import 'package:benevolent_crm_app/app/widgets/confirm_status_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
@@ -293,7 +290,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
               iconSize: 30,
               icon: const Icon(Icons.account_circle),
               onPressed: () {
-                Get.to(UserProfileCard());
+                Get.to(UserProfilePage());
               },
             ),
           ],

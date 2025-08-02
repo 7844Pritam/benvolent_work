@@ -20,14 +20,14 @@ class BottomNavBarWidget extends StatelessWidget {
       selectedItemColor: AppThemes.primaryColor,
       type: BottomNavigationBarType.fixed,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.mail), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.assignment), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.local_shipping), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.business), label: 'Leads'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.apartment),
-          label: 'Sales CRM',
+          icon: Icon(Icons.assignment),
+          label: 'Cold Calls',
         ),
+        // BottomNavigationBarItem(icon: Icon(Icons.local_shipping), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
     );
   }

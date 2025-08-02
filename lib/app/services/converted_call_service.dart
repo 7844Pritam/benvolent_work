@@ -1,27 +1,27 @@
+import 'package:benevolent_crm_app/app/modules/converted_call/modal/converted_call_model.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
-import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
+import 'package:dio/dio.dart';
 import 'package:benevolent_crm_app/app/services/api/api_client.dart';
 import 'package:benevolent_crm_app/app/services/api/api_end_points.dart';
 import 'package:benevolent_crm_app/app/utils/error_handler.dart';
-import 'package:dio/dio.dart';
 
-class LeadsService {
+class ConvertedCallService {
   final ApiClient _apiClient;
 
-  LeadsService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+  ConvertedCallService({ApiClient? apiClient})
+    : _apiClient = apiClient ?? ApiClient();
 
-  Future<LeadResponseModel> fetchLeads({
-    required LeadRequestModel requestModel,
+  Future<ConvertedCallResponse> fetchConvertedCalls({
     int page = 1,
+    required LeadRequestModel requestModel,
   }) async {
     try {
       final response = await _apiClient.get(
-        ApiEndPoints.LEADS_URL,
+        ApiEndPoints.GET_COLD_CALLS_CONVERTS,
         queryParameters: {'page': page},
-        data: requestModel.toJson(),
+        data: requestModel,
       );
-
-      return LeadResponseModel.fromJson(response.data);
+      return ConvertedCallResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handle(e);
     } catch (e) {

@@ -11,4 +11,7 @@ class ApiEndPoints {
   static const GET_STATUS = "/status";
   static const GET_CAMPAIGNS = "/campaigns";
   static const GET_SOURCE = "/source";
+  static const GET_COLD_CALLS = "/coldCalls";
+  static const GET_COLD_CALLS_CONVERTS = "/coldCallConverts";
+  static const GET_SOURCE_COLD_CALLS_DETAILS = "/coldCallDetails/591";
 }

@@ -15,8 +15,11 @@ class DashboardService {
       final response = await _apiClient.get(ApiEndPoints.DASHBOARD_URL);
       return DashboardModel.fromJson(response.data);
     } on DioException catch (e) {
+      print("From dashboard servic" + e.toString());
+
       throw ErrorHandler.handle(e);
     } catch (e) {
+      print("From dashboard servic" + e.toString());
       rethrow;
     }
   }

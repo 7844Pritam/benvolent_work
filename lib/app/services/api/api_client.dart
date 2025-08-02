@@ -1,8 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:benevolent_crm_app/app/services/api/api_end_points.dart';
 import 'package:benevolent_crm_app/app/utils/error_handler.dart';
-import 'package:dio/dio.dart';
-
-import '../../utils/token_storage.dart';
+import 'package:benevolent_crm_app/app/utils/token_storage.dart';
 
 class ApiClient {
   final Dio _dio;
@@ -31,9 +30,10 @@ class ApiClient {
   Future<Response> get(
     String path, {
     Map<String, dynamic>? queryParameters,
+    dynamic data,
   }) async {
     try {
-      return await _dio.get(path, queryParameters: queryParameters);
+      return await _dio.get(path, queryParameters: queryParameters, data: data);
     } catch (e) {
       throw ErrorHandler.handle(e);
     }

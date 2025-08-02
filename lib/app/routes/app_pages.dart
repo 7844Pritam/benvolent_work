@@ -4,7 +4,7 @@ import 'package:benevolent_crm_app/app/modules/auth/views/verify_screen.dart';
 import 'package:benevolent_crm_app/app/modules/dashboard/views/dashboard.dart';
 import 'package:benevolent_crm_app/app/modules/profile/bindings/profile_binding.dart';
 
-import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
+import 'package:benevolent_crm_app/app/modules/profile/view/profile_page_cards.dart';
 import 'package:benevolent_crm_app/app/modules/splash/views/splash_screen.dart';
 import 'package:benevolent_crm_app/app/widgets/bottom_bar.dart';
 import 'package:benevolent_crm_app/app/widgets/dummy_page.dart';

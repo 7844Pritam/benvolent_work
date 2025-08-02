@@ -26,14 +26,9 @@ class LeadDetailsPage extends StatelessWidget {
                 _buildDetail("Name", lead.name),
                 _buildDetail("Email", lead.email),
                 _buildDetail("Phone", lead.phone),
-                _buildDetail("Priority", lead.priority),
-                _buildDetail("Status", lead.statuses?.name ?? "N/A"),
-                _buildDetail("Status Color", lead.statuses?.color ?? "N/A"),
-                _buildDetail("Lead ID", lead.leadId),
-                _buildDetail("Date", lead.date ?? "N/A"),
-                _buildDetail("Type", lead.type),
+
                 const SizedBox(height: 16),
-                if (lead.campaign != null) ...[
+                ...[
                   const Text(
                     "Campaign Info",
                     style: TextStyle(
@@ -42,8 +37,6 @@ class LeadDetailsPage extends StatelessWidget {
                       color: AppThemes.lightGrey,
                     ),
                   ),
-                  _buildDetail("Campaign Name", lead.campaign!.name),
-                  _buildDetail("Secondary Name", lead.campaign!.secondaryName),
                 ],
                 const SizedBox(height: 16),
                 const Text(
@@ -52,25 +45,6 @@ class LeadDetailsPage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
                     color: AppThemes.lightGrey,
-                  ),
-                ),
-                ...lead.agents.map(
-                  (agent) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildDetail(
-                          "Agent Name",
-                          "${agent.firstName} ${agent.lastName}",
-                        ),
-                        _buildDetail("Email", agent.email),
-                        _buildDetail("Phone", agent.phone.toString()),
-                        _buildDetail("Department", agent.department),
-                        _buildDetail("Status", agent.status),
-                        const Divider(),
-                      ],
-                    ),
                   ),
                 ),
               ],

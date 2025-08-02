@@ -1,4 +1,9 @@
+import 'package:benevolent_crm_app/app/modules/cold_calls/views/cold_call_page.dart';
 import 'package:benevolent_crm_app/app/modules/dashboard/views/dashboard.dart';
+import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
+
+import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
+
 import 'package:benevolent_crm_app/app/widgets/bottom_nav_widget.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +21,11 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
 
   final List<Widget> _screens = [
     Dashboard(),
-    ProfileScreen(),
-    SettingsScreen(),
-    SettingsScreen(),
-    SettingsScreen(),
+    AllLeadsPage(),
+    ColdCallPage(),
+    UserProfilePage(),
+    // SettingsScreen(),
+    // SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -46,9 +52,9 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
             type: ToastType.warning,
           );
 
-          return false; // Don't exit
+          return false;
         }
-        return true; // Exit
+        return true;
       },
       child: Scaffold(
         body: _screens[_selectedIndex],
@@ -62,33 +68,3 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
 }
 
 // Dummy Screens
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Home Screen', style: TextStyle(fontSize: 24)),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Profile Screen', style: TextStyle(fontSize: 24)),
-    );
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Settings Screen', style: TextStyle(fontSize: 24)),
-    );
-  }
-}

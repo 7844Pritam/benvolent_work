@@ -1,127 +1,167 @@
-import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
-import 'package:benevolent_crm_app/app/modules/leads/view/lead_details_page.dart';
-import 'package:benevolent_crm_app/app/themes/app_themes.dart';
+import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
+import 'package:benevolent_crm_app/app/modules/leads/widget/lead_card.dart';
+import 'package:benevolent_crm_app/app/modules/leads/widget/lead_card_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
 
 class AllLeadsPage extends StatelessWidget {
   final LeadsController _controller = Get.put(LeadsController());
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('All Leads')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 1,
+        toolbarHeight: 52,
+        title: const Text('All Leads'),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.filter),
+            onPressed: () => Get.to(FilterPage(flag: "fromAllLeads")),
+          ),
+        ],
+      ),
       body: Obx(() {
         if (_controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: 6,
+            itemBuilder: (_, __) => const LeadCardShimmer(),
+          );
         }
-        if (_controller.leads.isEmpty) {
-          return const Center(child: Text("No leads found."));
-        }
-        return ListView.builder(
-          itemCount: _controller.leads.length,
-          itemBuilder: (context, index) {
-            Lead lead = _controller.leads[index];
-            return GestureDetector(
-              onTap: () {
-                Get.to(() => LeadDetailsPage(lead: lead));
-              },
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Lead ID : ${lead.id}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppThemes.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        lead.name,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppThemes.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.group, color: Colors.red, size: 18),
-                          const SizedBox(width: 4),
-                          Text(
-                            "Test Singh",
-                            style: TextStyle(color: AppThemes.primaryColor),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.campaign, color: Colors.green, size: 18),
-                          const SizedBox(width: 4),
-                          Text(
-                            lead.phone,
-                            style: TextStyle(color: AppThemes.primaryColor),
-                          ), // or lead.campaignName
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.message_outlined,
-                                size: 16,
-                                color: Colors.orange,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                lead.statuses?.name ?? "No Status",
-                                style: TextStyle(
-                                  color: lead.statuses?.name == 'No Answer'
-                                      ? Colors.red
-                                      : Colors.orange,
-                                ),
-                              ),
-                            ],
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // handle accept
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              'Accept',
-                              style: TextStyle(color: AppThemes.white),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+
+        return Column(
+          children: [
+            // 🔍 Search bar
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: TextField(
+                style: const TextStyle(fontSize: 16),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                  hintText: 'Search leads, agents, locations...',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
-            );
-          },
+            ),
+
+            // 🔽 Sort option
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Text(
+                    "Sort by:",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () => _showSortPopup(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "High to Low",
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(Icons.arrow_drop_down, size: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 📄 List
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollInfo) {
+                  if (!_controller.isPaginating.value &&
+                      scrollInfo.metrics.pixels ==
+                          scrollInfo.metrics.maxScrollExtent &&
+                      _controller.canLoadMore) {
+                    _controller.fetchLeads();
+                  }
+                  return false;
+                },
+                child: Obx(
+                  () => ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    itemCount: _controller.leads.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index < _controller.leads.length) {
+                        final lead = _controller.leads[index];
+                        return LeadCard(lead: lead);
+                      } else if (_controller.isPaginating.value) {
+                        return const Column(
+                          children: [LeadCardShimmer(), LeadCardShimmer()],
+                        );
+                      } else if (!_controller.canLoadMore) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: Text(
+                              "No more leads available",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       }),
+    );
+  }
+
+  void _showSortPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Sort by"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(title: const Text("High to Low"), onTap: () => Get.back()),
+            ListTile(title: const Text("Low to High"), onTap: () => Get.back()),
+          ],
+        ),
+      ),
     );
   }
 }
