@@ -23,7 +23,6 @@ class Dashboard extends StatelessWidget {
     return ModernDrawerWrapper(
       child: Scaffold(
         backgroundColor: AppThemes.white,
-
         body: Obx(() {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());

@@ -24,8 +24,6 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
     AllLeadsPage(),
     ColdCallPage(),
     UserProfilePage(),
-    // SettingsScreen(),
-    // SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {

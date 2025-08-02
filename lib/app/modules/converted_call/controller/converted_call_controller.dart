@@ -33,9 +33,9 @@ class ConvertedCallController extends GetxController {
     super.onInit();
   }
 
-  void applyFilters(LeadRequestModel newFilters) {
+  Future<void> applyFilters(LeadRequestModel newFilters) async {
     filters.value = newFilters;
-    fetchCalls(initial: true);
+    await fetchCalls(initial: true);
   }
 
   Future<void> fetchCalls({bool initial = false}) async {

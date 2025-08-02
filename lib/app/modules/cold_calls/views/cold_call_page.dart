@@ -1,3 +1,4 @@
+import 'package:benevolent_crm_app/app/modules/cold_calls/views/cold_calls_details_page.dart';
 import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/cold_call_card.dart';
 import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/cold_call_shimmer.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
@@ -58,7 +59,10 @@ class ColdCallPage extends StatelessWidget {
             itemBuilder: (context, index) {
               if (index < _controller.coldCalls.length) {
                 final call = _controller.coldCalls[index];
-                return ColdCallCard(call: call);
+                return GestureDetector(
+                  onTap: () => Get.to(ColdCallDetailPage(call: call)),
+                  child: ColdCallCard(call: call),
+                );
               } else if (_controller.isPaginating.value) {
                 return const Column(
                   children: [ColdCallShimmer(), ColdCallShimmer()],

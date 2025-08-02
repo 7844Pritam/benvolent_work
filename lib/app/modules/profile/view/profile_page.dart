@@ -51,13 +51,14 @@ class _UserProfileCardState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text("Profile")),
+      appBar: AppBar(
+        title: Text("Profile", style: TextStyle(color: Colors.white)),
+      ),
       body: Center(
         child: Obx(() {
           if (profilecontroller.isLoading.value) {
             return const CircularProgressIndicator();
           }
-
           return Obx(() {
             return Container(
               color: Colors.white,
@@ -68,8 +69,6 @@ class _UserProfileCardState extends State<UserProfilePage> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          SizedBox(height: 20),
-
                           Stack(
                             alignment: Alignment.bottomRight,
                             children: [

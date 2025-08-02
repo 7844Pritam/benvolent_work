@@ -1,4 +1,5 @@
 import 'package:benevolent_crm_app/app/modules/cold_calls/modals/cold_call_model.dart';
+import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/services/coldcalls_service.dart';
 import 'package:get/get.dart';
 
@@ -11,15 +12,31 @@ class ColdCallController extends GetxController {
   var currentPage = 1;
   var lastPage = 1;
 
+  // 🔍 Filter model
+  var filters = LeadRequestModel(
+    agentId: "",
+    fromDate: "",
+    toDate: "",
+    developerId: "",
+    propertyId: "",
+    status: "",
+    campaign: "",
+    priority: "",
+    keyword: "",
+  ).obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchColdCalls(reset: true);
   }
 
-  void fetchColdCalls({bool reset = false}) async {
-    print("response from cold call controller12");
+  void applyFilters(LeadRequestModel newFilters) {
+    filters.value = newFilters;
+    fetchColdCalls(reset: true);
+  }
 
+  void fetchColdCalls({bool reset = false}) async {
     if (reset) {
       currentPage = 1;
       coldCalls.clear();
@@ -30,12 +47,12 @@ class ColdCallController extends GetxController {
     } else {
       isPaginating.value = true;
     }
-    print("response from cold call controller11");
 
     try {
-      final response = await _service.fetchColdCalls(currentPage);
-      print("response from cold call controller");
-      print(response);
+      final response = await _service.fetchColdCalls(
+        currentPage,
+        requestModel: filters.value,
+      );
       coldCalls.addAll(response.data);
       lastPage = response.lastPage;
       currentPage++;

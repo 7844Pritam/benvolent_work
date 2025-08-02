@@ -1,4 +1,5 @@
 import 'package:benevolent_crm_app/app/modules/cold_calls/modals/cold_call_model.dart';
+import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/services/api/api_client.dart';
 
 class ColdCallService {
@@ -6,10 +7,14 @@ class ColdCallService {
 
   ColdCallService({ApiClient? apiClient})
     : _apiClient = apiClient ?? ApiClient();
-  Future<ColdCallResponse> fetchColdCalls(int page) async {
+  Future<ColdCallResponse> fetchColdCalls(
+    int page, {
+    required LeadRequestModel requestModel,
+  }) async {
     final response = await _apiClient.get(
       '/coldCalls',
       queryParameters: {'page': page},
+      data: requestModel,
     );
     print("coldcalls");
     print(response);

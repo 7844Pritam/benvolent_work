@@ -1,3 +1,4 @@
+import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_details.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/widgets/converted_call_card.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
 import 'package:flutter/material.dart';
@@ -13,15 +14,26 @@ class ConvertedCallsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        elevation: 1,
+
+        centerTitle: true,
         title: const Text(
           "Converted Calls",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
+
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.filter, color: Colors.white),
-            onPressed: () => Get.to(FilterPage(flag: "fromConver")),
+            onPressed: () =>
+                Get.to(() => const FilterPage(flag: "fromConvertedCalls")),
           ),
         ],
       ),
@@ -39,20 +51,29 @@ class ConvertedCallsPage extends StatelessWidget {
             }
             return false;
           },
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             itemCount:
                 _controller.calls.length +
-                (_controller.isPaginating.value ? 2 : 1),
+                (_controller.isPaginating.value || !_controller.canLoadMore
+                    ? 1
+                    : 0),
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               if (index < _controller.calls.length) {
-                return ConvertedCallCard(call: _controller.calls[index]);
+                return GestureDetector(
+                  onTap: () => Get.to(
+                    () =>
+                        ConvertedCallDetailPage(call: _controller.calls[index]),
+                  ),
+                  child: ConvertedCallCard(call: _controller.calls[index]),
+                );
               } else if (_controller.isPaginating.value) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Center(child: CircularProgressIndicator()),
                 );
-              } else if (!_controller.canLoadMore) {
+              } else {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
                   child: Center(
@@ -62,8 +83,6 @@ class ConvertedCallsPage extends StatelessWidget {
                     ),
                   ),
                 );
-              } else {
-                return const SizedBox.shrink();
               }
             },
           ),

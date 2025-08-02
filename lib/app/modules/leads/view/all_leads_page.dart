@@ -18,10 +18,10 @@ class AllLeadsPage extends StatelessWidget {
       appBar: AppBar(
         elevation: 1,
         toolbarHeight: 52,
-        title: const Text('All Leads'),
+        title: const Text('All Leads', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.filter),
+            icon: const Icon(LucideIcons.filter, color: Colors.white),
             onPressed: () => Get.to(FilterPage(flag: "fromAllLeads")),
           ),
         ],

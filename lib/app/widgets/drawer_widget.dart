@@ -134,7 +134,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   Text(
                     'Hello, $firstName $lastName',
                     style: const TextStyle(
-                      color: AppThemes.textColorPrimary,
+                      color: AppThemes.textColorWhite,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -142,7 +142,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   Text(
                     'User ID: $userId',
                     style: const TextStyle(
-                      color: AppThemes.textColorSecondary,
+                      color: AppThemes.textColorWhite,
                       fontSize: 14,
                     ),
                   ),
@@ -178,7 +178,10 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   items: _statusOptions.map((String status) {
                     return DropdownMenuItem<String>(
                       value: status,
-                      child: Text(status),
+                      child: Text(
+                        status,
+                        style: TextStyle(color: Colors.white),
+                      ),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
@@ -274,6 +277,13 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
       ),
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+          titleTextStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
           title: const Text('Dashboard'),
           leading: IconButton(
             icon: const Icon(Icons.menu),
@@ -283,18 +293,21 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
             IconButton(
               iconSize: 30,
               icon: const Icon(Icons.notifications),
+              color: Colors.white,
               onPressed: () {},
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             IconButton(
               iconSize: 30,
               icon: const Icon(Icons.account_circle),
+              color: Colors.white,
               onPressed: () {
                 Get.to(UserProfilePage());
               },
             ),
           ],
         ),
+
         body: widget.child,
       ),
     );

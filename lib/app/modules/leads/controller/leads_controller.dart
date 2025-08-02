@@ -33,12 +33,12 @@ class LeadsController extends GetxController {
     fetchLeads(reset: true);
   }
 
-  void applyFilters(LeadRequestModel newFilters) {
+  Future<void> applyFilters(LeadRequestModel newFilters) async {
     filters.value = newFilters;
     print("new filter");
     print(filters.value.campaign);
 
-    fetchLeads(reset: true);
+    await fetchLeads(reset: true);
   }
 
   Future<void> fetchLeads({bool reset = false}) async {

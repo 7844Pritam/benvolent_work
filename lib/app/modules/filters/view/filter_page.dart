@@ -348,24 +348,64 @@ class _FilterPageState extends State<FilterPage> {
                     ),
                   ),
                 ),
+                // fromColdCalls
+                // fromConvertedCalls
+                // fromAllLeads
                 ElevatedButton(
-                  onPressed: () {
-                    final controller = Get.find<LeadsController>();
-                    controller.applyFilters(
-                      LeadRequestModel(
-                        agentId: "",
-                        fromDate: "",
-                        toDate: "",
-                        status: "",
-                        campaign: selectedCampaigns.isNotEmpty
-                            ? selectedCampaigns.first.toString()
-                            : "",
-                        keyword: "",
-                        developerId: '',
-                        propertyId: '',
-                        priority: '',
-                      ),
-                    );
+                  onPressed: () async {
+                    if (widget.flag == "fromAllLeads") {
+                      final controller = Get.find<LeadsController>();
+                      await controller.applyFilters(
+                        LeadRequestModel(
+                          agentId: "",
+                          fromDate: "",
+                          toDate: "",
+                          status: "",
+                          campaign: selectedCampaigns.isNotEmpty
+                              ? selectedCampaigns.first.toString()
+                              : "",
+                          keyword: "",
+                          developerId: '',
+                          propertyId: '',
+                          priority: '',
+                        ),
+                      );
+                    } else if (widget.flag == "fromConvertedCalls") {
+                      final controller = Get.find<ConvertedCallController>();
+                      await controller.applyFilters(
+                        LeadRequestModel(
+                          agentId: "",
+                          fromDate: "",
+                          toDate: "",
+                          status: "",
+                          campaign: selectedCampaigns.isNotEmpty
+                              ? selectedCampaigns.first.toString()
+                              : "",
+                          keyword: "",
+                          developerId: '',
+                          propertyId: '',
+                          priority: '',
+                        ),
+                      );
+                    } else {
+                      final controller = Get.find<LeadsController>();
+                      await controller.applyFilters(
+                        LeadRequestModel(
+                          agentId: "",
+                          fromDate: "",
+                          toDate: "",
+                          status: "",
+                          campaign: selectedCampaigns.isNotEmpty
+                              ? selectedCampaigns.first.toString()
+                              : "",
+                          keyword: "",
+                          developerId: '',
+                          propertyId: '',
+                          priority: '',
+                        ),
+                      );
+                    }
+
                     Get.back();
                   },
 

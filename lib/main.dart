@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'My App',
       theme: AppThemes.lightTheme,
-      // darkTheme: AppThemes.lightTheme,
+      darkTheme: AppThemes.lightTheme,
       themeMode: ThemeMode.light,
       initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,

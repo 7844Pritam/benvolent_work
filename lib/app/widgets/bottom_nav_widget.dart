@@ -26,7 +26,6 @@ class BottomNavBarWidget extends StatelessWidget {
           icon: Icon(Icons.assignment),
           label: 'Cold Calls',
         ),
-        // BottomNavigationBarItem(icon: Icon(Icons.local_shipping), label: ''),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
     );
