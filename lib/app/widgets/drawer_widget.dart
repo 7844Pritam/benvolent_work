@@ -169,11 +169,14 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   color: Colors.white10,
                   borderRadius: BorderRadius.circular(8),
                 ),
+
                 child: DropdownButton<String>(
                   value: availability,
+                  iconDisabledColor: Colors.white,
+
                   underline: Container(),
                   dropdownColor: AppThemes.primaryColor,
-                  iconEnabledColor: AppThemes.textColorSecondary,
+                  iconEnabledColor: AppThemes.white,
                   style: const TextStyle(
                     color: AppThemes.textColorSecondary,
                     fontSize: 14,

@@ -1,10 +1,12 @@
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart'; // reuse
 import 'package:benevolent_crm_app/app/modules/converted_call/modal/converted_call_model.dart';
+import 'package:benevolent_crm_app/app/services/change_status_service.dart';
 import 'package:benevolent_crm_app/app/services/converted_call_service.dart';
 import 'package:get/get.dart';
 
 class ConvertedCallController extends GetxController {
   final ConvertedCallService _service = ConvertedCallService();
+  final ChangeStatusService _service2 = ChangeStatusService();
 
   RxList<ConvertedCall> calls = <ConvertedCall>[].obs;
   RxBool isLoading = false.obs;
@@ -61,6 +63,29 @@ class ConvertedCallController extends GetxController {
     } finally {
       isLoading.value = false;
       isPaginating.value = false;
+    }
+  }
+
+  void changeStatus(
+    int id,
+    String status,
+    String subStatus,
+    String comment,
+  ) async {
+    try {
+      final res = await _service2.changeStatus(
+        id: id,
+        status: status,
+        subStatus: subStatus,
+        comment: comment,
+      );
+      if (res['success'] == true) {
+        Get.snackbar("Success", "Status updated successfully");
+      } else {
+        Get.snackbar("Error", res['message'] ?? "Failed");
+      }
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
     }
   }
 }

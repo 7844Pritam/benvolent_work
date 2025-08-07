@@ -5,14 +5,21 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 class LeadDetailPage extends StatelessWidget {
   final Lead lead;
-
   const LeadDetailPage({super.key, required this.lead});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(title: Text(lead.name), elevation: 0.5),
+      appBar: AppBar(
+        title: Text(
+          lead.leadId.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+        elevation: 0.5,
+        backgroundColor: AppThemes.primaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -32,7 +39,13 @@ class LeadDetailPage extends StatelessWidget {
   Widget _leadHeaderCard() {
     return Container(
       width: double.infinity,
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -40,16 +53,13 @@ class LeadDetailPage extends StatelessWidget {
           children: [
             Text("Lead ID: ${lead.id}", style: _labelStyle()),
             const SizedBox(height: 8),
-            Text(lead.name, style: _boldStyle(fontSize: 20)),
+            Text(lead.assignTime, style: _boldStyle(fontSize: 20)),
             const SizedBox(height: 4),
-            Text(
-              "Campaign: ${lead.campaign}",
-              style: TextStyle(color: AppThemes.backgroundColor),
-            ),
+            Text("Campaign: ${lead.userId}", style: _valueStyle()),
             const SizedBox(height: 2),
             const Text(
               "Lead Date: 2024-05-28",
-              style: TextStyle(color: AppThemes.backgroundColor),
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),
@@ -58,17 +68,22 @@ class LeadDetailPage extends StatelessWidget {
   }
 
   Widget _actionCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _actionButton(Icons.chat, "Whatsapp"),
-            _actionButton(Icons.edit, "Change Status"),
-            _actionButton(Icons.email, "Messages"),
+            _actionButton(Icons.chat, "Whatsapp", onTap: () {}),
+            _actionButton(Icons.edit, "Change Status", onTap: () {}),
+            _actionButton(Icons.email, "Messages", onTap: () {}),
           ],
         ),
       ),
@@ -76,16 +91,21 @@ class LeadDetailPage extends StatelessWidget {
   }
 
   Widget _contactInfoCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _detailField("Assign To", "Test Singh"),
-            _contactField("Lead Contact", lead.phone),
+            _contactField("Lead Contact", lead.lead.agentName),
             _contactField("Alternate Contact", "918853627910"),
             _contactFieldWithIcons("Additional Number", "918853627910"),
             _emailField("Email Id", "test9@gmail.com"),
@@ -95,16 +115,19 @@ class LeadDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _actionButton(IconData icon, String label) {
-    return Column(
-      children: [
-        CircleAvatar(
-          backgroundColor: AppThemes.primaryColor.withOpacity(0.1),
-          child: Icon(icon, color: AppThemes.primaryColor),
-        ),
-        const SizedBox(height: 6),
-        Text(label, style: TextStyle(color: AppThemes.backgroundColor)),
-      ],
+  Widget _actionButton(IconData icon, String label, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          CircleAvatar(
+            backgroundColor: AppThemes.primaryColor.withOpacity(0.1),
+            child: Icon(icon, color: AppThemes.primaryColor),
+          ),
+          const SizedBox(height: 6),
+          Text(label, style: _valueStyle()),
+        ],
+      ),
     );
   }
 
@@ -116,7 +139,7 @@ class LeadDetailPage extends StatelessWidget {
         children: [
           Text(title, style: _labelStyle()),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(color: AppThemes.backgroundColor)),
+          Text(value, style: _valueStyle()),
         ],
       ),
     );
@@ -132,12 +155,7 @@ class LeadDetailPage extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  value,
-                  style: TextStyle(color: AppThemes.backgroundColor),
-                ),
-              ),
+              Expanded(child: Text(value, style: _valueStyle())),
               Tooltip(
                 message: 'Copy',
                 child: IconButton(
@@ -168,12 +186,7 @@ class LeadDetailPage extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  value,
-                  style: TextStyle(color: AppThemes.backgroundColor),
-                ),
-              ),
+              Expanded(child: Text(value, style: _valueStyle())),
               IconButton(
                 icon: const Icon(Icons.copy, size: 18),
                 onPressed: () {},
@@ -206,12 +219,7 @@ class LeadDetailPage extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  email,
-                  style: TextStyle(color: AppThemes.backgroundColor),
-                ),
-              ),
+              Expanded(child: Text(email, style: _valueStyle())),
               IconButton(
                 icon: const Icon(Icons.copy, size: 18),
                 onPressed: () {},
@@ -237,5 +245,9 @@ class LeadDetailPage extends StatelessWidget {
       fontWeight: FontWeight.bold,
       color: AppThemes.backgroundColor,
     );
+  }
+
+  TextStyle _valueStyle() {
+    return TextStyle(color: AppThemes.backgroundColor, fontSize: 14);
   }
 }

@@ -11,13 +11,11 @@ class ConvertedCallCard extends StatelessWidget {
     final theme = Theme.of(context);
     final formattedDate = _formatDate(call.assignedDate);
     final initials = _getInitials(call.name);
-
     return Material(
-      elevation: 2,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey[50],
+          color: Colors.grey[0],
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey.shade200),
         ),

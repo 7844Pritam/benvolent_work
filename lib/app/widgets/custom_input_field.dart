@@ -9,6 +9,7 @@ class CustomInputField extends StatelessWidget {
   final TextEditingController? controller;
   final VoidCallback? onSuffixTap;
   final String? Function(String?)? validator;
+  final bool enabled;
 
   const CustomInputField({
     super.key,
@@ -18,6 +19,7 @@ class CustomInputField extends StatelessWidget {
     this.controller,
     this.onSuffixTap,
     this.validator,
+    this.enabled = true,
   });
 
   @override
@@ -32,6 +34,7 @@ class CustomInputField extends StatelessWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: validator,
           style: const TextStyle(color: AppThemes.primaryColor),
+          enabled: enabled,
           decoration: InputDecoration(
             labelText: label,
             floatingLabelBehavior: FloatingLabelBehavior.auto,

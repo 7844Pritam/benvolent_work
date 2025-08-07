@@ -14,7 +14,6 @@ class ProfileController extends GetxController {
   var isUpdating = false.obs;
   var isUploadingImage = false.obs;
   var isChangingAvailability = false.obs;
-
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -70,9 +69,9 @@ class ProfileController extends GetxController {
         lastName: lastNameController.text,
         email: emailController.text,
         phone: phoneController.text,
-        address: profile.value?.address,
+        address: addressController.text,
         availability: profile.value?.availability ?? "",
-        atContact: profile.value?.atContact,
+        atContact: alternateController.text,
         dob: profile.value?.dob,
         imageUrl: imageUrlController.text,
       );

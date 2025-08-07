@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:benevolent_crm_app/app/modules/cold_calls/modals/cold_call_model.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ColdCallDetailPage extends StatelessWidget {
   final ColdCall call;
@@ -12,8 +13,9 @@ class ColdCallDetailPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: Text(call.name),
+        title: Text(call.name, style: TextStyle(color: Colors.white)),
         elevation: 0.5,
+        backgroundColor: AppThemes.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -21,78 +23,111 @@ class ColdCallDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _headerCard(),
+            _headerSection(),
             const SizedBox(height: 16),
-            _actionCard(),
+            _actionSection(),
             const SizedBox(height: 16),
-            _detailsCard(),
+            _detailsSection(),
           ],
         ),
       ),
     );
   }
 
-  Widget _headerCard() {
+  Widget _headerSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text("Cold Call ID: ${call.id}", style: _labelStyle()),
-          const SizedBox(height: 8),
-          Text(call.name, style: _boldStyle(fontSize: 20)),
-          const SizedBox(height: 6),
-          Text(
-            "Status: ${call.status}",
-            style: TextStyle(color: AppThemes.backgroundColor),
-          ),
-          Text(
-            "Date: ${call.date}",
-            style: TextStyle(color: AppThemes.backgroundColor),
+          const Icon(Icons.person, size: 40, color: AppThemes.primaryColor),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Cold Call ID: ${call.id}", style: _labelStyle()),
+                const SizedBox(height: 6),
+                Text(call.name, style: _boldStyle(fontSize: 20)),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(width: 4),
+                    Text("Status: ${call.status}", style: _valueStyle()),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(width: 4),
+                    Text("Date: ${call.date}", style: _valueStyle()),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _actionCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _actionButton(Icons.call, "Call"),
-            _actionButton(Icons.edit, "Change Status"),
-            _actionButton(Icons.message, "Message"),
-          ],
-        ),
+  Widget _actionSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _actionButton(Icons.call, "Call"),
+          _actionButton(Icons.edit, "Status"),
+          _actionButton(Icons.message, "Message"),
+        ],
       ),
     );
   }
 
-  Widget _detailsCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _detailField("Agent", call.agent),
-            _detailField("Phone", call.phone),
-            _detailField("Source", call.source),
-            _detailField("Campaign", call.date),
-          ],
-        ),
+  Widget _detailsSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _detailField(Icons.person_outline, "Agent", call.agent),
+          _detailField(Icons.phone, "Phone", call.phone),
+          _detailField(FontAwesomeIcons.bullhorn, "Source", call.source),
+          _detailField(Icons.campaign, "Campaign", call.date),
+        ],
       ),
     );
   }
@@ -101,26 +136,33 @@ class ColdCallDetailPage extends StatelessWidget {
     return Column(
       children: [
         CircleAvatar(
-          backgroundColor: AppThemes.primaryColor.withOpacity(0.1),
+          radius: 24,
+          backgroundColor: AppThemes.primaryColor.withOpacity(0.15),
           child: Icon(icon, color: AppThemes.primaryColor),
         ),
-        const SizedBox(height: 6),
-        Text(label, style: TextStyle(color: AppThemes.backgroundColor)),
+        const SizedBox(height: 8),
+        Text(label, style: _valueStyle()),
       ],
     );
   }
 
-  Widget _detailField(String title, String? value) {
+  Widget _detailField(IconData icon, String title, String? value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: _labelStyle()),
-          const SizedBox(height: 4),
-          Text(
-            value ?? "-",
-            style: TextStyle(color: AppThemes.backgroundColor),
+          Icon(icon, size: 20, color: AppThemes.primaryColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: _labelStyle()),
+                const SizedBox(height: 4),
+                Text(value ?? "-", style: _valueStyle()),
+              ],
+            ),
           ),
         ],
       ),
@@ -129,9 +171,9 @@ class ColdCallDetailPage extends StatelessWidget {
 
   TextStyle _labelStyle() {
     return const TextStyle(
-      color: Colors.blueAccent,
+      color: AppThemes.primaryColor,
       fontWeight: FontWeight.w500,
-      fontSize: 14,
+      fontSize: 13,
     );
   }
 
@@ -141,5 +183,9 @@ class ColdCallDetailPage extends StatelessWidget {
       fontWeight: FontWeight.bold,
       color: AppThemes.backgroundColor,
     );
+  }
+
+  TextStyle _valueStyle() {
+    return const TextStyle(color: Colors.black87, fontSize: 14);
   }
 }

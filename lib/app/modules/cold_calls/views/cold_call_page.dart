@@ -3,6 +3,7 @@ import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/cold_call_card
 import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/cold_call_shimmer.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
+import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -32,7 +33,7 @@ class ColdCallPage extends StatelessWidget {
         },
         icon: const Icon(Icons.swap_horiz),
         label: const Text("Converted Calls"),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: AppColors.primaryColor,
       ),
       body: Obx(() {
         if (_controller.isLoading.value) {
@@ -69,7 +70,12 @@ class ColdCallPage extends StatelessWidget {
                 );
               } else if (!_controller.canLoadMore) {
                 return const Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: 74,
+                  ),
                   child: Center(child: Text('No more cold calls')),
                 );
               } else {

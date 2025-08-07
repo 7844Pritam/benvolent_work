@@ -1,8 +1,5 @@
 import 'package:benevolent_crm_app/app/modules/converted_call/modal/converted_call_model.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/view/change_status_sheet.dart';
-import 'package:benevolent_crm_app/app/modules/others/controller/shedule_controller.dart';
-import 'package:benevolent_crm_app/app/modules/others/modals/schedule_request_model.dart';
-import 'package:benevolent_crm_app/app/modules/others/modals/shedule_modal.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,7 +19,8 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage>
     with SingleTickerProviderStateMixin {
   late ConvertedCall call;
   late List<String> notes;
-  final ScheduleController scheduleController = Get.put(ScheduleController());
+  late List<Map<String, String>> schedules;
+  late AnimationController _controller;
 
   @override
   void initState() {
@@ -33,8 +31,27 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage>
       "Client requested a follow-up in two weeks.",
       "Sent brochure via email.",
     ];
-    scheduleController.loadSchedules(call.id);
+    schedules = [
+      {
+        "id": "s1",
+        "title": "Follow-up Call",
+        "datetime": "2025-08-10 10:00 AM",
+      },
+      {"id": "s2", "title": "Demo Meeting", "datetime": "2025-08-15 03:00 PM"},
+    ];
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  String _newId() => DateTime.now().millisecondsSinceEpoch.toString();
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +78,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage>
             _notesAndSchedulesTabView(),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openScheduleBottomSheet(),
-        backgroundColor: AppColors.primaryColor,
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -239,148 +251,21 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage>
   }
 
   Widget _schedulesTab() {
-    return Obx(() {
-      final list = scheduleController.schedules;
-      if (scheduleController.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (list.isEmpty) {
-        return const Center(child: Text("No schedules found."));
-      }
-      return ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: list.length,
-        itemBuilder: (context, index) {
-          final item = list[index];
-          return ListTile(
-            leading: const Icon(Icons.event_note),
-            title: Text(item.planToDo, style: _valueStyle()),
-            subtitle: Text(
-              "${item.scheduleDate} • ${item.scheduleTime}",
-              style: _smallStyle(),
-            ),
-            trailing: Wrap(
-              spacing: 8,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () => _openScheduleBottomSheet(existing: item),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => scheduleController.deleteSchedule(item.id),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    });
-  }
-
-  void _openScheduleBottomSheet({ScheduleModel? existing}) {
-    final isEdit = existing != null;
-    final TextEditingController planToDoController = TextEditingController(
-      text: existing?.planToDo ?? '',
-    );
-    DateTime selectedDate =
-        DateTime.tryParse(existing?.scheduleDate ?? '') ?? DateTime.now();
-    TimeOfDay selectedTime = TimeOfDay(
-      hour: int.tryParse(existing?.scheduleTime.split(":")[0] ?? "10") ?? 10,
-      minute: int.tryParse(existing?.scheduleTime.split(":")[1] ?? "00") ?? 0,
-    );
-
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              isEdit ? "Edit Schedule" : "Create Schedule",
-              style: _boldStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: planToDoController,
-              decoration: const InputDecoration(
-                labelText: "Plan To Do",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now().subtract(
-                          const Duration(days: 365),
-                        ),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (picked != null) selectedDate = picked;
-                    },
-                    icon: const Icon(Icons.calendar_month),
-                    label: const Text("Pick Date"),
-                  ),
-                ),
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      final picked = await showTimePicker(
-                        context: context,
-                        initialTime: selectedTime,
-                      );
-                      if (picked != null) selectedTime = picked;
-                    },
-                    icon: const Icon(Icons.access_time),
-                    label: const Text("Pick Time"),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: () async {
-                try {
-                  print("button pressed");
-                  final model = ScheduleRequestModel(
-                    leadId: 591,
-                    scheduleDate: selectedDate.toString().split(" ").first,
-                    scheduleTime: selectedTime.format(context),
-                    planToDo: planToDoController.text.trim(),
-                  );
-                  print("button pressed1");
-
-                  if (isEdit) {
-                    print("button pressed2");
-
-                    await scheduleController.updateSchedule(existing.id, model);
-                  } else {
-                    print("button pressed3");
-
-                    await scheduleController.addSchedule(model);
-                  }
-                  print("button pressed4");
-                } catch (e) {
-                  print(e);
-                }
-              },
-              icon: const Icon(Icons.save),
-              label: Text(isEdit ? "Update" : "Create"),
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.white),
-            ),
-          ],
-        ),
-      ),
-      isScrollControlled: true,
+    return ListView.builder(
+      padding: const EdgeInsets.all(12),
+      itemCount: schedules.length,
+      itemBuilder: (context, index) {
+        final item = schedules[index];
+        return ListTile(
+          leading: const Icon(Icons.event_note),
+          title: Text(item['title'] ?? '', style: _valueStyle()),
+          subtitle: Text(item['datetime'] ?? '', style: _smallStyle()),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => setState(() => schedules.removeAt(index)),
+          ),
+        );
+      },
     );
   }
 
@@ -435,13 +320,16 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage>
     fontWeight: FontWeight.w500,
     fontSize: 13,
   );
+
   TextStyle _boldStyle({double fontSize = 16}) => TextStyle(
     fontSize: fontSize,
     fontWeight: FontWeight.bold,
     color: AppColors.primaryColor,
   );
+
   TextStyle _valueStyle() =>
       const TextStyle(color: Colors.black87, fontSize: 14);
+
   TextStyle _smallStyle() =>
       const TextStyle(fontSize: 12, color: Colors.black54);
 }

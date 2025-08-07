@@ -32,7 +32,6 @@ class LeadCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔖 ID & Status Tag
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -42,7 +41,7 @@ class LeadCard extends StatelessWidget {
                     color: Colors.grey[700],
                   ),
                 ),
-                _buildStatusTag(lead.status),
+                _buildStatusTag(lead.lead.status.toString()),
               ],
             ),
 
@@ -50,7 +49,7 @@ class LeadCard extends StatelessWidget {
 
             // 🧑 Lead Name
             Text(
-              lead.name,
+              lead.lead.name,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
@@ -60,12 +59,18 @@ class LeadCard extends StatelessWidget {
             const SizedBox(height: 12),
 
             // 📄 Details
-            _infoRow(Icons.person_outline, "Agent", lead.agent),
-            _infoRow(Icons.phone, "Phone", lead.phone),
-            _infoRow(Icons.location_on_outlined, "Campaign", lead.campaign),
-            _infoRow(Icons.calendar_month_outlined, "Date", lead.date ?? "-"),
-
-            const SizedBox(height: 14),
+            _infoRow(Icons.person_outline, "Agent", lead.lead.agentName),
+            _infoRow(Icons.phone, "Phone", lead.lead.phone),
+            _infoRow(
+              Icons.location_on_outlined,
+              "Campaign",
+              lead.lead.compaignId.toString(),
+            ),
+            _infoRow(
+              Icons.calendar_month_outlined,
+              "Date",
+              lead.lead.date ?? "-",
+            ),
 
             // 📎 View Details Button
             Align(

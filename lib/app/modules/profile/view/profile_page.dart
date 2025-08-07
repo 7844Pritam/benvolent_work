@@ -136,17 +136,16 @@ class _UserProfileCardState extends State<UserProfilePage> {
 
                           const Divider(height: 32),
 
-                          /// Name
                           buildEditableField(
                             "First Name",
                             profilecontroller.firstNameController,
                           ),
 
-                          /// Email
                           buildEditableField(
                             "Email",
                             profilecontroller.emailController,
                             validator: Validators.validateEmail,
+                            enabled: false,
                           ),
 
                           buildEditableField(
@@ -176,9 +175,11 @@ class _UserProfileCardState extends State<UserProfilePage> {
 
                   if (profilecontroller.isUpdating.value ||
                       profilecontroller.isUploadingImage.value)
+                    // if (profilecontroller.isUpdating.value ||
+                    //     profilecontroller.isUploadingImage.value)
                     const Positioned.fill(
                       child: ColoredBox(
-                        color: Colors.black38,
+                        color: Color.fromARGB(0, 0, 0, 0),
                         child: Center(child: CircularProgressIndicator()),
                       ),
                     ),
@@ -195,6 +196,7 @@ class _UserProfileCardState extends State<UserProfilePage> {
     String label,
     TextEditingController controller, {
     final String? Function(String?)? validator,
+    bool enabled = true,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -202,6 +204,7 @@ class _UserProfileCardState extends State<UserProfilePage> {
         controller: controller,
         label: label,
         validator: validator,
+        enabled: enabled,
       ),
     );
   }
