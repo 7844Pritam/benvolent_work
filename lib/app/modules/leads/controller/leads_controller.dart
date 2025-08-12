@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
 import 'package:benevolent_crm_app/app/services/leads_service.dart';
@@ -249,7 +248,7 @@ class LeadsController extends GetxController {
       }
 
       currentPage.value++;
-    } catch (e, stackTrace) {
+    } catch (e) {
       // your existing error handling
       CustomSnackbar.show(
         title: 'Error',

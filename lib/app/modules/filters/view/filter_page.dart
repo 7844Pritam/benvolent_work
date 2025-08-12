@@ -133,7 +133,7 @@ class _FilterPageState extends State<FilterPage> {
                     (subStatus) => multiSelectTile(
                       label: subStatus.subName,
                       selectedSet: selectedStatuses,
-                      id: subStatus.id ?? 0, // Handle null id
+                      id: subStatus.id, // Handle null id
                     ),
                   )
                   .toList(),

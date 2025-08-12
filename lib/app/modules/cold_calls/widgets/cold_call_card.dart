@@ -16,9 +16,9 @@ class ColdCallCard extends StatelessWidget {
     final theme = Theme.of(context);
     final ctrl = Get.find<ColdCallController>();
     final busy = ctrl.workingIds.contains(call.id);
-    final filters = Get.isRegistered<FiltersController>()
-        ? Get.find<FiltersController>()
-        : Get.put(FiltersController(), permanent: true);
+    // final filters = Get.isRegistered<FiltersController>()
+    //     ? Get.find<FiltersController>()
+    //     : Get.put(FiltersController(), permanent: true);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -450,7 +450,7 @@ class _SheetFrame extends StatelessWidget {
 }
 
 class _Grabber extends StatelessWidget {
-  const _Grabber({super.key});
+  const _Grabber({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(

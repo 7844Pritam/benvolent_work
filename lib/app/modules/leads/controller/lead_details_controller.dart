@@ -66,8 +66,8 @@ class LeadDetailsController extends GetxController {
 
       CustomSnackbar.show(
         title: 'Success',
-        message: (res.message?.isNotEmpty ?? false)
-            ? res.message!
+        message: (res.message.isNotEmpty)
+            ? res.message
             : 'Additional phone updated successfully',
         type: ToastType.success,
       );

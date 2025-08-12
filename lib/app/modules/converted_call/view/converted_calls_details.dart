@@ -248,7 +248,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
   }
 
   Widget _notesTab(Lead lead) {
-    final List<CommentEntry> comments = lead.newComments ?? const [];
+    final List<CommentEntry> comments = lead.newComments;
 
     if (comments.isEmpty) {
       return Center(
@@ -561,52 +561,52 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     ),
   );
 
-  Widget _callRow(String title, String? value) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(title, style: TextStyles.Text13500),
-            const SizedBox(width: 6),
-            const Icon(Icons.edit, size: 16),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                value?.isNotEmpty == true ? value! : '-',
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.copy, size: 18),
-              onPressed: value?.isNotEmpty == true
-                  ? () async {
-                      await Clipboard.setData(ClipboardData(text: value!));
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Copied')));
-                    }
-                  : null,
-            ),
-            IconButton(
-              icon: const Icon(Icons.message, color: Colors.green),
-              onPressed: () => _openSms(value),
-            ),
-            IconButton(
-              icon: const Icon(Icons.phone, color: Colors.green),
-              onPressed: () => _openDialer(value),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+  // Widget _callRow(String title, String? value) => Padding(
+  //   padding: const EdgeInsets.only(bottom: 10),
+  //   child: Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Row(
+  //         children: [
+  //           Text(title, style: TextStyles.Text13500),
+  //           const SizedBox(width: 6),
+  //           const Icon(Icons.edit, size: 16),
+  //         ],
+  //       ),
+  //       const SizedBox(height: 4),
+  //       Row(
+  //         children: [
+  //           Expanded(
+  //             child: Text(
+  //               value?.isNotEmpty == true ? value! : '-',
+  //               style: const TextStyle(fontSize: 14),
+  //             ),
+  //           ),
+  //           IconButton(
+  //             icon: const Icon(Icons.copy, size: 18),
+  //             onPressed: value?.isNotEmpty == true
+  //                 ? () async {
+  //                     await Clipboard.setData(ClipboardData(text: value!));
+  //                     if (!mounted) return;
+  //                     ScaffoldMessenger.of(
+  //                       context,
+  //                     ).showSnackBar(const SnackBar(content: Text('Copied')));
+  //                   }
+  //                 : null,
+  //           ),
+  //           IconButton(
+  //             icon: const Icon(Icons.message, color: Colors.green),
+  //             onPressed: () => _openSms(value),
+  //           ),
+  //           IconButton(
+  //             icon: const Icon(Icons.phone, color: Colors.green),
+  //             onPressed: () => _openDialer(value),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   ),
+  // );
 
   Widget _error(String msg, VoidCallback retry) => Center(
     child: Padding(
@@ -802,7 +802,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
 
                       if (isEdit) {
                         await scheduleController.updateSchedule(
-                          existing!.id,
+                          existing.id,
                           req,
                         );
                       } else {

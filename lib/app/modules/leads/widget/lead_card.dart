@@ -1,5 +1,3 @@
-import 'package:benevolent_crm_app/app/modules/splash/views/splash_screen.dart';
-import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -65,6 +63,7 @@ class LeadCard extends StatelessWidget {
             _infoRow(
               Icons.person_outline,
               "Agent",
+              // ignore: unnecessary_null_comparison
               lead.name == null ? lead.name : 'Unassigned',
             ),
             _infoRow(Icons.location_on_outlined, "Campaign", lead.name),

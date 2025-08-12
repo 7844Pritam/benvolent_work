@@ -104,30 +104,28 @@ class AllLeadsPage extends StatelessWidget {
               final f = _controller.currentFilters.value;
 
               final hasAny =
-                  (f.agentId?.isNotEmpty ?? false) ||
-                  (f.status?.isNotEmpty ?? false) ||
-                  (f.campaign?.isNotEmpty ?? false) ||
-                  (f.keyword?.isNotEmpty ?? false) ||
-                  (f.fromDate?.isNotEmpty ?? false) ||
-                  (f.toDate?.isNotEmpty ?? false);
+                  (f.agentId.isNotEmpty) ||
+                  (f.status.isNotEmpty) ||
+                  (f.campaign.isNotEmpty) ||
+                  (f.keyword.isNotEmpty) ||
+                  (f.fromDate.isNotEmpty) ||
+                  (f.toDate.isNotEmpty);
 
               if (!hasAny) return const SizedBox.shrink();
 
               // Build human-friendly date range
               String dateLabel() {
-                if ((f.fromDate ?? '').isEmpty && (f.toDate ?? '').isEmpty)
-                  return '';
-                if ((f.fromDate ?? '').isNotEmpty &&
-                    (f.toDate ?? '').isNotEmpty) {
+                if ((f.fromDate).isEmpty && (f.toDate).isEmpty) return '';
+                if ((f.fromDate).isNotEmpty && (f.toDate).isNotEmpty) {
                   return 'Date: ${f.fromDate} → ${f.toDate}';
                 }
-                if ((f.fromDate ?? '').isNotEmpty) return 'From: ${f.fromDate}';
+                if ((f.fromDate).isNotEmpty) return 'From: ${f.fromDate}';
                 return 'To: ${f.toDate}';
               }
 
               final chips = <Widget>[];
 
-              if ((f.agentId ?? '').isNotEmpty) {
+              if ((f.agentId).isNotEmpty) {
                 chips.add(
                   _ChipX(
                     label: 'Agent: ${f.agentId}',
@@ -135,7 +133,7 @@ class AllLeadsPage extends StatelessWidget {
                   ),
                 );
               }
-              if ((f.status ?? '').isNotEmpty) {
+              if ((f.status).isNotEmpty) {
                 chips.add(
                   _ChipX(
                     label: 'Status: ${f.status}',
@@ -143,7 +141,7 @@ class AllLeadsPage extends StatelessWidget {
                   ),
                 );
               }
-              if ((f.campaign ?? '').isNotEmpty) {
+              if ((f.campaign).isNotEmpty) {
                 chips.add(
                   _ChipX(
                     label: 'Campaign: ${f.campaign}',
@@ -151,7 +149,7 @@ class AllLeadsPage extends StatelessWidget {
                   ),
                 );
               }
-              if ((f.keyword ?? '').isNotEmpty) {
+              if ((f.keyword).isNotEmpty) {
                 chips.add(
                   _ChipX(
                     label: 'Keyword: ${f.keyword}',
