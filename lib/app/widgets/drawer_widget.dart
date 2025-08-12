@@ -4,6 +4,7 @@ import 'package:benevolent_crm_app/app/modules/auth/views/create_password_screen
 import 'package:benevolent_crm_app/app/modules/cold_calls/views/cold_call_page.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
 import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
+import 'package:benevolent_crm_app/app/modules/notification/controller/notification_controller.dart';
 import 'package:benevolent_crm_app/app/modules/notification/view/notification_page.dart';
 import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
 import 'package:benevolent_crm_app/app/widgets/confirm_status_dialog.dart';
@@ -29,6 +30,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
   final box = GetStorage();
   final ProfileController controller = Get.find<ProfileController>();
   String _appVersion = '';
+  final NotificationController _c = Get.put(NotificationController());
 
   final List<String> _statusOptions = [
     'Available',
@@ -271,7 +273,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 onTap: _logout,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 5),
               Center(
                 child: Text(
                   _appVersion,
@@ -297,27 +299,76 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
             onPressed: _advancedDrawerController.showDrawer,
           ),
           actions: [
-            IconButton(
-              iconSize: 30,
-              icon: const Icon(Icons.notifications),
-              color: Colors.white,
-              onPressed: () {
-                Get.to(NotificationPage());
-              },
-            ),
+            Obx(() {
+              final n = Get.find<NotificationController>();
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    iconSize: 30,
+                    icon: const Icon(Icons.notifications),
+                    color: Colors.white,
+                    onPressed: () async {
+                      await Get.to(() => NotificationPage());
+                      // Optionally refresh or mark read after visiting:
+                      // n.markAllRead();
+                      n.refreshNotifications();
+                    },
+                  ),
+                  if (n.unreadCount.value > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: _CountBadge(count: n.unreadCount.value),
+                    ),
+                ],
+              );
+            }),
             const SizedBox(width: 4),
             IconButton(
               iconSize: 30,
               icon: const Icon(Icons.account_circle),
               color: Colors.white,
-              onPressed: () {
-                Get.to(UserProfilePage());
-              },
+              onPressed: () => Get.to(() => UserProfilePage()),
             ),
           ],
         ),
 
         body: widget.child,
+      ),
+    );
+  }
+}
+
+class _CountBadge extends StatelessWidget {
+  final int count;
+  const _CountBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final display = count > 99 ? '99+' : '$count';
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      transitionBuilder: (child, anim) =>
+          ScaleTransition(scale: anim, child: child),
+      child: Container(
+        key: ValueKey(display),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+        child: Text(
+          display,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10.5,
+            fontWeight: FontWeight.bold,
+            height: 1.1,
+          ),
+        ),
       ),
     );
   }

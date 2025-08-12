@@ -31,6 +31,15 @@ class Validators {
     return null;
   }
 
+  static String? validateEmpty(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    } else if (value.trim().length < 2) {
+      return '$fieldName is too short';
+    }
+    return null;
+  }
+
   /// 📞 Example: Validate Phone Number
   static String? validatePhone(String? value) {
     if (value == null || value.trim().isEmpty) {

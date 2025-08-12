@@ -69,6 +69,7 @@ class _UserProfileCardState extends State<UserProfilePage> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
+                          SizedBox(height: 20, width: double.infinity),
                           Stack(
                             alignment: Alignment.bottomRight,
                             children: [

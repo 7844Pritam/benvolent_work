@@ -23,14 +23,12 @@ class ColdCallPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.filter),
-            onPressed: () => Get.to(FilterPage(flag: "fromColdCalls")),
+            onPressed: () => Get.to(() => FilterPage(flag: "fromColdCalls")),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Get.to(() => ConvertedCallsPage());
-        },
+        onPressed: () => Get.to(() => ConvertedCallsPage()),
         icon: const Icon(Icons.swap_horiz),
         label: const Text("Converted Calls"),
         backgroundColor: AppColors.primaryColor,
@@ -44,47 +42,106 @@ class ColdCallPage extends StatelessWidget {
           );
         }
 
+        final dateKeys = _controller.groupedDateKeys;
+        final grouped = _controller.groupedCalls;
+
+        // Build flat list: [Header, items..., Header, items..., footer]
+        final widgets = <Widget>[];
+        for (final key in dateKeys) {
+          widgets.add(_DateHeader(label: key));
+          final items = grouped[key] ?? const [];
+          for (final call in items) {
+            widgets.add(
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: GestureDetector(
+                  onTap: () => Get.to(() => ColdCallDetailPage(call: call)),
+                  child: ColdCallCard(call: call), // updated to show icons
+                ),
+              ),
+            );
+          }
+        }
+
+        if (_controller.isPaginating.value) {
+          widgets.add(
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Column(
+                children: [
+                  ColdCallShimmer(),
+                  SizedBox(height: 8),
+                  ColdCallShimmer(),
+                ],
+              ),
+            ),
+          );
+        } else if (!_controller.canLoadMore) {
+          widgets.add(
+            const Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: 74,
+              ),
+              child: Center(child: Text('No more cold calls')),
+            ),
+          );
+        }
+
         return NotificationListener<ScrollNotification>(
           onNotification: (scrollInfo) {
             if (!_controller.isPaginating.value &&
-                scrollInfo.metrics.pixels ==
-                    scrollInfo.metrics.maxScrollExtent &&
+                scrollInfo.metrics.pixels >=
+                    scrollInfo.metrics.maxScrollExtent - 80 &&
                 _controller.canLoadMore) {
               _controller.fetchColdCalls();
             }
             return false;
           },
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: _controller.coldCalls.length + 1,
-            itemBuilder: (context, index) {
-              if (index < _controller.coldCalls.length) {
-                final call = _controller.coldCalls[index];
-                return GestureDetector(
-                  onTap: () => Get.to(ColdCallDetailPage(call: call)),
-                  child: ColdCallCard(call: call),
-                );
-              } else if (_controller.isPaginating.value) {
-                return const Column(
-                  children: [ColdCallShimmer(), ColdCallShimmer()],
-                );
-              } else if (!_controller.canLoadMore) {
-                return const Padding(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 16,
-                    bottom: 74,
-                  ),
-                  child: Center(child: Text('No more cold calls')),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
+          child: ListView(padding: EdgeInsets.zero, children: widgets),
         );
       }),
+    );
+  }
+}
+
+class _DateHeader extends StatelessWidget {
+  final String label;
+  const _DateHeader({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          const Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: 12),
+              child: Divider(height: 1),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

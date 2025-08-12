@@ -7,6 +7,7 @@ class ColdCallService {
 
   ColdCallService({ApiClient? apiClient})
     : _apiClient = apiClient ?? ApiClient();
+
   Future<ColdCallResponse> fetchColdCalls(
     int page, {
     required LeadRequestModel requestModel,
@@ -22,6 +23,38 @@ class ColdCallService {
       return ColdCallResponse.fromJson(response.data);
     } else {
       throw Exception('Failed to load cold calls');
+    }
+  }
+
+  Future<StatusChangeResponse> changeColdCallStatus({
+    required int callId,
+    required int status,
+  }) async {
+    // curl: POST /changeColdCallStatus/{id}  body: {"status":"23"}
+    final response = await _apiClient.post(
+      '/changeColdCallStatus/$callId',
+      data: {'status': status.toString()},
+    );
+    if (response.statusCode == 200) {
+      return StatusChangeResponse.fromJson(response.data);
+    } else {
+      throw Exception('Failed to change status');
+    }
+  }
+
+  Future<ConvertToLeadResponse> convertColdCall({
+    required int callId,
+    int? status, // optional
+  }) async {
+    // curl: POST /coldCallConvetToLead/{id}  body: {"status":"23"} (optional)
+    final response = await _apiClient.post(
+      '/coldCallConvetToLead/$callId',
+      data: status == null ? null : {'status': status.toString()},
+    );
+    if (response.statusCode == 200) {
+      return ConvertToLeadResponse.fromJson(response.data);
+    } else {
+      throw Exception('Failed to convert to lead');
     }
   }
 }

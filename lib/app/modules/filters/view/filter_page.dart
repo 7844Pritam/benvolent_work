@@ -1,4 +1,3 @@
-import 'package:benevolent_crm_app/app/modules/converted_call/controller/converted_call_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/widgets/date_range_bottom.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
@@ -19,12 +18,17 @@ class FilterPage extends StatefulWidget {
 class _FilterPageState extends State<FilterPage> {
   String selectedAgent = '';
   Set<int> selectedStatuses = {};
+  Set<int> selectedSubStatuses = {};
   Set<int> selectedCampaigns = {};
   String selectedDateRange = '';
+  Set<int> selectedSources = {};
   String keyword = '';
   String activeFilter = 'Agent';
-
+  DateTime? _fromDate;
+  DateTime? _toDate;
+  bool _isApplying = false;
   final FiltersController _filtersController = Get.put(FiltersController());
+  String? _isFresh; // null = Any, '1' = Yes, '0' = No
 
   final List<String> filterOptions = [
     'Agent',
@@ -32,15 +36,22 @@ class _FilterPageState extends State<FilterPage> {
     'Status',
     'Campaign',
     'Keyword',
+    'Sub Status',
+    'Source',
+    'Is Fresh',
   ];
-
   void clearFilters() {
     setState(() {
       selectedAgent = '';
       selectedStatuses.clear();
+      selectedSubStatuses.clear();
       selectedCampaigns.clear();
+      selectedSources.clear();
       selectedDateRange = '';
       keyword = '';
+      _fromDate = null;
+      _toDate = null;
+      _isFresh = null; // reset radio
     });
   }
 
@@ -65,6 +76,80 @@ class _FilterPageState extends State<FilterPage> {
                       label: status.name,
                       selectedSet: selectedStatuses,
                       id: status.id,
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+        });
+      case 'Is Fresh':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Show only fresh leads?',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+
+            // Any (clears filter)
+            RadioListTile<String>(
+              value: 'any',
+              groupValue: _isFresh == null ? 'any' : _isFresh,
+              onChanged: (_) => setState(() => _isFresh = null),
+              title: const Text('Any'),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+            ),
+
+            // Yes = '1'
+            RadioListTile<String>(
+              value: '1',
+              groupValue: _isFresh ?? 'any',
+              onChanged: (v) => setState(() => _isFresh = v),
+              title: const Text('Yes'),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+            ),
+
+            // No = '0'
+            RadioListTile<String>(
+              value: '0',
+              groupValue: _isFresh ?? 'any',
+              onChanged: (v) => setState(() => _isFresh = v),
+              title: const Text('No'),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+            ),
+          ],
+        );
+
+      case 'Sub Status':
+        return Obx(() {
+          return SingleChildScrollView(
+            child: Column(
+              children: _filtersController.subStatusList
+                  .map(
+                    (subStatus) => multiSelectTile(
+                      label: subStatus.subName,
+                      selectedSet: selectedStatuses,
+                      id: subStatus.id ?? 0, // Handle null id
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+        });
+      case 'Source':
+        return Obx(() {
+          return SingleChildScrollView(
+            child: Column(
+              children: _filtersController.sourceList
+                  .map(
+                    (source) => multiSelectTile(
+                      label: source.name,
+                      selectedSet: selectedSources, // <-- was selectedCampaigns
+                      id: source.id,
                     ),
                   )
                   .toList(),
@@ -102,6 +187,8 @@ class _FilterPageState extends State<FilterPage> {
                   builder: (_) => DateRangePickerBottomSheet(
                     onApply: (start, end) {
                       setState(() {
+                        _fromDate = start;
+                        _toDate = end;
                         selectedDateRange =
                             '${DateFormat.yMMMd().format(start)} - ${DateFormat.yMMMd().format(end)}';
                       });
@@ -343,27 +430,60 @@ class _FilterPageState extends State<FilterPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    final controller = widget.flag == "fromConvertedCalls"
-                        ? Get.find<ConvertedCallController>()
-                        : Get.find<LeadsController>();
+                    if (_isApplying) return; // debounce
+                    setState(() => _isApplying = true);
 
-                    // await controller.applyFilters(
-                    //   LeadRequestModel(
-                    //     agentId: selectedAgent,
-                    //     fromDate: '',
-                    //     toDate: '',
-                    //     status: '',
-                    //     campaign: selectedCampaigns.isNotEmpty
-                    //         ? selectedCampaigns.first.toString()
-                    //         : '',
-                    //     keyword: keyword,
-                    //     developerId: '',
-                    //     propertyId: '',
-                    //     priority: '',
-                    //   ),
-                    // );
-                    Get.back();
+                    final controller1 = Get.find<LeadsController>();
+
+                    final statusCsv = selectedStatuses.isNotEmpty
+                        ? selectedStatuses.join(',')
+                        : '';
+                    final campaignCsv = selectedCampaigns.isNotEmpty
+                        ? selectedCampaigns.join(',')
+                        : '';
+                    final sourceCsv = selectedSources.isNotEmpty
+                        ? selectedSources.join(',')
+                        : '';
+
+                    String fmt(DateTime? d) =>
+                        d == null ? '' : DateFormat('yyyy-MM-dd').format(d);
+
+                    try {
+                      await controller1.applyFilters(
+                        LeadRequestModel(
+                          agentId: selectedAgent,
+                          fromDate: fmt(_fromDate),
+                          toDate: fmt(_toDate),
+                          status: statusCsv,
+                          campaign: campaignCsv,
+                          source: sourceCsv,
+                          isFresh: _isFresh ?? '',
+                          keyword: keyword,
+                          developerId: '',
+                          propertyId: '',
+                          priority: '',
+                        ),
+                      );
+                    } catch (e) {
+                      print(e.toString());
+                      // your snackbar already shows in controller on error, so this is optional
+                    } finally {
+                      // Always try to go back, even when no results
+                      print(
+                        "Applying filters10101101: ${controller1.currentFilters.value.toJson()}",
+                      );
+                      if (mounted) {
+                        if (Get.key.currentState?.canPop() == true) {
+                          Get.back();
+                        } else {
+                          // fallback in case of nested navigators
+                          Navigator.of(context).maybePop();
+                        }
+                      }
+                      if (mounted) setState(() => _isApplying = false);
+                    }
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
                     foregroundColor: Colors.white,

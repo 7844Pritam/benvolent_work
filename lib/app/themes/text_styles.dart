@@ -19,6 +19,11 @@ class TextStyles {
     fontWeight: FontWeight.w700,
     color: AppThemes.primaryColor,
   );
+  static final TextStyle Text18700 = GoogleFonts.inter(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: AppThemes.primaryColor,
+  );
   static final TextStyle Text13500 = GoogleFonts.inter(
     fontSize: 13,
     fontWeight: FontWeight.w500,

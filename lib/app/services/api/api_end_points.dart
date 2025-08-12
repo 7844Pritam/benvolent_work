@@ -11,7 +11,25 @@ class ApiEndPoints {
   static const GET_STATUS = "/status";
   static const GET_CAMPAIGNS = "/campaigns";
   static const GET_SOURCE = "/source";
+  static const GET_SUB_STATUS = "/sub-status";
+  //
   static const GET_COLD_CALLS = "/coldCalls";
   static const GET_COLD_CALLS_CONVERTS = "/coldCallConverts";
   static const GET_SOURCE_COLD_CALLS_DETAILS = "/coldCallDetails/591";
+
+  static const GET_DEVICE_NOTIFICATIONS = "/getDeviceNotifications";
+  static const DELETE_DEVICE_NOTIFICATIONS = "/deleteDeviceNotifications";
+
+  static const String _GET_LEAD_BY_ID_BASE = '/getLead';
+  static String getLeadById(int id) => '$_GET_LEAD_BY_ID_BASE/$id';
+
+  // remaining api
+  static const String COLD_CALL_CONVERTTO_LEAD = '/coldCallConvetToLead/1';
+  static String changeColdCallStatus(int id) => '/changeColdCallStatus/$id';
+  static String leadUpdateAdditionalPhone(int id) =>
+      '/lead_update_additional_phone/$id';
+
+  // coldCallConvetToLead/1
+  // changeColdCallStatus/1
+  // lead_update_additional_phone/591
 }
