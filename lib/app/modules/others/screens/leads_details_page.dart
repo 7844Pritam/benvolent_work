@@ -148,12 +148,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                       _chip(
                         campaignName.isEmpty ? 'No Campaign' : campaignName,
                       ),
-                      //  (lead.statusName != null &&
-                      //                               lead.statusName.trim().isNotEmpty)
-                      //                           ? lead.statusName
-                      //                           : "Not Set",
 
-                      // _chip()
                       _chip(
                         'Status: ${(c.statusName.trim().isEmpty) ? 'None' : c.statusName}',
 
