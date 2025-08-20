@@ -77,8 +77,7 @@ class LeadCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     _buildStatusChip(
-                      (lead.statusName != null &&
-                              lead.statusName.trim().isNotEmpty)
+                      (lead.statusName.trim().isNotEmpty)
                           ? lead.statusName
                           : "Not Set",
                     ),

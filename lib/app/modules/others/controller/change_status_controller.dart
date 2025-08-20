@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 class ChangeStatusController extends GetxController {
   final ChangeStatusService _service = ChangeStatusService();
+  // ignore: unused_field
   final LeadsController _leadsController = Get.find<LeadsController>();
   RxList<ConvertedCall> calls = <ConvertedCall>[].obs;
 

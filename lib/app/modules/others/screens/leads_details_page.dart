@@ -1,5 +1,5 @@
-import 'package:benevolent_crm_app/app/modules/converted_call/controller/notes_controller.dart';
-import 'package:benevolent_crm_app/app/modules/leads/controller/lead_details_controller.dart';
+import 'package:benevolent_crm_app/app/modules/others/controller/notes_controller.dart';
+import 'package:benevolent_crm_app/app/modules/others/controller/lead_details_controller.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/lead_details_response.dart';
 import 'package:benevolent_crm_app/app/utils/helpers.dart';
 import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
@@ -19,7 +19,7 @@ import 'package:benevolent_crm_app/app/modules/others/controller/shedule_control
 import 'package:benevolent_crm_app/app/modules/others/modals/shedule_modal.dart';
 import 'package:benevolent_crm_app/app/modules/others/modals/schedule_request_model.dart';
 
-import 'package:benevolent_crm_app/app/modules/converted_call/view/change_status_sheet.dart';
+import 'package:benevolent_crm_app/app/modules/others/screens/change_status_sheet.dart';
 
 class ConvertedCallDetailPage extends StatefulWidget {
   final int leadId;
@@ -123,7 +123,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
   // =================== UI blocks ===================
 
   Widget _headerCard(Lead lead) {
-    final statusName = c.statusName;
+    // final statusName = c.statusName;
     final statusColor = _hexColor(lead.statuses?.color) ?? Colors.blueGrey;
     final campaignName = c.campaignName;
     final dateStr = lead.date != null
@@ -155,7 +155,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
 
                       // _chip()
                       _chip(
-                        'Status: ${(c.statusName?.trim().isEmpty ?? true) ? 'None' : c.statusName}',
+                        'Status: ${(c.statusName.trim().isEmpty) ? 'None' : c.statusName}',
 
                         bg: statusColor.withOpacity(.12),
                         fg: statusColor,
