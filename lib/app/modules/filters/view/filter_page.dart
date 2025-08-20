@@ -1,3 +1,5 @@
+import 'package:benevolent_crm_app/app/modules/cold_calls/controllers/cold_call_controller.dart';
+import 'package:benevolent_crm_app/app/modules/converted_call/controller/converted_call_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/widgets/date_range_bottom.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
@@ -28,18 +30,22 @@ class _FilterPageState extends State<FilterPage> {
   DateTime? _toDate;
   bool _isApplying = false;
   final FiltersController _filtersController = Get.put(FiltersController());
-  String? _isFresh; // null = Any, '1' = Yes, '0' = No
+  String? _isFresh;
+
+  // NEW: track which campaignId sources are loaded for
+  int? _sourcesForCampaignId;
 
   final List<String> filterOptions = [
     'Agent',
     'Date Range',
     'Status',
     'Campaign',
-    'Keyword',
-    'Sub Status',
     'Source',
-    'Is Fresh',
+    'Fresh Leads',
+    'Keyword',
+    // 'Sub Status',
   ];
+
   void clearFilters() {
     setState(() {
       selectedAgent = '';
@@ -51,9 +57,15 @@ class _FilterPageState extends State<FilterPage> {
       keyword = '';
       _fromDate = null;
       _toDate = null;
-      _isFresh = null; // reset radio
+      _isFresh = null;
+
+      // Also reset sources cache tracking
+      _sourcesForCampaignId = null;
+      _filtersController.sourceList.clear();
     });
   }
+
+  // ----- UI BUILDERS -----
 
   Widget buildRightPanel() {
     switch (activeFilter) {
@@ -82,7 +94,8 @@ class _FilterPageState extends State<FilterPage> {
             ),
           );
         });
-      case 'Is Fresh':
+
+      case 'Fresh Leads':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -91,18 +104,14 @@ class _FilterPageState extends State<FilterPage> {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-
-            // Any (clears filter)
             RadioListTile<String>(
               value: 'any',
               groupValue: _isFresh == null ? 'any' : _isFresh,
               onChanged: (_) => setState(() => _isFresh = null),
-              title: const Text('Any'),
+              title: const Text('All'),
               dense: true,
               contentPadding: EdgeInsets.zero,
             ),
-
-            // Yes = '1'
             RadioListTile<String>(
               value: '1',
               groupValue: _isFresh ?? 'any',
@@ -111,8 +120,6 @@ class _FilterPageState extends State<FilterPage> {
               dense: true,
               contentPadding: EdgeInsets.zero,
             ),
-
-            // No = '0'
             RadioListTile<String>(
               value: '0',
               groupValue: _isFresh ?? 'any',
@@ -132,24 +139,8 @@ class _FilterPageState extends State<FilterPage> {
                   .map(
                     (subStatus) => multiSelectTile(
                       label: subStatus.subName,
-                      selectedSet: selectedStatuses,
-                      id: subStatus.id, // Handle null id
-                    ),
-                  )
-                  .toList(),
-            ),
-          );
-        });
-      case 'Source':
-        return Obx(() {
-          return SingleChildScrollView(
-            child: Column(
-              children: _filtersController.sourceList
-                  .map(
-                    (source) => multiSelectTile(
-                      label: source.name,
-                      selectedSet: selectedSources, // <-- was selectedCampaigns
-                      id: source.id,
+                      selectedSet: selectedSubStatuses, // (optional fix)
+                      id: subStatus.id,
                     ),
                   )
                   .toList(),
@@ -162,11 +153,63 @@ class _FilterPageState extends State<FilterPage> {
           return SingleChildScrollView(
             child: Column(
               children: _filtersController.campaignList
+                  .map((data) => campaignTile(data.id, data.name))
+                  .toList(),
+            ),
+          );
+        });
+
+      case 'Source':
+        // Require exactly one campaign for sources
+        if (selectedCampaigns.isEmpty) {
+          return _hintBox(
+            "Select a Campaign first",
+            sub: "Pick a single campaign to view its sources.",
+          );
+        }
+        if (selectedCampaigns.length > 1) {
+          return _hintBox(
+            "Multiple campaigns selected",
+            sub: "Please select exactly one campaign to view sources.",
+          );
+        }
+
+        final onlyCampaignId = selectedCampaigns.first;
+
+        // Trigger fetch if the campaign changed
+        if (_sourcesForCampaignId != onlyCampaignId) {
+          _sourcesForCampaignId = onlyCampaignId;
+          selectedSources.clear(); // reset previous selection
+          _filtersController.sourceList.clear(); // clear stale results
+          _filtersController.fetchSources(
+            campaignId: onlyCampaignId.toString(),
+          );
+        }
+
+        return Obx(() {
+          if (_filtersController.isLoading.value &&
+              _filtersController.sourceList.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (_filtersController.errorMessage.isNotEmpty) {
+            return _hintBox(
+              "Failed to load sources",
+              sub: _filtersController.errorMessage.value,
+              isError: true,
+            );
+          }
+          if (_filtersController.sourceList.isEmpty) {
+            return _hintBox("No sources found for this campaign");
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              children: _filtersController.sourceList
                   .map(
-                    (data) => multiSelectTile(
-                      label: data.name,
-                      id: data.id,
-                      selectedSet: selectedCampaigns,
+                    (source) => multiSelectTile(
+                      label: source.name,
+                      selectedSet: selectedSources,
+                      id: source.id,
                     ),
                   )
                   .toList(),
@@ -213,7 +256,6 @@ class _FilterPageState extends State<FilterPage> {
                 elevation: 3,
               ),
             ),
-
             const SizedBox(height: 16),
             if (selectedDateRange.isNotEmpty)
               Container(
@@ -278,6 +320,8 @@ class _FilterPageState extends State<FilterPage> {
     }
   }
 
+  // ---- Tiles ----
+
   Widget agentSingleSelectTile(String name) {
     final isSelected = selectedAgent == name;
     return GestureDetector(
@@ -298,6 +342,47 @@ class _FilterPageState extends State<FilterPage> {
           name,
           style: TextStyle(
             color: isSelected ? Colors.blue.shade900 : Colors.grey.shade800,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Campaign tile with side-effects: clear sources when campaigns change
+  Widget campaignTile(int id, String label) {
+    final isSelected = selectedCampaigns.contains(id);
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (isSelected) {
+            selectedCampaigns.remove(id);
+          } else {
+            selectedCampaigns.add(id);
+          }
+
+          // Whenever campaign selection changes, reset sources
+          _sourcesForCampaignId = null;
+          selectedSources.clear();
+          _filtersController.sourceList.clear();
+        });
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.purple.shade50 : Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.purple : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.purple.shade900 : Colors.grey.shade800,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -344,6 +429,40 @@ class _FilterPageState extends State<FilterPage> {
     );
   }
 
+  // Small helper for hints/errors
+  Widget _hintBox(String title, {String? sub, bool isError = false}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: (isError
+            ? Colors.red.withOpacity(.06)
+            : Colors.blue.withOpacity(.06)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: (isError ? Colors.red : Colors.blue).withOpacity(.25),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: isError ? Colors.red.shade700 : Colors.blue.shade700,
+            ),
+          ),
+          if (sub != null) ...[
+            const SizedBox(height: 6),
+            Text(sub, style: const TextStyle(color: Colors.black54)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ----- BUILD -----
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -358,8 +477,9 @@ class _FilterPageState extends State<FilterPage> {
           Expanded(
             child: Row(
               children: [
+                // Left filter list
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.33,
+                  width: MediaQuery.of(context).size.width * 0.40,
                   color: Colors.grey.shade100,
                   child: ListView(
                     padding: const EdgeInsets.all(12),
@@ -398,6 +518,8 @@ class _FilterPageState extends State<FilterPage> {
                     }).toList(),
                   ),
                 ),
+
+                // Right panel
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(12),
@@ -408,6 +530,8 @@ class _FilterPageState extends State<FilterPage> {
               ],
             ),
           ),
+
+          // Bottom actions
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
@@ -430,10 +554,17 @@ class _FilterPageState extends State<FilterPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    if (_isApplying) return; // debounce
+                    if (_isApplying) return;
                     setState(() => _isApplying = true);
 
-                    final controller1 = Get.find<LeadsController>();
+                    dynamic controller1;
+                    if (widget.flag == 'fromColdCalls') {
+                      controller1 = Get.find<ColdCallController>();
+                    } else if (widget.flag == 'fromConvertedCalls') {
+                      controller1 = Get.find<ConvertedCallController>();
+                    } else if (widget.flag == 'fromAllLeads') {
+                      controller1 = Get.find<LeadsController>();
+                    }
 
                     final statusCsv = selectedStatuses.isNotEmpty
                         ? selectedStatuses.join(',')
@@ -449,7 +580,7 @@ class _FilterPageState extends State<FilterPage> {
                         d == null ? '' : DateFormat('yyyy-MM-dd').format(d);
 
                     try {
-                      await controller1.applyFilters(
+                      controller1?.applyFilters(
                         LeadRequestModel(
                           agentId: selectedAgent,
                           fromDate: fmt(_fromDate),
@@ -465,25 +596,18 @@ class _FilterPageState extends State<FilterPage> {
                         ),
                       );
                     } catch (e) {
-                      print(e.toString());
-                      // your snackbar already shows in controller on error, so this is optional
+                      // optional: show error
                     } finally {
-                      // Always try to go back, even when no results
-                      print(
-                        "Applying filters10101101: ${controller1.currentFilters.value.toJson()}",
-                      );
                       if (mounted) {
                         if (Get.key.currentState?.canPop() == true) {
                           Get.back();
                         } else {
-                          // fallback in case of nested navigators
                           Navigator.of(context).maybePop();
                         }
                       }
                       if (mounted) setState(() => _isApplying = false);
                     }
                   },
-
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
                     foregroundColor: Colors.white,

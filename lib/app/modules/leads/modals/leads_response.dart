@@ -104,16 +104,16 @@ class Lead {
   final String name;
   final String email;
   final String phone;
-  final String date; // keep raw string (your controller already parses dates)
+  final String date;
   final int status;
   final String statusName;
-  final int compaign; // (spelled as per API)
+  final int compaign;
   final String campaignName;
   final String source;
   final String sourceName;
   final int agentId;
   final String agent;
-  final int isFresh; // 0/1
+  final int isFresh;
 
   Lead({
     required this.id,
@@ -169,9 +169,41 @@ class Lead {
     'agent': agent,
     'is_fresh': isFresh,
   };
-}
 
-/// ------------------ helpers: safe coercion ------------------
+  Lead copyWith({
+    int? id,
+    String? name,
+    String? email,
+    String? phone,
+    String? date,
+    int? status,
+    String? statusName,
+    int? compaign,
+    String? campaignName,
+    String? source,
+    String? sourceName,
+    int? agentId,
+    String? agent,
+    int? isFresh,
+  }) {
+    return Lead(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      date: date ?? this.date,
+      status: status ?? this.status,
+      statusName: statusName ?? this.statusName,
+      compaign: compaign ?? this.compaign,
+      campaignName: campaignName ?? this.campaignName,
+      source: source ?? this.source,
+      sourceName: sourceName ?? this.sourceName,
+      agentId: agentId ?? this.agentId,
+      agent: agent ?? this.agent,
+      isFresh: isFresh ?? this.isFresh,
+    );
+  }
+}
 
 int _asInt(dynamic v, {int def = 0}) {
   if (v == null) return def;

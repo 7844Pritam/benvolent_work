@@ -30,7 +30,8 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
   final box = GetStorage();
   final ProfileController controller = Get.find<ProfileController>();
   String _appVersion = '';
-  // final NotificationController _c = Get.put(NotificationController());
+  // ignore: unused_field
+  final NotificationController _c = Get.put(NotificationController());
 
   final List<String> _statusOptions = [
     'Available',

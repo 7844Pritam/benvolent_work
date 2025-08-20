@@ -1,6 +1,7 @@
 import 'package:benevolent_crm_app/app/modules/converted_call/modal/converted_call_model.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_details.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/widgets/converted_call_card.dart';
+import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +14,80 @@ class ConvertedCallsPage extends StatelessWidget {
   final ConvertedCallController _controller = Get.put(
     ConvertedCallController(),
   );
+  final FiltersController _filters = Get.isRegistered<FiltersController>()
+      ? Get.find<FiltersController>()
+      : Get.put(FiltersController(), permanent: true);
 
   ConvertedCallsPage({super.key});
+  List<Widget> _buildActiveFilterChips(BuildContext context) {
+    final f = _controller.currentFilters.value;
+    final chips = <Widget>[];
+
+    if (f.agentId.isNotEmpty) {
+      chips.add(
+        _chip('Agent: ${f.agentId}', () => _controller.removeTag('agent_id')),
+      );
+    }
+    if (f.fromDate.isNotEmpty || f.toDate.isNotEmpty) {
+      final label =
+          'Date: ${f.fromDate.isEmpty ? '...' : f.fromDate} → ${f.toDate.isEmpty ? '...' : f.toDate}';
+      chips.add(_chip(label, () => _controller.removeTag('date_range')));
+    }
+    if (f.status.isNotEmpty) {
+      final ids = f.status.split(',').where((e) => e.isNotEmpty).map(int.parse);
+      for (final id in ids) {
+        final name =
+            _filters.statusList.firstWhereOrNull((s) => s.id == id)?.name ??
+            'Status $id';
+        chips.add(_chip(name, () => _controller.removeTag('status', id: id)));
+      }
+    }
+    if (f.campaign.isNotEmpty) {
+      final ids = f.campaign
+          .split(',')
+          .where((e) => e.isNotEmpty)
+          .map(int.parse);
+      for (final id in ids) {
+        final name =
+            _filters.campaignList.firstWhereOrNull((c) => c.id == id)?.name ??
+            'Campaign $id';
+        chips.add(_chip(name, () => _controller.removeTag('campaign', id: id)));
+      }
+    }
+    if (f.source.isNotEmpty) {
+      final ids = f.source.split(',').where((e) => e.isNotEmpty).map(int.parse);
+      for (final id in ids) {
+        final name =
+            _filters.sourceList.firstWhereOrNull((s) => s.id == id)?.name ??
+            'Source $id';
+        chips.add(_chip(name, () => _controller.removeTag('source', id: id)));
+      }
+    }
+    if (f.isFresh.isNotEmpty) {
+      chips.add(
+        _chip(
+          'Fresh: ${f.isFresh == '1' ? 'Yes' : 'No'}',
+          () => _controller.removeTag('is_fresh'),
+        ),
+      );
+    }
+    if (f.keyword.isNotEmpty) {
+      chips.add(
+        _chip('“${f.keyword}”', () => _controller.removeTag('keyword')),
+      );
+    }
+    return chips;
+  }
+
+  Widget _chip(String label, VoidCallback onDeleted) {
+    return InputChip(
+      label: Text(label),
+      onDeleted: onDeleted,
+      deleteIcon: const Icon(Icons.close, size: 18),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +103,22 @@ class ConvertedCallsPage extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
+          Obx(
+            () => Text(
+              _controller.totalCount.value > 0
+                  ? '(${_controller.totalCount.value})'
+                  : 'No Calls',
+              style: const TextStyle(color: Colors.white, fontSize: 22),
+            ),
+          ),
           IconButton(
             icon: const Icon(LucideIcons.filter, color: Colors.white),
             onPressed: () =>
                 Get.to(() => const FilterPage(flag: "fromConvertedCalls")),
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () => _controller.fetchCalls(initial: true),
           ),
         ],
       ),
@@ -46,17 +131,24 @@ class ConvertedCallsPage extends StatelessWidget {
           );
         }
 
-        // Build a flat list of widgets: [Header, items..., Header, items..., footer]
+        // build chips
+        final chips = _buildActiveFilterChips(context);
+
+        // Build a flat list of widgets
         final List<Widget> slotted = [];
+
+        // ✅ show chips at the top when filters are active
+        if (chips.isNotEmpty) {
+          slotted.add(
+            _FilterChipsBar(chips: chips, onClear: _controller.clearFilters),
+          );
+        }
 
         final grouped = _groupCallsByDate(_controller.calls);
         final dateKeys = _sortedDateKeys(grouped);
 
         for (final key in dateKeys) {
-          // Date header
           slotted.add(_DateHeader(label: key));
-
-          // Items under the date
           final items = grouped[key] ?? const <ConvertedCall>[];
           for (final call in items) {
             slotted.add(
@@ -68,16 +160,13 @@ class ConvertedCallsPage extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () =>
                       Get.to(() => ConvertedCallDetailPage(leadId: call.id)),
-                  child: ConvertedCallCard(
-                    call: call,
-                  ), // already includes action chips
+                  child: ConvertedCallCard(call: call),
                 ),
               ),
             );
           }
         }
 
-        // Pagination footer region
         if (_controller.isPaginating.value) {
           slotted.add(
             const Padding(
@@ -120,11 +209,6 @@ class ConvertedCallsPage extends StatelessWidget {
           ],
         );
       }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _controller.fetchCalls(),
-        child: const Icon(Icons.refresh),
-        backgroundColor: AppColors.primaryColor,
-      ),
     );
   }
 
@@ -190,7 +274,6 @@ class ConvertedCallsPage extends StatelessWidget {
   }
 }
 
-// Simple shimmer placeholder for converted call cards (to mirror LeadCardShimmer)
 class _CardShimmer extends StatelessWidget {
   const _CardShimmer();
 
@@ -238,6 +321,34 @@ class _DateHeader extends StatelessWidget {
               child: Divider(height: 1),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterChipsBar extends StatelessWidget {
+  final List<Widget> chips;
+  final Future<void> Function() onClear;
+  const _FilterChipsBar({required this.chips, required this.onClear});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: Wrap(spacing: 8, runSpacing: 6, children: chips)),
+          if (chips.isNotEmpty)
+            TextButton.icon(
+              onPressed: onClear,
+              icon: const Icon(Icons.filter_alt_off),
+              label: const Text('Clear'),
+            ),
         ],
       ),
     );

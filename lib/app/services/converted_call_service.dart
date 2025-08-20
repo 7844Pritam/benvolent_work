@@ -15,11 +15,13 @@ class ConvertedCallService {
     int page = 1,
     required LeadRequestModel requestModel,
   }) async {
+    print('Fetching dfdfsconverted calls with page: $page');
+    print(requestModel.toJson());
     try {
       final response = await _apiClient.get(
         ApiEndPoints.GET_COLD_CALLS_CONVERTS,
         queryParameters: {'page': page},
-        data: requestModel,
+        data: requestModel.toJson(),
       );
       return ConvertedCallResponse.fromJson(response.data);
     } on DioException catch (e) {

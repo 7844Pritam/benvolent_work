@@ -3,7 +3,6 @@ import 'package:benevolent_crm_app/app/modules/filters/modals/lead_status_respon
 import 'package:benevolent_crm_app/app/modules/filters/modals/source_request.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/source_response.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/sub_status_response.dart';
-
 import 'package:benevolent_crm_app/app/services/filter_services.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +11,7 @@ class FiltersController extends GetxController {
 
   var isLoading = false.obs;
   var errorMessage = ''.obs;
-  // var agentList = Map<String,>[].obs;
+
   var campaignList = <Campaign>[].obs;
   var sourceList = <SourceData>[].obs;
   var statusList = <LeadStatus>[].obs;
@@ -23,20 +22,24 @@ class FiltersController extends GetxController {
     super.onInit();
     fetchStatus();
     fetchCampaigns();
-    fetchSources(campaignId: '');
+    // fetchSources(campaignId: '2');
     fetchSubStatus();
+  }
+
+  List<SubStatus> subStatusesFor(String statusId) {
+    if (statusId.isEmpty) return const [];
+    return subStatusList
+        .where((s) => (s.statusId.toString()) == statusId)
+        .toList();
   }
 
   Future<void> fetchStatus() async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
       final response = await _filterService.getStatuses(
         SourceRequest(compaignId: "campaignId"),
       );
-      print(response.message);
-      print(response.data.map((data) => print(data.name)));
       statusList.assignAll(response.data);
     } catch (e) {
       errorMessage.value = e.toString();
@@ -48,13 +51,10 @@ class FiltersController extends GetxController {
   Future<void> fetchSources({required String campaignId}) async {
     isLoading.value = true;
     errorMessage.value = '';
-    print('Fetching sources for campaign ID: $campaignId');
-
     try {
       final response = await _filterService.getSources(
-        SourceRequest(compaignId: campaignId),
+        SourceRequest(compaignId: "2"),
       );
-      print('Sources fetched successfully: ${response.data}');
       sourceList.assignAll(response.data);
     } catch (e) {
       errorMessage.value = e.toString();
@@ -67,7 +67,6 @@ class FiltersController extends GetxController {
   Future<void> fetchCampaigns() async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
       final response = await _filterService.getCampaigns();
       campaignList.assignAll(response.data);
@@ -79,17 +78,12 @@ class FiltersController extends GetxController {
   }
 
   Future<void> fetchSubStatus() async {
-    print('Fetching sub-statuses...');
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
       final response = await _filterService.getSubStatus();
-      print('Sub-statuses fetched successfully: ${response.data.toList()}');
       subStatusList.assignAll(response.data);
-      print('Sub-statuses fetched successfully: ${subStatusList}');
     } catch (e) {
-      print('Error fetching sub-statuses: $e');
       errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;

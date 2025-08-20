@@ -5,7 +5,9 @@ class ColdCall {
   final String agent;
   final String phone;
   final String source;
+  final String sourceName;
   final String status;
+  final String statusName;
 
   ColdCall({
     required this.id,
@@ -14,7 +16,9 @@ class ColdCall {
     required this.agent,
     required this.phone,
     required this.source,
+    required this.sourceName,
     required this.status,
+    required this.statusName,
   });
 
   factory ColdCall.fromJson(Map<String, dynamic> json) {
@@ -25,20 +29,28 @@ class ColdCall {
       agent: json['agent'] ?? '',
       phone: json['phone'] ?? '',
       source: json['source'] ?? '',
+      sourceName: json['sourceName'] ?? '',
       status: json['status'] ?? '',
+      statusName: json['statusName'] ?? '',
     );
   }
 }
 
 class ColdCallResponse {
+  final int success;
+  final int count;
+  final String message;
   final int currentPage;
-  final List<ColdCall> data;
   final int lastPage;
+  final List<ColdCall> data;
 
   ColdCallResponse({
+    required this.success,
+    required this.count,
+    required this.message,
     required this.currentPage,
-    required this.data,
     required this.lastPage,
+    required this.data,
   });
 
   factory ColdCallResponse.fromJson(Map<String, dynamic> json) {
@@ -46,6 +58,9 @@ class ColdCallResponse {
     final List<dynamic> list = inner['data'] ?? [];
 
     return ColdCallResponse(
+      success: json['success'] ?? 0,
+      count: json['count'] ?? 0,
+      message: json['message'] ?? '',
       currentPage: inner['current_page'] ?? 1,
       lastPage: inner['last_page'] ?? 1,
       data: list.map((x) => ColdCall.fromJson(x)).toList(),

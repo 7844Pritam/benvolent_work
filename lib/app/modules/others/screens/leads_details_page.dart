@@ -1,13 +1,14 @@
-// lib/app/modules/converted_call/view/converted_call_detail_page.dart
+import 'package:benevolent_crm_app/app/modules/converted_call/controller/notes_controller.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/lead_details_controller.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/lead_details_response.dart';
+import 'package:benevolent_crm_app/app/utils/helpers.dart';
+import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
+import 'package:benevolent_crm_app/app/widgets/custom_select_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
@@ -33,6 +34,9 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
   final LeadDetailsController c = Get.put(LeadDetailsController());
   final ScheduleController scheduleController = Get.put(ScheduleController());
 
+  final NotesController notesController = Get.put(NotesController());
+  final TextEditingController noteInputController = TextEditingController();
+
   final List<String> notes = [
     "Called & discussed product features.",
     "Client requested a follow-up in two weeks.",
@@ -44,16 +48,25 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
   @override
   void initState() {
     super.initState();
-    c.load(widget.leadId); // 🔁 reuse same details controller/service
+    c.load(widget.leadId);
+  }
+
+  @override
+  void dispose() {
+    noteInputController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print("sldfksdjflsdfjsdlfjsdlfjsdlkjflsd");
+    print(c.statusName);
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: AppColors.primaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Obx(
           () => Text(
             c.model?.name ?? 'Lead #${widget.leadId}',
@@ -61,7 +74,10 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
           ),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: c.refreshLead),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: c.refreshLead,
+          ),
         ],
       ),
       body: Obx(() {
@@ -77,7 +93,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
 
         if (!_schedulesLoaded) {
           _schedulesLoaded = true;
-          scheduleController.loadSchedules(widget.leadId); // ✅ real leadId
+          scheduleController.loadSchedules(widget.leadId);
         }
 
         return SingleChildScrollView(
@@ -91,6 +107,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
               _contactInfoCard(lead),
               const SizedBox(height: 16),
               _notesAndSchedulesTabView(lead: lead),
+              const SizedBox(height: 120),
             ],
           ),
         );
@@ -118,21 +135,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            CircleAvatar(
-              backgroundColor: AppColors.primaryColor.withOpacity(0.15),
-              radius: 30,
-              child: Text(
-                (lead.name ?? '?').isNotEmpty
-                    ? lead.name![0].toUpperCase()
-                    : '?',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryColor,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,8 +148,15 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                       _chip(
                         campaignName.isEmpty ? 'No Campaign' : campaignName,
                       ),
+                      //  (lead.statusName != null &&
+                      //                               lead.statusName.trim().isNotEmpty)
+                      //                           ? lead.statusName
+                      //                           : "Not Set",
+
+                      // _chip()
                       _chip(
-                        'Status: ${statusName.isEmpty ? '-' : statusName}',
+                        'Status: ${(c.statusName?.trim().isEmpty ?? true) ? 'None' : c.statusName}',
+
                         bg: statusColor.withOpacity(.12),
                         fg: statusColor,
                       ),
@@ -185,13 +194,13 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
             _actionButton(
               FontAwesomeIcons.whatsapp,
               "WhatsApp",
-              () => _openWhatsApp(phone, name),
+              () => HyperLinksNew.openWhatsApp(phone, name),
+              // () => _openWhatsApp(phone, name),
             ),
-            _actionButton(
-              Icons.email_outlined,
-              "Email",
-              () => _openEmail(email, name),
-            ),
+            _actionButton(Icons.email_outlined, "Email", () {
+              print("Opening email: $email");
+              HyperLinksNew.openEmail(email, name);
+            }),
             _actionButton(Icons.swap_horiz, "Status", _openChangeStatus),
           ],
         ),
@@ -238,7 +247,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
               ],
             ),
             SizedBox(
-              height: 260,
+              height: 350,
               child: TabBarView(children: [_notesTab(lead), _schedulesTab()]),
             ),
           ],
@@ -250,52 +259,145 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
   Widget _notesTab(Lead lead) {
     final List<CommentEntry> comments = lead.newComments;
 
-    if (comments.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.note_alt_outlined, size: 48, color: Colors.grey),
-              SizedBox(height: 8),
-              Text(
-                "No notes yet",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+    return Column(
+      children: [
+        Expanded(
+          child: comments.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.note_alt_outlined,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "No notes yet",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          "Add a note below.",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: comments.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (_, i) {
+                    final cmt = comments[i];
+                    return ListTile(
+                      leading: const Icon(Icons.note_alt),
+                      title: Text(
+                        (cmt.text?.trim().isNotEmpty ?? false)
+                            ? cmt.text!.trim()
+                            : '—',
+                      ),
+                      subtitle:
+                          (cmt.date != null || (cmt.time?.isNotEmpty ?? false))
+                          ? Text(_fmtDateTime(cmt.date, cmt.time))
+                          : null,
+                    );
+                  },
+                ),
+        ),
+
+        // --- Divider
+        const Divider(height: 1),
+
+        // --- Composer: input + send button ---
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+          child: Row(
+            children: [
+              // Text field
+              Expanded(
+                child: TextField(
+                  controller: noteInputController,
+                  maxLines: 3,
+                  minLines: 1,
+                  textInputAction: TextInputAction.newline,
+                  decoration: InputDecoration(
+                    hintText: "Write a note…",
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
               ),
-              SizedBox(height: 4),
-              Text(
-                "Add a note from the actions above.",
-                style: TextStyle(color: Colors.grey),
-              ),
+              const SizedBox(width: 8),
+
+              // Send button with loading state
+              Obx(() {
+                final loading = notesController.isLoading.value;
+                return ElevatedButton.icon(
+                  onPressed: loading
+                      ? null
+                      : () async {
+                          final text = noteInputController.text.trim();
+                          if (text.isEmpty) {
+                            Get.snackbar(
+                              "Note required",
+                              "Please type something to save.",
+                            );
+                            return;
+                          }
+
+                          await notesController.addNotes(lead.id!, text);
+
+                          // If success snackbar came from controller, refresh + clear input
+                          if (!loading) {
+                            await c
+                                .refreshLead(); // reload lead to show latest notes
+                            noteInputController.clear();
+                            FocusScope.of(context).unfocus();
+                          }
+                        },
+                  icon: loading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.send, size: 18, color: Colors.white),
+                  label: Text(
+                    loading ? "Saving…" : "Add",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.all(12),
-      itemCount: comments.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (_, i) {
-        final c = comments[i];
-        return ListTile(
-          leading: const Icon(Icons.note_alt),
-          title: Text(
-            (c.text?.trim().isNotEmpty ?? false) ? c.text!.trim() : '—',
-          ),
-          subtitle: (c.date != null || (c.time?.isNotEmpty ?? false))
-              ? Text(_fmtDateTime(c.date, c.time))
-              : null,
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              // TODO: call your controller to delete by c.id, then refresh
-            },
-          ),
-        );
-      },
+      ],
     );
   }
 
@@ -325,7 +427,20 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
           return ListTile(
             leading: const Icon(Icons.event_note),
             title: Text(s.planToDo),
-            subtitle: Text('${s.scheduleDate} • ${s.scheduleTime}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${s.scheduleDate} • ${s.scheduleTime}',
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+                Text(
+                  '${s.comment ?? 'No comment'}',
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+              ],
+            ),
+
             trailing: Wrap(
               spacing: 8,
               children: [
@@ -344,8 +459,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
       );
     });
   }
-
-  // =================== helpers / widgets ===================
 
   Widget _card(Widget child) => Container(
     decoration: BoxDecoration(
@@ -428,12 +541,21 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                   : null,
             ),
             IconButton(
-              icon: const Icon(Icons.message, color: Colors.green),
-              onPressed: () => _openSms(value),
+              icon: const Icon(FontAwesomeIcons.whatsapp, color: Colors.green),
+              // onPressed: () => _openSms(value),
+              onPressed: () => HyperLinksNew.openWhatsApp(
+                Helpers.normalizePhone(value ?? '', keepPlus: true),
+                c.model?.name ?? '',
+              ),
             ),
             IconButton(
               icon: const Icon(Icons.phone, color: Colors.green),
-              onPressed: () => _openDialer(value),
+              // onPressed: () => _openDialer(value),
+              onPressed: () async {
+                await HyperLinksNew.openDialer(
+                  Helpers.normalizePhone(value ?? '', keepPlus: true),
+                );
+              },
             ),
           ],
         ),
@@ -561,53 +683,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     ),
   );
 
-  // Widget _callRow(String title, String? value) => Padding(
-  //   padding: const EdgeInsets.only(bottom: 10),
-  //   child: Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Row(
-  //         children: [
-  //           Text(title, style: TextStyles.Text13500),
-  //           const SizedBox(width: 6),
-  //           const Icon(Icons.edit, size: 16),
-  //         ],
-  //       ),
-  //       const SizedBox(height: 4),
-  //       Row(
-  //         children: [
-  //           Expanded(
-  //             child: Text(
-  //               value?.isNotEmpty == true ? value! : '-',
-  //               style: const TextStyle(fontSize: 14),
-  //             ),
-  //           ),
-  //           IconButton(
-  //             icon: const Icon(Icons.copy, size: 18),
-  //             onPressed: value?.isNotEmpty == true
-  //                 ? () async {
-  //                     await Clipboard.setData(ClipboardData(text: value!));
-  //                     if (!mounted) return;
-  //                     ScaffoldMessenger.of(
-  //                       context,
-  //                     ).showSnackBar(const SnackBar(content: Text('Copied')));
-  //                   }
-  //                 : null,
-  //           ),
-  //           IconButton(
-  //             icon: const Icon(Icons.message, color: Colors.green),
-  //             onPressed: () => _openSms(value),
-  //           ),
-  //           IconButton(
-  //             icon: const Icon(Icons.phone, color: Colors.green),
-  //             onPressed: () => _openDialer(value),
-  //           ),
-  //         ],
-  //       ),
-  //     ],
-  //   ),
-  // );
-
   Widget _error(String msg, VoidCallback retry) => Center(
     child: Padding(
       padding: const EdgeInsets.all(24),
@@ -633,39 +708,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     final v = int.tryParse(s, radix: 16);
     if (v == null) return null;
     return Color(v);
-  }
-
-  Future<void> _openDialer(String? phone) async {
-    if (phone == null || phone.trim().isEmpty) return;
-    final uri = Uri(scheme: 'tel', path: phone.trim());
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  Future<void> _openSms(String? phone) async {
-    if (phone == null || phone.trim().isEmpty) return;
-    final uri = Uri(scheme: 'sms', path: phone.trim());
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  Future<void> _openWhatsApp(String? phone, String name) async {
-    if (phone == null || phone.trim().isEmpty) return;
-    final clean = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    final uri = Uri.parse(
-      'https://wa.me/$clean?text=${Uri.encodeComponent("Hi $name,")}',
-    );
-    if (await canLaunchUrl(uri))
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
-  Future<void> _openEmail(String? email, String name) async {
-    if (email == null || email.trim().isEmpty) return;
-    final uri = Uri(
-      scheme: 'mailto',
-      path: email.trim(),
-      query:
-          'subject=${Uri.encodeComponent("Follow-up")}&body=${Uri.encodeComponent("Hi $name,")}',
-    );
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
   void _openChangeStatus() {
@@ -707,7 +749,9 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     final planToDoController = TextEditingController(
       text: existing?.planToDo ?? '',
     );
-
+    final commentController = TextEditingController(
+      text: existing?.planToDo ?? '',
+    );
     DateTime selectedDate =
         DateTime.tryParse(existing?.scheduleDate ?? '') ?? DateTime.now();
 
@@ -734,13 +778,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                   Text(
                     isEdit ? "Edit Schedule" : "Create Schedule",
                     style: TextStyles.Text18700,
-                  ),
-                  const SizedBox(height: 12),
-                  CustomInputField(
-                    label: "Plan To Do",
-                    controller: planToDoController,
-                    validator: (v) =>
-                        Validators.validateEmpty(v, fieldName: "Plan To Do"),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -785,19 +822,44 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 12),
+
+                  CustomSelectField<String>(
+                    label: "Plan To Do",
+                    value: planToDoController.text.isNotEmpty
+                        ? planToDoController.text
+                        : "Meeting",
+                    items: ["Meeting", "Call Back"]
+                        .map(
+                          (e) => DropdownMenuItem<String>(
+                            value: e,
+                            child: Text(e),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      planToDoController.text = val ?? "";
+                    },
+                  ),
+                  CustomInputField(
+                    label: "Comment (optional)",
+                    controller: commentController,
+                    validator: (v) =>
+                        Validators.validateEmpty(v, fieldName: "Comment"),
+                  ),
                   const SizedBox(height: 12),
                   CustomButton(
-                    text: isEdit ? "Update" : "Create",
+                    text: isEdit ? "Update" : "Schedule",
                     onPressed: () async {
                       if (!formKey.currentState!.validate()) return;
 
                       final req = ScheduleRequestModel(
-                        leadId: widget.leadId, // ✅ same details controller’s id
+                        leadId: widget.leadId,
                         scheduleDate: DateFormat(
                           'yyyy-MM-dd',
                         ).format(selectedDate),
                         scheduleTime: selectedTime.format(context),
-                        planToDo: planToDoController.text.trim(),
+                        planToDo: "slkdfjsd",
                       );
 
                       if (isEdit) {

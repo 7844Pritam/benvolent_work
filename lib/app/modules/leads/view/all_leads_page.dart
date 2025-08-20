@@ -1,286 +1,263 @@
+import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_details.dart';
+import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
+import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
 import 'package:benevolent_crm_app/app/modules/leads/widget/lead_card.dart';
-import 'package:benevolent_crm_app/app/modules/leads/widget/lead_card_shimmer.dart';
+import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/cold_call_shimmer.dart';
+import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
+import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
 
 class AllLeadsPage extends StatelessWidget {
-  final LeadsController _controller = Get.put(LeadsController());
-
   AllLeadsPage({super.key});
+
+  final LeadsController _controller = Get.put(LeadsController());
+  final FiltersController _filters = Get.isRegistered<FiltersController>()
+      ? Get.find<FiltersController>()
+      : Get.put(FiltersController(), permanent: true);
+
+  List<Widget> _buildActiveFilterChips() {
+    final f = _controller.currentFilters.value;
+    final chips = <Widget>[];
+
+    if (f.agentId.isNotEmpty) {
+      chips.add(
+        _chip('Agent: ${f.agentId}', () {
+          _controller.removeTag('agent_id');
+        }),
+      );
+    }
+
+    if (f.fromDate.isNotEmpty || f.toDate.isNotEmpty) {
+      final label =
+          'Date: ${f.fromDate.isEmpty ? '…' : f.fromDate} → ${f.toDate.isEmpty ? '…' : f.toDate}';
+      chips.add(_chip(label, () => _controller.removeTag('date_range')));
+    }
+
+    if (f.status.isNotEmpty) {
+      final ids = f.status.split(',').where((e) => e.trim().isNotEmpty);
+      for (final raw in ids) {
+        final id = int.tryParse(raw);
+        final name = id == null
+            ? 'Status $raw'
+            : (_filters.statusList.firstWhereOrNull((s) => s.id == id)?.name ??
+                  'Status $id');
+        chips.add(_chip(name, () => _controller.removeTag('status', id: id)));
+      }
+    }
+
+    if (f.campaign.isNotEmpty) {
+      final ids = f.campaign.split(',').where((e) => e.trim().isNotEmpty);
+      for (final raw in ids) {
+        final id = int.tryParse(raw);
+        final name = id == null
+            ? 'Campaign $raw'
+            : (_filters.campaignList
+                      .firstWhereOrNull((c) => c.id == id)
+                      ?.name ??
+                  'Campaign $id');
+        chips.add(_chip(name, () => _controller.removeTag('campaign', id: id)));
+      }
+    }
+
+    if (f.source.isNotEmpty) {
+      final ids = f.source.split(',').where((e) => e.trim().isNotEmpty);
+      for (final raw in ids) {
+        final id = int.tryParse(raw);
+        final name = id == null
+            ? 'Source $raw'
+            : (_filters.sourceList.firstWhereOrNull((s) => s.id == id)?.name ??
+                  'Source $id');
+        chips.add(_chip(name, () => _controller.removeTag('source', id: id)));
+      }
+    }
+
+    if (f.isFresh.isNotEmpty) {
+      chips.add(
+        _chip(
+          'Fresh: ${f.isFresh == '1' ? 'Yes' : 'No'}',
+          () => _controller.removeTag('is_fresh'),
+        ),
+      );
+    }
+
+    if (f.developerId.isNotEmpty) {
+      chips.add(
+        _chip(
+          'Developer: ${f.developerId}',
+          () => _controller.removeTag('developer'),
+        ),
+      );
+    }
+    if (f.propertyId.isNotEmpty) {
+      chips.add(
+        _chip(
+          'Property: ${f.propertyId}',
+          () => _controller.removeTag('property'),
+        ),
+      );
+    }
+    if (f.priority.isNotEmpty) {
+      chips.add(
+        _chip(
+          'Priority: ${f.priority}',
+          () => _controller.removeTag('priority'),
+        ),
+      );
+    }
+    if (f.keyword.isNotEmpty) {
+      chips.add(
+        _chip('“${f.keyword}”', () => _controller.removeTag('keyword')),
+      );
+    }
+
+    return chips;
+  }
+
+  Widget _chip(String label, VoidCallback onDeleted) => InputChip(
+    label: Text(label),
+    onDeleted: onDeleted,
+    deleteIcon: const Icon(Icons.close, size: 18),
+    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 1,
-        toolbarHeight: 52,
-        title: const Text('All Leads', style: TextStyle(color: Colors.white)),
+        title: const Text('Leads', style: TextStyle(color: Colors.white)),
+        backgroundColor: AppColors.primaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
+          Text(
+            style: const TextStyle(color: Colors.white, fontSize: 22),
+            _controller.totalCount.value > 0
+                ? '(${_controller.totalCount.value})'
+                : 'No Leads',
+          ),
           IconButton(
             icon: const Icon(LucideIcons.filter, color: Colors.white),
-            onPressed: () => Get.to(() => FilterPage(flag: "fromAllLeads")),
+
+            onPressed: () =>
+                Get.to(() => const FilterPage(flag: "fromAllLeads")),
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () => _controller.fetchLeads(reset: true),
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Get.to(() => ConvertedCallsPage()),
+        icon: const Icon(Icons.swap_horiz),
+        label: const Text("Converted Calls"),
+        backgroundColor: AppColors.primaryColor,
+      ),
       body: Obx(() {
-        if (_controller.isLoading.value) {
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: 6,
-            itemBuilder: (_, __) => const LeadCardShimmer(),
-          );
-        }
-        if (_controller.noResults.value && _controller.leads.isEmpty) {
-          return _EmptyState(
-            onClearFilters: () => _controller.clearAllFilters(),
-            onModifyFilters: () =>
-                Get.to(() => FilterPage(flag: "fromAllLeads")),
+        final chips = _buildActiveFilterChips();
+
+        if (_controller.isLoading.value && _controller.leads.isEmpty) {
+          return Column(
+            children: [
+              if (chips.isNotEmpty)
+                _FilterChipsBar(
+                  chips: chips,
+                  onClear: _controller.clearAllFilters,
+                ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: 6,
+                  itemBuilder: (_, __) => const ColdCallShimmer(),
+                ),
+              ),
+            ],
           );
         }
 
-        // Build a flat list of widgets: [Header, items..., Header, items..., footer]
-        final List<Widget> slotted = [];
+        if (_controller.noResults.value) {
+          return Column(
+            children: [
+              if (chips.isNotEmpty)
+                _FilterChipsBar(
+                  chips: chips,
+                  onClear: _controller.clearAllFilters,
+                ),
+              const Expanded(
+                child: Center(child: Text('No leads match your filters.')),
+              ),
+            ],
+          );
+        }
 
         final dateKeys = _controller.groupedDateKeys;
         final grouped = _controller.groupedLeads;
+        final widgets = <Widget>[];
+
+        if (chips.isNotEmpty) {
+          widgets.add(
+            _FilterChipsBar(chips: chips, onClear: _controller.clearAllFilters),
+          );
+        }
 
         for (final key in dateKeys) {
-          // Date header
-          slotted.add(_DateHeader(label: key));
-
-          // Items under the date
+          widgets.add(_DateHeader(label: key));
           final items = grouped[key] ?? const [];
           for (final lead in items) {
-            slotted.add(
+            widgets.add(const SizedBox(height: 8));
+            widgets.add(
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GestureDetector(
+                  onTap: () => Get.to(ConvertedCallDetailPage(leadId: lead.id)),
+                  child: LeadCard(lead: lead),
                 ),
-                child: LeadCard(lead: lead),
               ),
             );
           }
         }
 
-        // Pagination footer region
         if (_controller.isPaginating.value) {
-          slotted.add(
+          widgets.add(
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Column(
                 children: [
-                  LeadCardShimmer(),
+                  ColdCallShimmer(),
                   SizedBox(height: 8),
-                  LeadCardShimmer(),
+                  ColdCallShimmer(),
                 ],
               ),
             ),
           );
         } else if (!_controller.canLoadMore) {
-          slotted.add(
+          widgets.add(
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  "No more leads available",
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 74),
+              child: Center(child: Text('No more leads')),
             ),
           );
         }
 
-        return Column(
-          children: [
-            // 🔍 Search bar (UI only here; hook to controller if needed)
-            // AllLeadsPage.dart  ➜ inside build(), above the Search bar:
-            Obx(() {
-              final f = _controller.currentFilters.value;
-
-              final hasAny =
-                  (f.agentId.isNotEmpty) ||
-                  (f.status.isNotEmpty) ||
-                  (f.campaign.isNotEmpty) ||
-                  (f.keyword.isNotEmpty) ||
-                  (f.fromDate.isNotEmpty) ||
-                  (f.toDate.isNotEmpty);
-
-              if (!hasAny) return const SizedBox.shrink();
-
-              // Build human-friendly date range
-              String dateLabel() {
-                if ((f.fromDate).isEmpty && (f.toDate).isEmpty) return '';
-                if ((f.fromDate).isNotEmpty && (f.toDate).isNotEmpty) {
-                  return 'Date: ${f.fromDate} → ${f.toDate}';
-                }
-                if ((f.fromDate).isNotEmpty) return 'From: ${f.fromDate}';
-                return 'To: ${f.toDate}';
-              }
-
-              final chips = <Widget>[];
-
-              if ((f.agentId).isNotEmpty) {
-                chips.add(
-                  _ChipX(
-                    label: 'Agent: ${f.agentId}',
-                    onDelete: () => _controller.removeFilter('agent'),
-                  ),
-                );
-              }
-              if ((f.status).isNotEmpty) {
-                chips.add(
-                  _ChipX(
-                    label: 'Status: ${f.status}',
-                    onDelete: () => _controller.removeFilter('status'),
-                  ),
-                );
-              }
-              if ((f.campaign).isNotEmpty) {
-                chips.add(
-                  _ChipX(
-                    label: 'Campaign: ${f.campaign}',
-                    onDelete: () => _controller.removeFilter('campaign'),
-                  ),
-                );
-              }
-              if ((f.keyword).isNotEmpty) {
-                chips.add(
-                  _ChipX(
-                    label: 'Keyword: ${f.keyword}',
-                    onDelete: () => _controller.removeFilter('keyword'),
-                  ),
-                );
-              }
-              final dl = dateLabel();
-              if (dl.isNotEmpty) {
-                chips.add(
-                  _ChipX(
-                    label: dl,
-                    onDelete: () => _controller.removeFilter('daterange'),
-                  ),
-                );
-              }
-
-              // Clear All chip at the end
-              chips.add(
-                _ChipOutlined(
-                  label: 'Clear all',
-                  onTap: () => _controller.clearAllFilters(),
-                ),
-              );
-
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                child: Wrap(spacing: 8, runSpacing: 8, children: chips),
-              );
-            }),
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: TextField(
-                style: const TextStyle(fontSize: 16),
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                  hintText: 'Search leads, agents, locations...',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                // onChanged: (q) => _controller.applySearch(q), // optional
-              ),
-            ),
-
-            // 🔽 Sort option (kept as-is)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Text(
-                    "Sort by:",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () => _showSortPopup(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "High to Low",
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(Icons.arrow_drop_down, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // 📄 Grouped List
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (scrollInfo) {
-                  if (!_controller.isPaginating.value &&
-                      scrollInfo.metrics.pixels >=
-                          scrollInfo.metrics.maxScrollExtent - 80 &&
-                      _controller.canLoadMore) {
-                    _controller.fetchLeads();
-                  }
-                  return false;
-                },
-                child: ListView(padding: EdgeInsets.zero, children: slotted),
-              ),
-            ),
-          ],
+        return NotificationListener<ScrollNotification>(
+          onNotification: (s) {
+            final atBottom =
+                s.metrics.pixels >= (s.metrics.maxScrollExtent - 80);
+            if (atBottom &&
+                !_controller.isPaginating.value &&
+                _controller.canLoadMore) {
+              _controller.fetchLeads();
+            }
+            return false;
+          },
+          child: ListView(padding: EdgeInsets.zero, children: widgets),
         );
       }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _controller.fetchLeads(reset: true),
-        child: const Icon(Icons.refresh),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-    );
-  }
-
-  void _showSortPopup(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Sort by"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(title: const Text("High to Low"), onTap: () => Get.back()),
-            ListTile(title: const Text("Low to High"), onTap: () => Get.back()),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -304,7 +281,7 @@ class _DateHeader extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: Colors.black87,
               ),
             ),
@@ -320,86 +297,30 @@ class _DateHeader extends StatelessWidget {
     );
   }
 }
-// AllLeadsPage.dart  ➜ helpers at bottom
 
-class _ChipX extends StatelessWidget {
-  final String label;
-  final VoidCallback onDelete;
-  const _ChipX({required this.label, required this.onDelete});
-
-  @override
-  Widget build(BuildContext context) {
-    return InputChip(
-      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-      onDeleted: onDelete,
-      deleteIcon: const Icon(Icons.close, size: 18),
-      backgroundColor: Colors.grey.shade100,
-      side: BorderSide(color: Colors.grey.shade300),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-}
-
-class _ChipOutlined extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _ChipOutlined({required this.label, required this.onTap});
+class _FilterChipsBar extends StatelessWidget {
+  final List<Widget> chips;
+  final Future<void> Function() onClear;
+  const _FilterChipsBar({required this.chips, required this.onClear});
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-      onPressed: onTap,
-      backgroundColor: Colors.white,
-      side: BorderSide(color: Colors.grey.shade400),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final VoidCallback onClearFilters;
-  final VoidCallback onModifyFilters;
-  const _EmptyState({
-    required this.onClearFilters,
-    required this.onModifyFilters,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.search_off, size: 64, color: Colors.grey),
-            const SizedBox(height: 12),
-            const Text(
-              "No leads found",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: Wrap(spacing: 8, runSpacing: 6, children: chips)),
+          if (chips.isNotEmpty)
+            TextButton.icon(
+              onPressed: onClear,
+              icon: const Icon(Icons.filter_alt_off),
+              label: const Text('Clear'),
             ),
-            const SizedBox(height: 6),
-            const Text(
-              "Try clearing or adjusting your filters.",
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 12,
-              children: [
-                OutlinedButton(
-                  onPressed: onModifyFilters,
-                  child: const Text("Modify filters"),
-                ),
-                ElevatedButton(
-                  onPressed: onClearFilters,
-                  child: const Text("Clear all"),
-                ),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

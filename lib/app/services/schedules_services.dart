@@ -15,8 +15,10 @@ class SchedulesServices {
 
   Future<SchedulesResponseModel> fetchSchedules(int id) async {
     try {
-      final response = await _apiClient.get('/schedules/591');
+      final response = await _apiClient.get('/schedules/${id.toString()}');
       final jsonData = response.data;
+      print(jsonData);
+      print("schedules fetched successfully");
       return SchedulesResponseModel.fromJson(jsonData);
     } on DioException catch (e) {
       throw ErrorHandler.handle(e);
@@ -37,6 +39,7 @@ class SchedulesServices {
         '/add-schedule',
         data: sheduleRequestModal.toJson(),
       );
+      print("response received");
       final jsonData = response.data;
       return CreateScheduleResponseModel.fromJson(jsonData);
     } on DioException catch (e) {

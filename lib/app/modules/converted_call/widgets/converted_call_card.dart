@@ -1,340 +1,257 @@
+import 'package:benevolent_crm_app/app/themes/app_color.dart';
+import 'package:benevolent_crm_app/app/utils/helpers.dart';
+import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+import '../constants/call_constants.dart';
 import '../modal/converted_call_model.dart';
 
 class ConvertedCallCard extends StatelessWidget {
   final ConvertedCall call;
-  const ConvertedCallCard({super.key, required this.call});
+  final bool showAccept;
+
+  const ConvertedCallCard({
+    super.key,
+    required this.call,
+    this.showAccept = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final formattedDate = _formatDate(call.assignedDate);
-    final initials = _getInitials(call.name);
 
-    return Material(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    final card = Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        child: Stack(
           children: [
-            // Header row
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Colors.blueAccent.withOpacity(0.1),
-                  child: Text(
-                    initials,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+                // Name + Call Button
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
                         call.name,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 17,
-                          color: Colors.black87,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        call.email,
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          color: Colors.grey[700],
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+                    ),
+                    // InkWell(
+                    //   onTap: () => HyperLinksNew.openDialer(call.phone),
+                    //   borderRadius: BorderRadius.circular(50),
+                    //   child: Container(
+                    //     padding: const EdgeInsets.all(8),
+                    //     decoration: const BoxDecoration(
+                    //       color: Color(0xFF2ED573),
+                    //       shape: BoxShape.circle,
+                    //     ),
+                    //     child: const Icon(
+                    //       Icons.call,
+                    //       size: 18,
+                    //       color: Colors.white,
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
                 ),
-                _buildStatusChip(call.status),
+
+                const SizedBox(height: 6),
+
+                // Email
+                Text(
+                  call.email,
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 10),
+
+                // Agent + Campaign
+                _infoRow(Icons.person, call.agent, Colors.pink),
+                const SizedBox(height: 6),
+                _infoRow(Icons.campaign_outlined, call.campaign, Colors.green),
+
+                const SizedBox(height: 10),
+
+                // Divider + Status
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(color: Colors.black12, thickness: 1),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildStatusChip(call.status),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Bottom Actions
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _actionIcon(
+                      bg: const Color(0xFF22C55E),
+                      icon: FontAwesomeIcons.whatsapp,
+                      onTap: () => HyperLinksNew.openWhatsApp(
+                        call.phone,
+                        'Hi ${call.name},',
+                      ),
+                    ),
+                    _actionIcon(
+                      bg: Colors.white,
+                      border: Border.all(color: Colors.black26),
+                      icon: Icons.email_outlined,
+                      iconColor: Colors.red.shade700,
+                      onTap: () =>
+                          HyperLinksNew.openEmail(call.email, call.name),
+                    ),
+                    _actionIcon(
+                      bg: Colors.white,
+                      border: Border.all(color: Colors.black26),
+                      icon: Icons.copy_rounded,
+                      iconColor: Colors.grey.shade800,
+                      onTap: () => Helpers.copyClipboard(
+                        'Name: ${call.name}\nPhone: ${call.phone}\nEmail: ${call.email}\nCampaign: ${call.campaign}',
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
 
-            const SizedBox(height: 14),
-
-            // Info rows (keep campaign + assigned date)
-            Wrap(
-              runSpacing: 10,
-              children: [
-                _infoRow(Icons.campaign_outlined, "Campaign: ${call.campaign}"),
-                _infoRow(
-                  Icons.calendar_today_outlined,
-                  "Assigned: $formattedDate",
+            Positioned(
+              right: 0,
+              child: InkWell(
+                onTap: () => HyperLinksNew.openDialer(call.phone),
+                borderRadius: BorderRadius.circular(50),
+                child: const Icon(
+                  Icons.call,
+                  size: 28,
+                  color: AppColors.primaryColor,
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Action chips (WhatsApp / Call / Email / Copy)
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _chip(
-                  icon: FontAwesomeIcons.whatsapp,
-                  label: 'WhatsApp',
-                  fg: const Color(0xFF1FA855),
-                  bg: const Color(0xFFE8F5E9),
-                  onTap: () => _whatsapp(call.phone, 'Hi ${call.name}, '),
-                ),
-                _chip(
-                  icon: Icons.call,
-                  label: 'Call',
-                  fg: const Color(0xFF1565C0),
-                  bg: const Color(0xFFE3F2FD),
-                  onTap: () => _call(call.phone),
-                ),
-                _chip(
-                  icon: Icons.email_outlined,
-                  label: 'Gmail',
-                  fg: const Color(0xFFD32F2F),
-                  bg: const Color(0xFFFFEBEE),
-                  onTap: () => _email(
-                    call.email,
-                    subject: 'Regarding your inquiry',
-                    body: 'Hi ${call.name},',
-                  ),
-                ),
-                _chip(
-                  icon: Icons.copy_rounded,
-                  label: 'Copy',
-                  fg: const Color(0xFF374151),
-                  bg: const Color(0xFFF3F4F6),
-                  onTap: () => _copy(
-                    'Name: ${call.name}\nPhone: ${call.phone}\nEmail: ${call.email}\nCampaign: ${call.campaign}',
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
       ),
     );
-  }
 
-  // --- UI bits ---
-  Widget _infoRow(IconData icon, String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    if (!showAccept) return card;
+
+    // Add Accept Ribbon
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
-        Icon(icon, size: 18, color: Colors.blueAccent),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 14.2, color: Colors.black87),
+        card,
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: -14,
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF22C55E),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: const Text(
+                'Accept',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _chip({
-    required IconData icon,
-    required String label,
-    required Color fg,
-    required Color bg,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(24),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 18, color: fg),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  color: fg,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                ),
-              ),
-            ],
+  // ---- Helpers ----
+  Widget _infoRow(IconData icon, String value, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
           ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildStatusChip(String status) {
-    final color = _getStatusColor(status);
-    final icon = _getStatusIcon(status);
+    final lowerStatus = status.toLowerCase();
+    final color =
+        CallConstants.statusColors[lowerStatus] ??
+        CallConstants.defaultStatusColor;
+    final icon =
+        CallConstants.statusIcons[lowerStatus] ??
+        CallConstants.defaultStatusIcon;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color.withOpacity(0.9), color.withOpacity(0.7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    if (status.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 6),
+        Text(
+          status,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
         ),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.25),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      ],
+    );
+  }
+
+  Widget _actionIcon({
+    required Color bg,
+    Border? border,
+    required IconData icon,
+    Color? iconColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: bg,
+          border: border,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: iconColor ?? Colors.white, size: 22),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.white),
-          const SizedBox(width: 6),
-          Text(
-            status,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
     );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'hot':
-        return Colors.redAccent;
-      case 'interested':
-        return Colors.green;
-      case 'cold':
-        return Colors.blueGrey;
-      case 'junk':
-        return Colors.grey;
-      case 'new lead':
-        return Colors.deepPurple;
-      default:
-        return Colors.blue;
-    }
-  }
-
-  IconData _getStatusIcon(String status) {
-    switch (status.toLowerCase()) {
-      case 'hot':
-        return Icons.whatshot;
-      case 'interested':
-        return Icons.thumb_up_alt;
-      case 'cold':
-        return Icons.ac_unit;
-      case 'junk':
-        return Icons.delete;
-      case 'new lead':
-        return Icons.fiber_new;
-      default:
-        return Icons.label;
-    }
-  }
-
-  String _formatDate(String rawDate) {
-    try {
-      final date = DateTime.parse(rawDate);
-      return DateFormat.yMMMEd().format(date);
-    } catch (_) {
-      return rawDate;
-    }
-  }
-
-  String _getInitials(String name) {
-    final parts = name.trim().split(' ');
-    if (parts.length >= 2)
-      return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
-    if (parts.isNotEmpty && parts[0].isNotEmpty)
-      return parts[0][0].toUpperCase();
-    return '?';
-  }
-
-  // --- actions ---
-  Future<void> _whatsapp(String raw, String pre) async {
-    final phone = _normalizePhone(raw);
-    final text = Uri.encodeComponent(pre);
-    final uri = Uri.parse('https://wa.me/$phone?text=$text');
-    await _launch(uri);
-  }
-
-  Future<void> _call(String raw) async {
-    final phone = _normalizePhone(raw, keepPlus: true);
-    final uri = Uri(scheme: 'tel', path: phone);
-    await _launch(uri);
-  }
-
-  Future<void> _email(
-    String to, {
-    String subject = '',
-    String body = '',
-  }) async {
-    final uri = Uri(
-      scheme: 'mailto',
-      path: to,
-      queryParameters: {
-        if (subject.isNotEmpty) 'subject': subject,
-        if (body.isNotEmpty) 'body': body,
-      },
-    );
-    await _launch(uri);
-  }
-
-  Future<void> _copy(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
-    Get.snackbar(
-      'Copied',
-      'Converted call details copied',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 2),
-    );
-  }
-
-  Future<void> _launch(Uri uri) async {
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      Get.snackbar(
-        'Action failed',
-        'Could not open: $uri',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-      );
-    }
-  }
-
-  // Simple phone normalizer; assumes +91 if 10 digits.
-  String _normalizePhone(String input, {bool keepPlus = false}) {
-    final digits = input.replaceAll(RegExp(r'[^0-9+]'), '');
-    if (digits.startsWith('+')) return keepPlus ? digits : digits.substring(1);
-    if (digits.length == 10) return keepPlus ? '+91$digits' : '91$digits';
-    return keepPlus ? '+$digits' : digits;
   }
 }

@@ -29,7 +29,5 @@ class ApiEndPoints {
   static String leadUpdateAdditionalPhone(int id) =>
       '/lead_update_additional_phone/$id';
 
-  // coldCallConvetToLead/1
-  // changeColdCallStatus/1
-  // lead_update_additional_phone/591
+  static String ADD_NOTES = '/addLeadComment';
 }

@@ -47,8 +47,8 @@ class ColdCallDetailPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.person, size: 40, color: AppThemes.primaryColor),
-          const SizedBox(width: 16),
+          // const Icon(Icons.person, size: 40, color: AppThemes.primaryColor),
+          // const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

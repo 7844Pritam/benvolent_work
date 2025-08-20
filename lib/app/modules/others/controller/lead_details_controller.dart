@@ -39,10 +39,22 @@ class LeadDetailsController extends GetxController {
   Future<void> refreshLead() => load(leadId.value);
 
   Lead? get model => lead.value?.lead;
-  String get leadName => model?.name ?? '-';
-  String get statusName => model?.statuses?.name ?? '-';
-  String get sourceName => model?.sources?.name ?? '-';
-  String get campaignName => model?.campaign?.name ?? '-';
+
+  String get leadName => model?.name?.trim().isNotEmpty == true
+      ? model!.name!
+      : "Lead name not available";
+
+  String get statusName => model?.statuses?.name?.trim().isNotEmpty == true
+      ? model!.statuses!.name!
+      : "No status assigned";
+
+  String get sourceName => model?.sources?.name?.trim().isNotEmpty == true
+      ? model!.sources!.name!
+      : "Source not provided";
+
+  String get campaignName => model?.campaign?.name?.trim().isNotEmpty == true
+      ? model!.campaign!.name!
+      : "No campaign selected";
 
   Future<void> updateAdditionalPhone({
     required int leadId,

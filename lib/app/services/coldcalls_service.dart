@@ -15,7 +15,7 @@ class ColdCallService {
     final response = await _apiClient.get(
       '/coldCalls',
       queryParameters: {'page': page},
-      data: requestModel,
+      data: requestModel.toJson(),
     );
     print("coldcalls");
     print(response);
@@ -44,9 +44,8 @@ class ColdCallService {
 
   Future<ConvertToLeadResponse> convertColdCall({
     required int callId,
-    int? status, // optional
+    int? status,
   }) async {
-    // curl: POST /coldCallConvetToLead/{id}  body: {"status":"23"} (optional)
     final response = await _apiClient.post(
       '/coldCallConvetToLead/$callId',
       data: status == null ? null : {'status': status.toString()},

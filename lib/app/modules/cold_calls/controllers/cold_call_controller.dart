@@ -8,14 +8,15 @@ import 'package:intl/intl.dart';
 class ColdCallController extends GetxController {
   final ColdCallService _service = ColdCallService();
 
-  var coldCalls = <ColdCall>[].obs;
-  var isLoading = false.obs;
-  var isPaginating = false.obs;
+  final coldCalls = <ColdCall>[].obs;
+  final isLoading = false.obs;
+  final isPaginating = false.obs;
   var currentPage = 1;
   var lastPage = 1;
+  final totalCount = 0.obs;
+
   final workingIds = <int>{}.obs;
-  // 🔍 Filter model
-  var filters = LeadRequestModel(
+  final currentFilters = LeadRequestModel(
     agentId: "",
     fromDate: "",
     toDate: "",
@@ -25,6 +26,8 @@ class ColdCallController extends GetxController {
     campaign: "",
     priority: "",
     keyword: "",
+    source: "",
+    isFresh: "",
   ).obs;
 
   // ---------- Date helpers ----------
@@ -61,7 +64,7 @@ class ColdCallController extends GetxController {
       (out[key] ??= []).add(c);
     }
     // sort items inside each day (newest first)
-    out.forEach((k, v) {
+    out.forEach((_, v) {
       v.sort((a, b) {
         final da =
             _parseDateFlexible(a.date) ??
@@ -94,33 +97,93 @@ class ColdCallController extends GetxController {
     fetchColdCalls(reset: true);
   }
 
+  /// Called by FilterPage when user taps "Apply"
   void applyFilters(LeadRequestModel newFilters) {
-    filters.value = newFilters;
+    currentFilters.value = newFilters;
     fetchColdCalls(reset: true);
+  }
+
+  /// Called by chips bar "Clear" button
+  Future<void> clearFilters() async {
+    currentFilters.value = currentFilters.value.copyWith(
+      agentId: '',
+      fromDate: '',
+      toDate: '',
+      developerId: '',
+      propertyId: '',
+      status: '',
+      campaign: '',
+      priority: '',
+      keyword: '',
+      source: '',
+      isFresh: '',
+    );
+    fetchColdCalls(reset: true);
+  }
+
+  /// Remove a single chip/tag (CSV ones remove a single id)
+  Future<void> removeTag(String key, {int? id}) async {
+    String _removeFromCsv(String csv, int id) {
+      final set = csv.split(',').where((e) => e.trim().isNotEmpty).toSet();
+      set.remove(id.toString());
+      return set.join(',');
+    }
+
+    final f = currentFilters.value;
+    switch (key) {
+      case 'agent_id':
+        applyFilters(f.copyWith(agentId: ''));
+        break;
+      case 'date_range':
+        applyFilters(f.copyWith(fromDate: '', toDate: ''));
+        break;
+      case 'status':
+        applyFilters(
+          f.copyWith(status: id == null ? '' : _removeFromCsv(f.status, id)),
+        );
+        break;
+      case 'campaign':
+        applyFilters(
+          f.copyWith(
+            campaign: id == null ? '' : _removeFromCsv(f.campaign, id),
+          ),
+        );
+        break;
+      case 'source':
+        applyFilters(
+          f.copyWith(source: id == null ? '' : _removeFromCsv(f.source, id)),
+        );
+        break;
+      case 'is_fresh':
+        applyFilters(f.copyWith(isFresh: ''));
+        break;
+      case 'keyword':
+        applyFilters(f.copyWith(keyword: ''));
+        break;
+    }
   }
 
   void fetchColdCalls({bool reset = false}) async {
     if (reset) {
       currentPage = 1;
       coldCalls.clear();
-    }
-
-    if (reset) {
       isLoading.value = true;
     } else {
+      if (isPaginating.value || !canLoadMore) return;
       isPaginating.value = true;
+      currentPage++;
     }
 
     try {
       final response = await _service.fetchColdCalls(
         currentPage,
-        requestModel: filters.value,
+        requestModel: currentFilters.value, // ✅ use active chips filters
       );
       coldCalls.addAll(response.data);
       lastPage = response.lastPage;
-      currentPage++;
+      totalCount.value = response.count; // Update total count
     } catch (e) {
-      // handle/log as needed
+      // optional: show a toast
     } finally {
       isLoading.value = false;
       isPaginating.value = false;
@@ -129,8 +192,7 @@ class ColdCallController extends GetxController {
 
   bool get canLoadMore => currentPage <= lastPage;
 
-  // cold_call_controller.dart (only methods shown)
-
+  // ------------ Actions ------------
   Future<void> changeColdCallStatus({
     required int callId,
     required int statusId,

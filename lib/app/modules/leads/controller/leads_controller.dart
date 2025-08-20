@@ -1,22 +1,26 @@
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
 import 'package:benevolent_crm_app/app/services/leads_service.dart';
-import 'package:get/get.dart';
+import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class LeadsController extends GetxController {
   final LeadsService _leadService = LeadsService();
+  // final FiltersController _filters = Get.find<FiltersController>();
 
-  var leads = <Lead>[].obs;
-  var selectedLead = Rxn<Lead>();
-  var isLoading = false.obs;
-  var isPaginating = false.obs;
-  var currentPage = 1.obs;
-  var lastPage = 1.obs;
-  var noResults = false.obs; // true when latest (reset) fetch returned 0
+  final leads = <Lead>[].obs;
+  final selectedLead = Rxn<Lead>();
+  final isLoading = false.obs;
+  final isPaginating = false.obs;
+  final noResults = false.obs;
+  final totalCount = 0.obs;
 
-  final Rx<LeadRequestModel> currentFilters = LeadRequestModel(
+  int currentPage = 1;
+  int lastPage = 1;
+
+  final currentFilters = LeadRequestModel(
     agentId: '',
     fromDate: '',
     toDate: '',
@@ -26,44 +30,11 @@ class LeadsController extends GetxController {
     developerId: '',
     propertyId: '',
     priority: '',
+    source: '',
+    isFresh: '',
   ).obs;
 
-  var filters = LeadRequestModel(
-    agentId: "",
-    fromDate: "",
-    toDate: "",
-    developerId: "",
-    propertyId: "",
-    status: "",
-    campaign: "",
-    priority: "",
-    keyword: "",
-  ).obs;
-  LeadRequestModel _copy(
-    LeadRequestModel s, {
-    String? agentId,
-    String? fromDate,
-    String? toDate,
-    String? status,
-    String? campaign,
-    String? keyword,
-    String? developerId,
-    String? propertyId,
-    String? priority,
-  }) {
-    return LeadRequestModel(
-      agentId: agentId ?? s.agentId,
-      fromDate: fromDate ?? s.fromDate,
-      toDate: toDate ?? s.toDate,
-      status: status ?? s.status,
-      campaign: campaign ?? s.campaign,
-      keyword: keyword ?? s.keyword,
-      developerId: developerId ?? s.developerId,
-      propertyId: propertyId ?? s.propertyId,
-      priority: priority ?? s.priority,
-    );
-  }
-
+  // ---------- Date helpers ----------
   final DateFormat _outFmt = DateFormat('dd/MM/yyyy');
 
   DateTime? _parseDateFlexible(String? raw) {
@@ -94,14 +65,13 @@ class LeadsController extends GetxController {
   Map<String, List<Lead>> get groupedLeads {
     final Map<String, List<Lead>> out = {};
     for (final lead in leads) {
-      final dt = _parseDateFlexible(lead.date) ?? _parseDateFlexible(lead.date);
-      // Fallback: if still null, group under "Unknown"
+      final dt = _parseDateFlexible(lead.date);
       final key = dt != null ? _outFmt.format(dt) : 'Unknown';
       (out[key] ??= []).add(lead);
     }
 
-    // Sort each day's leads optionally by time descending if available
-    out.forEach((key, list) {
+    // Sort each day's leads by date desc
+    out.forEach((_, list) {
       list.sort((a, b) {
         final da =
             _parseDateFlexible(a.date) ??
@@ -116,7 +86,6 @@ class LeadsController extends GetxController {
     return out;
   }
 
-  /// Sorted date keys with newest first (Unknown goes last).
   List<String> get groupedDateKeys {
     final keys = groupedLeads.keys.toList();
     keys.sort((a, b) {
@@ -135,121 +104,128 @@ class LeadsController extends GetxController {
     fetchLeads(reset: true);
   }
 
-  // Future<void> applyFilters(LeadRequestModel newFilters) async {
-  //   filters.value = newFilters;
-  //   print("Applying filters: ${filters.value.toJson()}");
-  //   await fetchLeads(reset: true);
-  // }
+  // ---------- Filters ----------
   Future<void> applyFilters(LeadRequestModel newFilters) async {
     currentFilters.value = newFilters;
     currentFilters.refresh();
-    print("Applying66666 fisdfsdlters: ${currentFilters.value.toJson()}");
     try {
-      print("Applying filters5555: ${currentFilters.value.toJson()}");
       await fetchLeads(reset: true);
+      if (noResults.value) {
+        CustomSnackbar.show(
+          title: 'No results',
+          message: 'No leads match your filters.',
+          type: ToastType.info,
+        );
+      }
     } catch (e) {
-      print('Error applying88888 filters: $e');
       CustomSnackbar.show(
         title: 'Error',
         message: e.toString(),
         type: ToastType.error,
       );
     }
-    print("1111Appliedsfdfs filters: ${currentFilters.value.toJson()}");
-    if (noResults.value) {
-      CustomSnackbar.show(
-        title: 'No results',
-        message: 'No leads match your filters.',
-        type: ToastType.info,
-      );
-    }
   }
 
-  Future<void> removeFilter(String key) async {
+  Future<void> removeTag(String key, {int? id}) async {
+    String _removeFromCsv(String csv, int id) {
+      final set = csv.split(',').where((e) => e.trim().isNotEmpty).toSet();
+      set.remove(id.toString());
+      return set.join(',');
+    }
+
     final f = currentFilters.value;
     switch (key) {
-      case 'agent':
-        currentFilters.value = _copy(f, agentId: '');
+      case 'agent_id':
+        await applyFilters(f.copyWith(agentId: ''));
+        break;
+      case 'date_range':
+        await applyFilters(f.copyWith(fromDate: '', toDate: ''));
         break;
       case 'status':
-        currentFilters.value = _copy(f, status: '');
+        await applyFilters(
+          f.copyWith(status: id == null ? '' : _removeFromCsv(f.status, id)),
+        );
         break;
       case 'campaign':
-        currentFilters.value = _copy(f, campaign: '');
+        await applyFilters(
+          f.copyWith(
+            campaign: id == null ? '' : _removeFromCsv(f.campaign, id),
+          ),
+        );
+        break;
+      case 'source':
+        await applyFilters(
+          f.copyWith(source: id == null ? '' : _removeFromCsv(f.source, id)),
+        );
+        break;
+      case 'is_fresh':
+        await applyFilters(f.copyWith(isFresh: ''));
         break;
       case 'keyword':
-        currentFilters.value = _copy(f, keyword: '');
-        break;
-      case 'daterange':
-        currentFilters.value = _copy(f, fromDate: '', toDate: '');
-        break;
-      case 'priority':
-        currentFilters.value = _copy(f, priority: '');
+        await applyFilters(f.copyWith(keyword: ''));
         break;
       case 'developer':
-        currentFilters.value = _copy(f, developerId: '');
+        await applyFilters(f.copyWith(developerId: ''));
         break;
       case 'property':
-        currentFilters.value = _copy(f, propertyId: '');
+        await applyFilters(f.copyWith(propertyId: ''));
+        break;
+      case 'priority':
+        await applyFilters(f.copyWith(priority: ''));
         break;
     }
-    currentFilters.refresh();
-    await fetchLeads(reset: true);
   }
 
-  // Clear everything and refresh
   Future<void> clearAllFilters() async {
-    currentFilters.value = LeadRequestModel(
-      agentId: '',
-      fromDate: '',
-      toDate: '',
-      status: '',
-      campaign: '',
-      keyword: '',
-      developerId: '',
-      propertyId: '',
-      priority: '',
+    await applyFilters(
+      LeadRequestModel(
+        agentId: '',
+        fromDate: '',
+        toDate: '',
+        status: '',
+        campaign: '',
+        keyword: '',
+        developerId: '',
+        propertyId: '',
+        priority: '',
+        source: '',
+        isFresh: '',
+      ),
     );
-    currentFilters.refresh();
-    await fetchLeads(reset: true);
   }
 
   Future<void> fetchLeads({bool reset = false}) async {
     if (reset) {
-      currentPage.value = 1;
+      currentPage = 1;
+      lastPage = 1;
       leads.clear();
-      noResults.value = false; // reset state before loading
-    }
-
-    if (reset) {
+      noResults.value = false;
       isLoading.value = true;
     } else {
+      if (isPaginating.value || !canLoadMore) return;
       isPaginating.value = true;
     }
 
     try {
       final result = await _leadService.fetchLeads(
-        requestModel:
-            currentFilters.value, // make sure you're using currentFilters
-        page: currentPage.value,
+        requestModel: currentFilters.value,
+        page: currentPage,
       );
 
-      lastPage.value = result.data.lastPage;
-
-      // add page results
-      final newItems = result.data.data.map((e) => e).toList();
+      lastPage = result.data.lastPage;
+      final newItems = result.data.data.toList();
       leads.addAll(newItems);
-
-      // if this was a reset fetch and total is 0 => mark noResults
+      totalCount.value = result.data.total;
       if (reset && leads.isEmpty) {
         noResults.value = true;
-      } else if (reset) {
-        noResults.value = false;
       }
 
-      currentPage.value++;
+      if (currentPage < lastPage) {
+        currentPage++;
+      } else {
+        currentPage = lastPage + 1;
+      }
     } catch (e) {
-      // your existing error handling
       CustomSnackbar.show(
         title: 'Error',
         message: e.toString(),
@@ -261,5 +237,34 @@ class LeadsController extends GetxController {
     }
   }
 
-  bool get canLoadMore => currentPage.value <= lastPage.value;
+  bool get canLoadMore => currentPage <= lastPage;
+
+  void updateLeadStatus({
+    required int leadId,
+    required int statusId,
+    required String statusName,
+    int?
+    subStatusId, // Ignored for now, as Lead model doesn't support sub-status
+  }) {
+    final leadIndex = leads.indexWhere((lead) => lead.id == leadId);
+    if (leadIndex != -1) {
+      final updatedLead = leads[leadIndex].copyWith(
+        status: statusId,
+        statusName: statusName,
+      );
+
+      // Check if the updated lead matches active filters
+      final filters = currentFilters.value;
+      final statusFilter = filters.status
+          .split(',')
+          .where((e) => e.isNotEmpty)
+          .toList();
+      if (statusFilter.isEmpty || statusFilter.contains(statusId.toString())) {
+        leads[leadIndex] = updatedLead;
+      } else {
+        leads.removeAt(leadIndex);
+        totalCount.value--;
+      }
+    }
+  }
 }

@@ -28,6 +28,7 @@ class ScheduleController extends GetxController {
       isSubmitting.value = true;
       final result = await _scheduleService.addSchedules(request);
       schedules.add(ScheduleModel.fromJson(result.data.toJson()));
+      print("Schedule added successfully");
       print(result.message);
       Get.back();
       await Future.delayed(Duration(milliseconds: 300));
