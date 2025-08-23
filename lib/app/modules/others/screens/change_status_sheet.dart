@@ -7,11 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ChangeStatusSheet extends StatefulWidget {
-  final int callId;
-  const ChangeStatusSheet({super.key, required this.callId});
+  final int leadId;
+  final int? currentStatusId;
+
+  const ChangeStatusSheet({
+    Key? key,
+    required this.leadId,
+    this.currentStatusId,
+  }) : super(key: key);
 
   @override
-  State<ChangeStatusSheet> createState() => _ChangeStatusSheetState();
+  _ChangeStatusSheetState createState() => _ChangeStatusSheetState();
 }
 
 class _ChangeStatusSheetState extends State<ChangeStatusSheet> {
@@ -23,6 +29,14 @@ class _ChangeStatusSheetState extends State<ChangeStatusSheet> {
 
   String _selectedStatusId = '';
   String _selectedSubStatusId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.currentStatusId != null) {
+      _selectedStatusId = widget.currentStatusId.toString();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +53,9 @@ class _ChangeStatusSheetState extends State<ChangeStatusSheet> {
             ],
           ),
           child: Obx(() {
-            final isLoading = _filters.isLoading.value;
+            final isLoading =
+                _filters.isLoading.value || _controller.isLoading.value;
             final statuses = _filters.statusList;
-            // Filter sub-statuses for the currently selected status
             final subStatuses = _filters.subStatusesFor(_selectedStatusId);
 
             /// Bootstrap defaults once data is present
@@ -52,7 +66,6 @@ class _ChangeStatusSheetState extends State<ChangeStatusSheet> {
             }
             if (!isLoading && _selectedStatusId.isNotEmpty) {
               if (subStatuses.isNotEmpty) {
-                // if selected subStatus is not in the filtered list, pick the first one
                 final containsSelected = subStatuses.any(
                   (s) => s.id.toString() == _selectedSubStatusId,
                 );
@@ -70,7 +83,6 @@ class _ChangeStatusSheetState extends State<ChangeStatusSheet> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Drag handle
                   Center(
                     child: Container(
                       height: 5,
@@ -110,7 +122,6 @@ class _ChangeStatusSheetState extends State<ChangeStatusSheet> {
                         if (val == null) return;
                         setState(() {
                           _selectedStatusId = val;
-                          // Reset sub-status when status changes
                           final fresh = _filters.subStatusesFor(
                             _selectedStatusId,
                           );
@@ -182,17 +193,19 @@ class _ChangeStatusSheetState extends State<ChangeStatusSheet> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        onPressed: () async {
-                          if (!_formKey.currentState!.validate()) return;
-                          if (_selectedStatusId.isEmpty) return;
+                        onPressed: isLoading
+                            ? null
+                            : () async {
+                                if (!_formKey.currentState!.validate()) return;
+                                if (_selectedStatusId.isEmpty) return;
 
-                          await _controller.changeStatus(
-                            widget.callId,
-                            _selectedStatusId,
-                            _selectedSubStatusId,
-                            _commentController.text.trim(),
-                          );
-                        },
+                                await _controller.changeStatus(
+                                  widget.leadId,
+                                  _selectedStatusId,
+                                  _selectedSubStatusId,
+                                  _commentController.text.trim(),
+                                );
+                              },
                         child: const Text(
                           "Submit",
                           style: TextStyle(

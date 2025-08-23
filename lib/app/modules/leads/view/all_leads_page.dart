@@ -1,4 +1,4 @@
-import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_details.dart';
+import 'package:benevolent_crm_app/app/modules/others/screens/leads_details_page.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
@@ -134,12 +134,20 @@ class AllLeadsPage extends StatelessWidget {
         backgroundColor: AppColors.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          Text(
-            style: const TextStyle(color: Colors.white, fontSize: 22),
-            _controller.totalCount.value > 0
-                ? '(${_controller.totalCount.value})'
-                : 'No Leads',
+          Obx(
+            () => Text(
+              _controller.totalCount.value > 0
+                  ? '(${_controller.totalCount.value})'
+                  : 'No Leads',
+              style: const TextStyle(color: Colors.white, fontSize: 22),
+            ),
           ),
+          // Text(
+          //   style: const TextStyle(color: Colors.white, fontSize: 22),
+          //   _controller.totalCount.value > 0
+          //       ? '(${_controller.totalCount.value})'
+          //       : 'No Leads',
+          // ),
           IconButton(
             icon: const Icon(LucideIcons.filter, color: Colors.white),
 

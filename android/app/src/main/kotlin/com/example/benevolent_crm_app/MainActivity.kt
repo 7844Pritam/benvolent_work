@@ -1,4 +1,4 @@
-package com.example.benevolent_crm_app
+package com.benevolent.crmapp
 
 import io.flutter.embedding.android.FlutterActivity
 

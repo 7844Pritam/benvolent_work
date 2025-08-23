@@ -120,11 +120,13 @@ class ColdCallPage extends StatelessWidget {
         backgroundColor: AppColors.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          Text(
-            style: const TextStyle(color: Colors.white, fontSize: 22),
-            _controller.totalCount.value > 0
-                ? '(${_controller.totalCount.value})'
-                : 'No Leads',
+          Obx(
+            () => Text(
+              _controller.totalCount.value > 0
+                  ? '(${_controller.totalCount.value})'
+                  : 'No Leads',
+              style: const TextStyle(color: Colors.white, fontSize: 22),
+            ),
           ),
           IconButton(
             icon: const Icon(LucideIcons.filter, color: Colors.white),

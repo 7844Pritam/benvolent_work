@@ -1,4 +1,4 @@
-import 'package:benevolent_crm_app/app/modules/leads/modals/lead_details_response.dart';
+import 'package:benevolent_crm_app/app/modules/others/modals/lead_details_response.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
 import 'package:benevolent_crm_app/app/services/api/api_client.dart';

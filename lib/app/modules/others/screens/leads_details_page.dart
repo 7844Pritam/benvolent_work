@@ -1,9 +1,10 @@
 import 'package:benevolent_crm_app/app/modules/others/controller/notes_controller.dart';
 import 'package:benevolent_crm_app/app/modules/others/controller/lead_details_controller.dart';
-import 'package:benevolent_crm_app/app/modules/leads/modals/lead_details_response.dart';
+import 'package:benevolent_crm_app/app/modules/others/modals/lead_details_response.dart';
 import 'package:benevolent_crm_app/app/utils/helpers.dart';
 import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_select_field.dart';
+import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -13,8 +14,6 @@ import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
-import 'package:benevolent_crm_app/app/utils/validators.dart';
-
 import 'package:benevolent_crm_app/app/modules/others/controller/shedule_controller.dart';
 import 'package:benevolent_crm_app/app/modules/others/modals/shedule_modal.dart';
 import 'package:benevolent_crm_app/app/modules/others/modals/schedule_request_model.dart';
@@ -120,10 +119,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     );
   }
 
-  // =================== UI blocks ===================
-
   Widget _headerCard(Lead lead) {
-    // final statusName = c.statusName;
     final statusColor = _hexColor(lead.statuses?.color) ?? Colors.blueGrey;
     final campaignName = c.campaignName;
     final dateStr = lead.date != null
@@ -141,30 +137,31 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                 children: [
                   Text(lead.name ?? '-', style: TextStyles.Text18700),
                   const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 6,
-                    children: [
-                      _chip(
-                        campaignName.isEmpty ? 'No Campaign' : campaignName,
-                      ),
-
-                      _chip(
-                        'Status: ${(c.statusName.trim().isEmpty) ? 'None' : c.statusName}',
-
-                        bg: statusColor.withOpacity(.12),
-                        fg: statusColor,
-                      ),
-                      _chip('Date: $dateStr'),
-                      if ((lead.priority ?? '').isNotEmpty)
-                        _chip('Priority: ${lead.priority}'),
-                      if (lead.isFresh == 1)
+                  Obx(
+                    () => Wrap(
+                      // Wrap in Obx to react to status changes
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
                         _chip(
-                          'Fresh',
-                          bg: Colors.green.withOpacity(.12),
-                          fg: Colors.green,
+                          campaignName.isEmpty ? 'No Campaign' : campaignName,
                         ),
-                    ],
+                        _chip(
+                          'Status: ${c.statusName.trim().isEmpty ? 'None' : c.statusName}',
+                          bg: statusColor.withOpacity(.12),
+                          fg: statusColor,
+                        ),
+                        _chip('Date: $dateStr'),
+                        if ((lead.priority ?? '').isNotEmpty)
+                          _chip('Priority: ${lead.priority}'),
+                        if (lead.isFresh == 1)
+                          _chip(
+                            'Fresh',
+                            bg: Colors.green.withOpacity(.12),
+                            fg: Colors.green,
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -346,16 +343,17 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                       : () async {
                           final text = noteInputController.text.trim();
                           if (text.isEmpty) {
-                            Get.snackbar(
-                              "Note required",
-                              "Please type something to save.",
+                            CustomSnackbar.show(
+                              title: "Note required",
+                              message: "Please type something to save.",
+                              type: ToastType.info,
                             );
+
                             return;
                           }
 
                           await notesController.addNotes(lead.id!, text);
 
-                          // If success snackbar came from controller, refresh + clear input
                           if (!loading) {
                             await c
                                 .refreshLead(); // reload lead to show latest notes
@@ -515,6 +513,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
           ],
         ),
         const SizedBox(height: 4),
+
         Row(
           children: [
             Expanded(
@@ -523,35 +522,41 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                 style: const TextStyle(fontSize: 14),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.copy, size: 18),
-              onPressed: (value?.isNotEmpty ?? false)
-                  ? () async {
-                      await Clipboard.setData(ClipboardData(text: value!));
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Copied')));
-                    }
-                  : null,
-            ),
-            IconButton(
-              icon: const Icon(FontAwesomeIcons.whatsapp, color: Colors.green),
-              // onPressed: () => _openSms(value),
-              onPressed: () => HyperLinksNew.openWhatsApp(
-                Helpers.normalizePhone(value ?? '', keepPlus: true),
-                c.model?.name ?? '',
+            if (value != null)
+              IconButton(
+                icon: const Icon(Icons.copy, size: 18),
+                onPressed: (value.isNotEmpty)
+                    ? () async {
+                        await Clipboard.setData(ClipboardData(text: value));
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied')));
+                      }
+                    : null,
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.phone, color: Colors.green),
-              // onPressed: () => _openDialer(value),
-              onPressed: () async {
-                await HyperLinksNew.openDialer(
-                  Helpers.normalizePhone(value ?? '', keepPlus: true),
-                );
-              },
-            ),
+            if (value != null)
+              IconButton(
+                icon: const Icon(
+                  FontAwesomeIcons.whatsapp,
+                  color: Colors.green,
+                ),
+                // onPressed: () => _openSms(value),
+                onPressed: () => HyperLinksNew.openWhatsApp(
+                  Helpers.normalizePhone(value, keepPlus: true),
+                  c.model?.name ?? '',
+                ),
+              ),
+            if (value != null)
+              IconButton(
+                icon: const Icon(Icons.phone, color: Colors.green),
+                // onPressed: () => _openDialer(value),
+                onPressed: () async {
+                  await HyperLinksNew.openDialer(
+                    Helpers.normalizePhone(value, keepPlus: true),
+                  );
+                },
+              ),
           ],
         ),
       ],
@@ -581,7 +586,8 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                 CustomInputField(
                   label: "Additional phone",
                   controller: txt,
-
+                  maxLength: 15,
+                  keyboardType: TextInputType.number,
                   validator: (v) {
                     final s = (v ?? '').trim();
                     if (s.isEmpty) return 'Please enter a number';
@@ -609,9 +615,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                                   leadId: widget.leadId,
                                   phone: txt.text.trim(),
                                 );
-                                if (Get.isBottomSheetOpen ?? false) {
-                                  Get.back(); // close after update
-                                }
+                                Get.back();
                               },
                         child: saving
                             ? const SizedBox(
@@ -621,7 +625,10 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text('Save'),
+                            : Text(
+                                'Save',
+                                style: TextStyle(color: Colors.white),
+                              ),
                       ),
                     ),
                   ],
@@ -660,18 +667,19 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                 style: const TextStyle(fontSize: 14),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.copy, size: 18),
-              onPressed: (value == null || value.isEmpty)
-                  ? null
-                  : () async {
-                      await Clipboard.setData(ClipboardData(text: value));
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Copied')));
-                    },
-            ),
+            if (value != null && value.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.copy, size: 18),
+                onPressed: (value.isEmpty)
+                    ? null
+                    : () async {
+                        await Clipboard.setData(ClipboardData(text: value));
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied')));
+                      },
+              ),
           ],
         ),
       ],
@@ -726,7 +734,10 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                 right: 16,
                 top: 16,
               ),
-              child: ChangeStatusSheet(callId: widget.leadId),
+              child: ChangeStatusSheet(
+                leadId: widget.leadId,
+                currentStatusId: c.model?.statuses?.id,
+              ),
             ),
           );
         },
@@ -742,11 +753,9 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
 
     final formKey = GlobalKey<FormState>();
     final planToDoController = TextEditingController(
-      text: existing?.planToDo ?? '',
+      text: existing?.planToDo ?? 'Meeting',
     );
-    final commentController = TextEditingController(
-      text: existing?.planToDo ?? '',
-    );
+    final commentController = TextEditingController();
     DateTime selectedDate =
         DateTime.tryParse(existing?.scheduleDate ?? '') ?? DateTime.now();
 
@@ -839,8 +848,8 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                   CustomInputField(
                     label: "Comment (optional)",
                     controller: commentController,
-                    validator: (v) =>
-                        Validators.validateEmpty(v, fieldName: "Comment"),
+                    // validator: (v) =>
+                    //     Validators.validateEmpty(v, fieldName: "Comment"),
                   ),
                   const SizedBox(height: 12),
                   CustomButton(
@@ -854,7 +863,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                           'yyyy-MM-dd',
                         ).format(selectedDate),
                         scheduleTime: selectedTime.format(context),
-                        planToDo: "slkdfjsd",
+                        planToDo: planToDoController.text.trim(),
                       );
 
                       if (isEdit) {

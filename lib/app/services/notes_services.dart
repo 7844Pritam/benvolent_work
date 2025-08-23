@@ -1,5 +1,5 @@
-import 'package:benevolent_crm_app/app/modules/converted_call/modal/request_notes_modal.dart';
-import 'package:benevolent_crm_app/app/modules/converted_call/modal/response_notes_modal.dart';
+import 'package:benevolent_crm_app/app/modules/others/modals/request_notes_modal.dart';
+import 'package:benevolent_crm_app/app/modules/others/modals/response_notes_modal.dart';
 import 'package:benevolent_crm_app/app/services/api/api_client.dart';
 import 'package:benevolent_crm_app/app/services/api/api_end_points.dart';
 import 'package:benevolent_crm_app/app/utils/error_handler.dart';

@@ -1,7 +1,7 @@
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_request.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
 import 'package:benevolent_crm_app/app/services/leads_service.dart';
-import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
+
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';

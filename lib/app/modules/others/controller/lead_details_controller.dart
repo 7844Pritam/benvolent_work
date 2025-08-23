@@ -1,5 +1,4 @@
-// lead_details_controller.dart
-import 'package:benevolent_crm_app/app/modules/leads/modals/lead_details_response.dart';
+import 'package:benevolent_crm_app/app/modules/others/modals/lead_details_response.dart';
 import 'package:benevolent_crm_app/app/services/leads_service.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:get/get.dart';
@@ -46,7 +45,7 @@ class LeadDetailsController extends GetxController {
 
   String get statusName => model?.statuses?.name?.trim().isNotEmpty == true
       ? model!.statuses!.name!
-      : "No status assigned";
+      : "None";
 
   String get sourceName => model?.sources?.name?.trim().isNotEmpty == true
       ? model!.sources!.name!
@@ -60,21 +59,14 @@ class LeadDetailsController extends GetxController {
     required int leadId,
     required String phone,
   }) async {
-    if (phone.trim().isEmpty) {
-      CustomSnackbar.show(
-        title: 'Validation',
-        message: 'Phone cannot be empty',
-        type: ToastType.info,
-      );
-      return;
-    }
-
     isSavingPhone.value = true;
     try {
       final res = await _service.updateAdditionalPhone(
         leadId: leadId,
         additionalPhone: phone.trim(),
       );
+
+      Get.back();
 
       CustomSnackbar.show(
         title: 'Success',
@@ -84,16 +76,56 @@ class LeadDetailsController extends GetxController {
         type: ToastType.success,
       );
 
-      // ✅ Refresh from the canonical getLead which returns List<LeadAssignment>
       await refreshLead();
     } catch (e) {
-      CustomSnackbar.show(
-        title: 'Error',
-        message: e.toString(),
-        type: ToastType.error,
-      );
+      // CustomSnackbar.show(
+      //   title: 'Success',
+      //   message: 'Additional phone updated successfully',
+      //   type: ToastType.success,
+      // );
+      // Get.back();
+      await refreshLead();
+
+      print(e.toString());
+      // CustomSnackbar.show(
+      //   title: 'Error',
+      //   message: e.toString(),
+      //   type: ToastType.error,
+      // );
     } finally {
       isSavingPhone.value = false;
     }
+  }
+
+  void updateLeadStatus({
+    required int statusId,
+    required String statusName,
+    String? statusColor,
+    int? subStatusId,
+  }) {
+    if (lead.value?.lead == null) return;
+    final updatedStatuses =
+        lead.value!.lead.statuses?.copyWith(
+          id: statusId,
+          name: statusName,
+          color: statusColor ?? lead.value!.lead.statuses?.color,
+        ) ??
+        StatusInfo(
+          id: statusId,
+          name: statusName,
+          color: statusColor,
+          statusOrder: null,
+          isDefault: null,
+          approveStatus: null,
+          superStatusId: null,
+          createdAt: null,
+          updatedAt: null,
+        );
+    final updatedLead = lead.value!.lead.copyWith(
+      statusId: statusId,
+      subStatusId: subStatusId ?? lead.value!.lead.subStatusId,
+      statuses: updatedStatuses,
+    );
+    lead.value = lead.value!.copyWith(lead: updatedLead);
   }
 }

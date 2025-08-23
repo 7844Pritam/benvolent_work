@@ -10,6 +10,8 @@ class CustomInputField extends StatelessWidget {
   final VoidCallback? onSuffixTap;
   final String? Function(String?)? validator;
   final bool enabled;
+  final TextInputType keyboardType;
+  final int? maxLength;
 
   const CustomInputField({
     super.key,
@@ -20,6 +22,8 @@ class CustomInputField extends StatelessWidget {
     this.onSuffixTap,
     this.validator,
     this.enabled = true,
+    this.keyboardType = TextInputType.text, // default
+    this.maxLength, // optional
   });
 
   @override
@@ -35,6 +39,8 @@ class CustomInputField extends StatelessWidget {
           validator: validator,
           style: const TextStyle(color: AppThemes.primaryColor),
           enabled: enabled,
+          keyboardType: keyboardType,
+          maxLength: maxLength,
           decoration: InputDecoration(
             labelText: label,
             floatingLabelBehavior: FloatingLabelBehavior.auto,
@@ -59,6 +65,7 @@ class CustomInputField extends StatelessWidget {
                 ? IconButton(icon: suffixIcon!, onPressed: onSuffixTap)
                 : null,
             labelStyle: TextStyles.label.copyWith(color: AppThemes.lightGrey),
+            counterText: "", // hides the default maxLength indicator
           ),
         ),
         const SizedBox(height: 8),

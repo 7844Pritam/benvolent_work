@@ -1,5 +1,6 @@
-import 'package:benevolent_crm_app/app/modules/converted_call/modal/request_notes_modal.dart';
+import 'package:benevolent_crm_app/app/modules/others/modals/request_notes_modal.dart';
 import 'package:benevolent_crm_app/app/services/notes_services.dart';
+import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:get/get.dart';
 
 class NotesController extends GetxController {
@@ -21,13 +22,12 @@ class NotesController extends GetxController {
       final ok = (res.success == true) || (res.success == 200);
 
       if (ok) {
-        Get.snackbar("Success", res.message);
+        CustomSnackbar.show(title: "Success", message: res.message);
       } else {
-        Get.snackbar("Error", res.message);
+        CustomSnackbar.show(title: "Error", message: res.message);
       }
     } catch (e) {
-      print("Error in adding notesdsfdsf: $e");
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.show(title: "Error", message: e.toString());
     } finally {
       isLoading(false);
     }

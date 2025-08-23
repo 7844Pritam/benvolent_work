@@ -1,15 +1,18 @@
 import 'package:benevolent_crm_app/app/modules/converted_call/modal/converted_call_model.dart';
+import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
+import 'package:benevolent_crm_app/app/modules/others/controller/lead_details_controller.dart';
 import 'package:benevolent_crm_app/app/services/change_status_service.dart';
-
+import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:get/get.dart';
 
 class ChangeStatusController extends GetxController {
   final ChangeStatusService _service = ChangeStatusService();
-  // ignore: unused_field
   final LeadsController _leadsController = Get.find<LeadsController>();
   RxList<ConvertedCall> calls = <ConvertedCall>[].obs;
-
+  final isLoading = false.obs;
+  final LeadDetailsController _leadDetailsController =
+      Get.find<LeadDetailsController>();
   Future<void> changeStatus(
     int id,
     String status,
@@ -17,6 +20,7 @@ class ChangeStatusController extends GetxController {
     String comment,
   ) async {
     try {
+      isLoading.value = true;
       final res = await _service.changeStatus(
         id: id,
         status: status,
@@ -25,22 +29,41 @@ class ChangeStatusController extends GetxController {
       );
 
       if (res['success'] == 200) {
-        print("Status updated successfully");
+        final statusName =
+            Get.find<FiltersController>().statusList
+                .firstWhereOrNull((s) => s.id.toString() == status)
+                ?.name ??
+            'Unknown';
+        _leadsController.updateLeadStatus(
+          leadId: id,
+          statusId: int.parse(status),
+          statusName: statusName,
+        );
 
-        Get.snackbar("Success", "Status updated successfully");
-
-        print("Status updated successfully234");
-
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (Get.isBottomSheetOpen ?? false) {
-            Get.back();
-          }
-        });
+        // Close the bottom sheet first
+        if (Get.isBottomSheetOpen ?? false) {
+          Get.back();
+        }
+        _leadDetailsController.updateLeadStatus(
+          statusId: int.parse(status),
+          statusName: statusName,
+          statusColor: res['color'], // Assuming API returns color
+        );
+        // Show snackbar after closing
+        CustomSnackbar.show(
+          title: "Success",
+          message: res['message'] ?? "Status updated successfully",
+        );
       } else {
-        Get.snackbar("Error", res['message'] ?? "Failed");
+        CustomSnackbar.show(
+          title: "Error",
+          message: res['message'] ?? "Failed to update status",
+        );
       }
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.show(title: "Error", message: e.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 }

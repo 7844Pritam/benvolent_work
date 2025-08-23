@@ -1,5 +1,3 @@
-// lead_details_models.dart
-
 import 'package:intl/intl.dart';
 
 class LeadDetailsResponse {
@@ -14,13 +12,22 @@ class LeadDetailsResponse {
   });
 
   factory LeadDetailsResponse.fromJson(Map<String, dynamic> json) {
+    final rawData = json['data'];
+
+    List<LeadAssignment> parsedData = [];
+    if (rawData is List) {
+      parsedData = rawData
+          .whereType<Map<String, dynamic>>()
+          .map((e) => LeadAssignment.fromJson(e))
+          .toList();
+    } else if (rawData is Map<String, dynamic>) {
+      parsedData = [LeadAssignment.fromJson(rawData)];
+    }
+
     return LeadDetailsResponse(
       success: _asInt(json['success']) ?? 0,
       message: (json['message'] ?? '').toString(),
-      data: (json['data'] as List<dynamic>? ?? [])
-          .whereType<Map<String, dynamic>>()
-          .map((e) => LeadAssignment.fromJson(e))
-          .toList(),
+      data: parsedData,
     );
   }
 
@@ -75,6 +82,28 @@ class LeadAssignment {
     'deleted_at': deletedAt?.toIso8601String(),
     'lead': lead.toJson(),
   };
+
+  LeadAssignment copyWith({
+    int? id,
+    int? leadId,
+    int? userId,
+    int? isAccepted,
+    DateTime? assignTime,
+    DateTime? lastActivityTime,
+    DateTime? deletedAt,
+    Lead? lead,
+  }) {
+    return LeadAssignment(
+      id: id ?? this.id,
+      leadId: leadId ?? this.leadId,
+      userId: userId ?? this.userId,
+      isAccepted: isAccepted ?? this.isAccepted,
+      assignTime: assignTime ?? this.assignTime,
+      lastActivityTime: lastActivityTime ?? this.lastActivityTime,
+      deletedAt: deletedAt ?? this.deletedAt,
+      lead: lead ?? this.lead,
+    );
+  }
 }
 
 class Lead {
@@ -84,22 +113,18 @@ class Lead {
   final String? phone;
   final String? altPhone;
   final String? additionalPhone;
-
   final DateTime? date;
   final DateTime? dob;
-
-  final int? sourceId; // parsed from "source": "7"
+  final int? sourceId;
   final String? priority;
   final String? comment;
   final String? additionalComment;
-
   final int? customerId;
   final int? developerId;
   final int? propertyId;
-
   final String? propertyPreference;
   final String? jobProfile;
-  final String? avgIncome; // keep money as string
+  final String? avgIncome;
   final int? statusId;
   final String? propertyType;
   final String? leadMarket;
@@ -109,29 +134,28 @@ class Lead {
   final String? attachment;
   final String? type;
   final String? subType;
-  final String? amount; // keep money as string
+  final String? amount;
   final DateTime? closedDate;
   final int? closeBy;
-  final String? externalLeadId; // "lead_id": "LE_Aug_01_2025"
+  final String? externalLeadId;
   final int? agentId;
   final String? review;
   final int? createdBy;
   final int? assignLeadsCount;
   final String? previousAgentIds;
-  final int? isAccepted; // 0/1
+  final int? isAccepted;
   final DateTime? confirmDate;
   final int? cronCount;
   final int? activityCheck;
-  final int? compaignId; // spelled like in API
+  final int? compaignId;
   final int? subSourceId;
   final int? compaignManagerId;
   final int? eventId;
   final int? superStatusId;
-  final int? usedForPromotion; // 0/1
+  final int? usedForPromotion;
   final int? noAnswerStatusCount;
-  final int? needWhatsapp; // 0/1
-  final int? isFresh; // 0/1
-
+  final int? needWhatsapp;
+  final int? isFresh;
   final Property? property;
   final List<Agent> agents;
   final StatusInfo? statuses;
@@ -250,27 +274,32 @@ class Lead {
       noAnswerStatusCount: _asInt(json['no_answer_status_count']),
       needWhatsapp: _asInt(json['need_whatsapp']),
       isFresh: _asInt(json['is_fresh']),
-      property: json['property'] is Map<String, dynamic>
+      property:
+          json['property'] != null && json['property'] is Map<String, dynamic>
           ? Property.fromJson(json['property'])
           : null,
       agents: (json['agents'] as List<dynamic>? ?? [])
           .whereType<Map<String, dynamic>>()
           .map((e) => Agent.fromJson(e))
           .toList(),
-      statuses: json['statuses'] is Map<String, dynamic>
+      statuses:
+          json['statuses'] != null && json['statuses'] is Map<String, dynamic>
           ? StatusInfo.fromJson(json['statuses'])
           : null,
-      leadUser: json['lead_user'] is Map<String, dynamic>
+      leadUser:
+          json['lead_user'] != null && json['lead_user'] is Map<String, dynamic>
           ? LeadUserLink.fromJson(json['lead_user'])
           : null,
-      sources: json['sources'] is Map<String, dynamic>
+      sources:
+          json['sources'] != null && json['sources'] is Map<String, dynamic>
           ? SourceInfo.fromJson(json['sources'])
           : null,
       newComments: (json['new_comments'] as List<dynamic>? ?? [])
           .whereType<Map<String, dynamic>>()
           .map((e) => CommentEntry.fromJson(e))
           .toList(),
-      campaign: json['campaign'] is Map<String, dynamic>
+      campaign:
+          json['campaign'] != null && json['campaign'] is Map<String, dynamic>
           ? CampaignInfo.fromJson(json['campaign'])
           : null,
     );
@@ -334,6 +363,124 @@ class Lead {
     'new_comments': newComments.map((e) => e.toJson()).toList(),
     'campaign': campaign?.toJson(),
   };
+
+  Lead copyWith({
+    int? id,
+    String? name,
+    String? email,
+    String? phone,
+    String? altPhone,
+    String? additionalPhone,
+    DateTime? date,
+    DateTime? dob,
+    int? sourceId,
+    String? priority,
+    String? comment,
+    String? additionalComment,
+    int? customerId,
+    int? developerId,
+    int? propertyId,
+    String? propertyPreference,
+    String? jobProfile,
+    String? avgIncome,
+    int? statusId,
+    String? propertyType,
+    String? leadMarket,
+    String? propertyRef,
+    String? sourcePortal,
+    int? subStatusId,
+    String? attachment,
+    String? type,
+    String? subType,
+    String? amount,
+    DateTime? closedDate,
+    int? closeBy,
+    String? externalLeadId,
+    int? agentId,
+    String? review,
+    int? createdBy,
+    int? assignLeadsCount,
+    String? previousAgentIds,
+    int? isAccepted,
+    DateTime? confirmDate,
+    int? cronCount,
+    int? activityCheck,
+    int? compaignId,
+    int? subSourceId,
+    int? compaignManagerId,
+    int? eventId,
+    int? superStatusId,
+    int? usedForPromotion,
+    int? noAnswerStatusCount,
+    int? needWhatsapp,
+    int? isFresh,
+    Property? property,
+    List<Agent>? agents,
+    StatusInfo? statuses,
+    LeadUserLink? leadUser,
+    SourceInfo? sources,
+    List<CommentEntry>? newComments,
+    CampaignInfo? campaign,
+  }) {
+    return Lead(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      altPhone: altPhone ?? this.altPhone,
+      additionalPhone: additionalPhone ?? this.additionalPhone,
+      date: date ?? this.date,
+      dob: dob ?? this.dob,
+      sourceId: sourceId ?? this.sourceId,
+      priority: priority ?? this.priority,
+      comment: comment ?? this.comment,
+      additionalComment: additionalComment ?? this.additionalComment,
+      customerId: customerId ?? this.customerId,
+      developerId: developerId ?? this.developerId,
+      propertyId: propertyId ?? this.propertyId,
+      propertyPreference: propertyPreference ?? this.propertyPreference,
+      jobProfile: jobProfile ?? this.jobProfile,
+      avgIncome: avgIncome ?? this.avgIncome,
+      statusId: statusId ?? this.statusId,
+      propertyType: propertyType ?? this.propertyType,
+      leadMarket: leadMarket ?? this.leadMarket,
+      propertyRef: propertyRef ?? this.propertyRef,
+      sourcePortal: sourcePortal ?? this.sourcePortal,
+      subStatusId: subStatusId ?? this.subStatusId,
+      attachment: attachment ?? this.attachment,
+      type: type ?? this.type,
+      subType: subType ?? this.subType,
+      amount: amount ?? this.amount,
+      closedDate: closedDate ?? this.closedDate,
+      closeBy: closeBy ?? this.closeBy,
+      externalLeadId: externalLeadId ?? this.externalLeadId,
+      agentId: agentId ?? this.agentId,
+      review: review ?? this.review,
+      createdBy: createdBy ?? this.createdBy,
+      assignLeadsCount: assignLeadsCount ?? this.assignLeadsCount,
+      previousAgentIds: previousAgentIds ?? this.previousAgentIds,
+      isAccepted: isAccepted ?? this.isAccepted,
+      confirmDate: confirmDate ?? this.confirmDate,
+      cronCount: cronCount ?? this.cronCount,
+      activityCheck: activityCheck ?? this.activityCheck,
+      compaignId: compaignId ?? this.compaignId,
+      subSourceId: subSourceId ?? this.subSourceId,
+      compaignManagerId: compaignManagerId ?? this.compaignManagerId,
+      eventId: eventId ?? this.eventId,
+      superStatusId: superStatusId ?? this.superStatusId,
+      usedForPromotion: usedForPromotion ?? this.usedForPromotion,
+      noAnswerStatusCount: noAnswerStatusCount ?? this.noAnswerStatusCount,
+      needWhatsapp: needWhatsapp ?? this.needWhatsapp,
+      isFresh: isFresh ?? this.isFresh,
+      property: property ?? this.property,
+      agents: agents ?? this.agents,
+      statuses: statuses ?? this.statuses,
+      leadUser: leadUser ?? this.leadUser,
+      sources: sources ?? this.sources,
+      newComments: newComments ?? this.newComments,
+      campaign: campaign ?? this.campaign,
+    );
+  }
 }
 
 class Property {
@@ -349,13 +496,13 @@ class Property {
   final String? source;
   final int? developerId;
   final String? status;
-  final String? budget; // keep as string
+  final String? budget;
   final String? image;
   final String? featuredProperty;
   final String? brochure;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final List<dynamic> amenities; // spelled "ameneties" in API
+  final List<dynamic> amenities;
 
   Property({
     required this.id,
@@ -432,7 +579,7 @@ class Agent {
   final String? firstName;
   final String? lastName;
   final String? email;
-  final dynamic dob; // unknown format in sample
+  final dynamic dob;
   final int? phone;
   final int? reportingPerson;
   final String? atContact;
@@ -800,6 +947,30 @@ class StatusInfo {
     'created_at': createdAt?.toIso8601String(),
     'updated_at': updatedAt?.toIso8601String(),
   };
+
+  StatusInfo copyWith({
+    int? id,
+    String? name,
+    int? statusOrder,
+    String? color,
+    int? isDefault,
+    String? approveStatus,
+    int? superStatusId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return StatusInfo(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      statusOrder: statusOrder ?? this.statusOrder,
+      color: color ?? this.color,
+      isDefault: isDefault ?? this.isDefault,
+      approveStatus: approveStatus ?? this.approveStatus,
+      superStatusId: superStatusId ?? this.superStatusId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }
 
 class LeadUserLink {
@@ -906,16 +1077,9 @@ class CommentEntry {
   final int? id;
   final int? leadId;
   final int? agentId;
-
-  /// Calendar date for the note (e.g. '2025-08-01')
   final DateTime? date;
-
-  /// Time string as provided by API (e.g. '13:28:46')
   final String? time;
-
-  /// The actual note text (maps from `new_comments` in API; falls back to `text`/`comment`/`message`)
   final String? text;
-
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -937,7 +1101,6 @@ class CommentEntry {
       agentId: _asInt(json['agent_id']),
       date: _asDate(json['date']),
       time: _asString(json['time']),
-      // Prefer `new_comments`, but accept other common keys if backend changes
       text: _asNonEmptyString(
         json['new_comments'] ??
             json['text'] ??
@@ -954,60 +1117,12 @@ class CommentEntry {
       'id': id,
       'lead_id': leadId,
       'agent_id': agentId,
-      // API usually expects plain date string; keep created/updated as ISO
       'date': date == null ? null : DateFormat('yyyy-MM-dd').format(date!),
       'time': time,
       'new_comments': text,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
-  }
-
-  // ------- helpers -------
-
-  static int? _asInt(dynamic v) {
-    if (v == null) return null;
-    if (v is int) return v;
-    final s = v.toString().trim();
-    if (s.isEmpty) return null;
-    return int.tryParse(s);
-  }
-
-  static String? _asString(dynamic v) {
-    if (v == null) return null;
-    return v.toString();
-  }
-
-  static String? _asNonEmptyString(dynamic v) {
-    final s = _asString(v);
-    if (s == null) return null;
-    final t = s.trim();
-    return t.isEmpty ? null : t;
-  }
-
-  static DateTime? _asDate(dynamic v) {
-    if (v == null) return null;
-    if (v is DateTime) return v;
-
-    final s = v.toString().trim();
-    if (s.isEmpty) return null;
-
-    try {
-      return DateTime.parse(s);
-    } catch (_) {}
-
-    // Try common backend formats
-    for (final fmt in [
-      DateFormat('yyyy-MM-dd HH:mm:ss'),
-      DateFormat('yyyy-MM-dd'),
-      DateFormat('dd/MM/yyyy'),
-      DateFormat('dd-MM-yyyy'),
-    ]) {
-      try {
-        return fmt.parseStrict(s);
-      } catch (_) {}
-    }
-    return null;
   }
 }
 
@@ -1064,11 +1179,22 @@ int? _asInt(dynamic v) {
   return int.tryParse(v.toString());
 }
 
+String? _asString(dynamic v) {
+  if (v == null) return null;
+  return v.toString();
+}
+
+String? _asNonEmptyString(dynamic v) {
+  final s = _asString(v);
+  if (s == null) return null;
+  final t = s.trim();
+  return t.isEmpty ? null : t;
+}
+
 DateTime? _asDate(dynamic v) {
   if (v == null) return null;
   final s = v.toString();
   if (s.isEmpty) return null;
-  // Tolerate "YYYY-MM-DD HH:mm:ss" and ISO strings
   final isoish = s.contains(' ') ? s.replaceFirst(' ', 'T') : s;
   return DateTime.tryParse(isoish);
 }

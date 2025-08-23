@@ -1,5 +1,5 @@
 import 'package:benevolent_crm_app/app/modules/converted_call/modal/converted_call_model.dart';
-import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_details.dart';
+import 'package:benevolent_crm_app/app/modules/others/screens/leads_details_page.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/widgets/converted_call_card.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';

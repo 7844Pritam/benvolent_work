@@ -260,7 +260,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
               ListTile(
                 leading: const Icon(LucideIcons.eye, color: Colors.white),
                 title: const Text(
-                  'Change Passworod',
+                  'Change Password',
                   style: TextStyle(color: Colors.white),
                 ),
                 onTap: () =>

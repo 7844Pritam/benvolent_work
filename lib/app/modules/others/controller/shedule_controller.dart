@@ -1,3 +1,4 @@
+import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:get/get.dart';
 import 'package:benevolent_crm_app/app/modules/others/modals/shedule_modal.dart';
 
@@ -17,7 +18,7 @@ class ScheduleController extends GetxController {
       final result = await _scheduleService.fetchSchedules(leadId);
       schedules.value = result.data;
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.show(title: "Error", message: e.toString());
     } finally {
       isLoading.value = false;
     }
@@ -32,10 +33,10 @@ class ScheduleController extends GetxController {
       print(result.message);
       Get.back();
       await Future.delayed(Duration(milliseconds: 300));
-      Get.snackbar("Success", result.message);
+      CustomSnackbar.show(title: "Success", message: result.message);
     } catch (e) {
       print(e);
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.show(title: "Error", message: e.toString());
     } finally {
       isSubmitting.value = false;
     }
@@ -54,13 +55,12 @@ class ScheduleController extends GetxController {
         schedules[index] = ScheduleModel.fromJson(updated.toJson());
         schedules.refresh();
       }
-
       Get.back();
       await Future.delayed(Duration(milliseconds: 300));
-      Get.snackbar("Success", result.message);
+      CustomSnackbar.show(title: "Success", message: result.message);
     } catch (e) {
       print(e.toString());
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.show(title: "Error", message: e.toString());
     } finally {
       isSubmitting.value = false;
     }
@@ -72,9 +72,9 @@ class ScheduleController extends GetxController {
       final result = await _scheduleService.deleteSchedules(id);
 
       schedules.removeWhere((s) => s.id == id);
-      Get.snackbar("Success", result.message);
+      CustomSnackbar.show(title: "Success", message: result.message);
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      CustomSnackbar.show(title: "Error", message: e.toString());
     } finally {
       isSubmitting.value = false;
     }
