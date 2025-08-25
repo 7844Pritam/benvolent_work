@@ -331,22 +331,6 @@ class ColdCallCard extends StatelessWidget {
     );
   }
 
-  Widget _statusDot(String? hex) {
-    if (hex == null || hex.isEmpty) return const SizedBox.shrink();
-    Color? c;
-    var s = hex.replaceAll('#', '');
-    if (s.length == 6) s = 'FF$s';
-    final v = int.tryParse(s, radix: 16);
-    if (v != null) c = Color(v);
-    return c == null
-        ? const SizedBox.shrink()
-        : Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-          );
-  }
-
   void _confirmConvert(BuildContext context, ColdCallController ctrl) {
     Get.defaultDialog(
       title: 'Convert to Lead?',
