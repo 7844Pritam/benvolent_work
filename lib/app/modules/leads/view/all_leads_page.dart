@@ -15,6 +15,7 @@ class AllLeadsPage extends StatelessWidget {
   AllLeadsPage({super.key});
 
   final LeadsController _controller = Get.put(LeadsController());
+  // ignore: unused_field
   final ConvertedCallController _controller1 = Get.put(
     ConvertedCallController(),
   );
