@@ -43,6 +43,36 @@ class ConvertedCall {
       agent: json['agent'] ?? '',
     );
   }
+
+  ConvertedCall copyWith({
+    int? id,
+    String? createdDate,
+    String? assignedDate,
+    String? name,
+    String? email,
+    String? phone,
+    String? status,
+    String? campaign,
+    String? source,
+    int? userId,
+    int? isAccepted,
+    String? agent,
+  }) {
+    return ConvertedCall(
+      id: id ?? this.id,
+      createdDate: createdDate ?? this.createdDate,
+      assignedDate: assignedDate ?? this.assignedDate,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      status: status ?? this.status,
+      campaign: campaign ?? this.campaign,
+      source: source ?? this.source,
+      userId: userId ?? this.userId,
+      isAccepted: isAccepted ?? this.isAccepted,
+      agent: agent ?? this.agent,
+    );
+  }
 }
 
 class ConvertedCallResponse {

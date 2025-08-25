@@ -864,6 +864,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                         ).format(selectedDate),
                         scheduleTime: selectedTime.format(context),
                         planToDo: planToDoController.text.trim(),
+                        comment: commentController.text.trim(),
                       );
 
                       if (isEdit) {

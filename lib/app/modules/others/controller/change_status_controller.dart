@@ -1,3 +1,4 @@
+import 'package:benevolent_crm_app/app/modules/converted_call/controller/converted_call_controller.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/modal/converted_call_model.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
@@ -9,6 +10,8 @@ import 'package:get/get.dart';
 class ChangeStatusController extends GetxController {
   final ChangeStatusService _service = ChangeStatusService();
   final LeadsController _leadsController = Get.find<LeadsController>();
+  final ConvertedCallController _convertLeadsController =
+      Get.find<ConvertedCallController>();
   RxList<ConvertedCall> calls = <ConvertedCall>[].obs;
   final isLoading = false.obs;
   final LeadDetailsController _leadDetailsController =
@@ -35,6 +38,11 @@ class ChangeStatusController extends GetxController {
                 ?.name ??
             'Unknown';
         _leadsController.updateLeadStatus(
+          leadId: id,
+          statusId: int.parse(status),
+          statusName: statusName,
+        );
+        _convertLeadsController.updateLeadStatus(
           leadId: id,
           statusId: int.parse(status),
           statusName: statusName,

@@ -1,3 +1,4 @@
+import 'package:benevolent_crm_app/app/modules/converted_call/controller/converted_call_controller.dart';
 import 'package:benevolent_crm_app/app/modules/others/screens/leads_details_page.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
@@ -14,6 +15,9 @@ class AllLeadsPage extends StatelessWidget {
   AllLeadsPage({super.key});
 
   final LeadsController _controller = Get.put(LeadsController());
+  final ConvertedCallController _controller1 = Get.put(
+    ConvertedCallController(),
+  );
   final FiltersController _filters = Get.isRegistered<FiltersController>()
       ? Get.find<FiltersController>()
       : Get.put(FiltersController(), permanent: true);

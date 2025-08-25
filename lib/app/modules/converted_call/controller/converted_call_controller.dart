@@ -58,6 +58,33 @@ class ConvertedCallController extends GetxController {
     await fetchCalls(initial: true);
   }
 
+  void updateLeadStatus({
+    required int leadId,
+    required int statusId,
+    required String statusName,
+    int? subStatusId,
+  }) {
+    final leadIndex = calls.indexWhere((lead) => lead.id == leadId);
+    if (leadIndex != -1) {
+      final updatedLead = calls[leadIndex].copyWith(
+        // status: statusId.toString(),
+        status: statusName,
+      );
+
+      final filters = currentFilters.value;
+      final statusFilter = filters.status
+          .split(',')
+          .where((e) => e.isNotEmpty)
+          .toList();
+      if (statusFilter.isEmpty || statusFilter.contains(statusId.toString())) {
+        calls[leadIndex] = updatedLead;
+      } else {
+        calls.removeAt(leadIndex);
+        totalCount.value--;
+      }
+    }
+  }
+
   Future<void> fetchCalls({bool initial = false}) async {
     if (initial) {
       isLoading.value = true;
