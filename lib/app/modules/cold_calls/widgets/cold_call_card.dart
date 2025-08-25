@@ -244,7 +244,6 @@ class ColdCallCard extends StatelessWidget {
     );
   }
 
-  // --- Status picker & conversion ---
   void _pickStatus(BuildContext context, ColdCallController ctrl) {
     final filters = Get.isRegistered<FiltersController>()
         ? Get.find<FiltersController>()
@@ -257,38 +256,76 @@ class ColdCallCard extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (context) {
-        return SafeArea(
-          child: Obx(() {
-            if (filters.isLoading.value && filters.statusList.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.5, // Half screen
+          minChildSize: 0.3, // Minimum
+          maxChildSize: 0.9, // Maximum
+          builder: (_, scrollController) {
+            return SafeArea(
+              child: Column(
+                children: [
+                  // 👇 Drag handle bar
+                  Container(
+                    width: 40,
+                    height: 5,
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
 
-            final list = filters.statusList;
-            if (list.isEmpty) {
-              return const Center(child: Text('No statuses available'));
-            }
+                  Expanded(
+                    child: Obx(() {
+                      if (filters.isLoading.value &&
+                          filters.statusList.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-            return ListView.separated(
-              itemCount: list.length,
-              separatorBuilder: (_, __) =>
-                  Divider(color: Colors.grey[200], height: 1),
-              itemBuilder: (_, i) {
-                final s = list[i];
-                return ListTile(
-                  title: Text(s.name),
-                  trailing: _statusDot(s.color),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await ctrl.changeColdCallStatus(
-                      callId: call.id,
-                      statusId: s.id,
-                    );
-                  },
-                );
-              },
+                      final list = filters.statusList;
+                      if (list.isEmpty) {
+                        return const Center(
+                          child: Text('No statuses available'),
+                        );
+                      }
+
+                      return ListView.separated(
+                        controller: scrollController,
+                        itemCount: list.length,
+                        separatorBuilder: (_, __) =>
+                            Divider(color: Colors.grey[200], height: 1),
+                        itemBuilder: (_, i) {
+                          final s = list[i];
+                          return ListTile(
+                            title: Text(
+                              s.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onTap: () async {
+                              Navigator.pop(context);
+                              await ctrl.changeColdCallStatus(
+                                callId: call.id,
+                                statusId: s.id,
+                              );
+                            },
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
             );
-          }),
+          },
         );
       },
     );

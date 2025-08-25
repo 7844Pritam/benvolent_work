@@ -1,4 +1,5 @@
 import 'package:benevolent_crm_app/app/modules/auth/controllers/auth_controller.dart';
+import 'package:benevolent_crm_app/network_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'app/themes/app_themes.dart';
@@ -7,6 +8,7 @@ import 'app/routes/app_routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(NetworkController(), permanent: true);
   Get.put(AuthController());
   runApp(const MyApp());
 }
