@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import '../../../themes/app_themes.dart'; // Import themes
+import '../../../themes/app_themes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,7 +12,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // AuthController loginController = Get.put(LoginController());
   final box = GetStorage();
 
   @override
@@ -42,20 +41,6 @@ class _SplashScreenState extends State<SplashScreen> {
               fit: BoxFit.contain,
             ),
           ),
-          // Align(
-          //   alignment: Alignment.bottomCenter,
-          //   child: Padding(
-          //     padding: const EdgeInsets.only(bottom: 32.0),
-          //     child: Text(
-          //       '09:32 PM IST',
-          //       style: TextStyle(
-          //         color: AppThemes.textColorPrimary,
-          //         fontSize: 18,
-          //         fontWeight: FontWeight.bold,
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

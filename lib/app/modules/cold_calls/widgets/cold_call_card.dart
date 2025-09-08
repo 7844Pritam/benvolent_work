@@ -263,14 +263,13 @@ class ColdCallCard extends StatelessWidget {
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.5, // Half screen
-          minChildSize: 0.3, // Minimum
-          maxChildSize: 0.9, // Maximum
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
           builder: (_, scrollController) {
             return SafeArea(
               child: Column(
                 children: [
-                  // 👇 Drag handle bar
                   Container(
                     width: 40,
                     height: 5,
