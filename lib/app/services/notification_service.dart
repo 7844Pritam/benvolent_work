@@ -39,4 +39,6 @@ class NotificationService {
       throw ErrorHandler.handle(e);
     }
   }
+
+  static Future<void> init() async {}
 }

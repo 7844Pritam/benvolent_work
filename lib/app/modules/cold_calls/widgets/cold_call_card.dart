@@ -1,5 +1,6 @@
 import 'package:benevolent_crm_app/app/modules/converted_call/constants/call_constants.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
+import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:benevolent_crm_app/app/utils/helpers.dart';
 import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
@@ -21,6 +22,7 @@ class ColdCallCard extends StatelessWidget {
     final theme = Theme.of(context);
     final ctrl = Get.find<ColdCallController>();
     final busy = ctrl.workingIds.contains(call.id);
+    final ProfileController _profileController = Get.find<ProfileController>();
 
     final card = Container(
       decoration: BoxDecoration(
@@ -28,7 +30,7 @@ class ColdCallCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Stack(
@@ -98,22 +100,24 @@ class ColdCallCard extends StatelessWidget {
                       iconColor: Colors.grey.shade800,
                       onTap: () => Helpers.copyClipboard(call.phone),
                     ),
-                    _actionIcon(
-                      bg: Colors.purple.shade50,
-                      border: Border.all(color: Colors.purple.shade200),
-                      icon: Icons.swap_horiz,
-                      iconColor: Colors.purple,
-                      onTap: busy ? () {} : () => _pickStatus(context, ctrl),
-                    ),
-                    _actionIcon(
-                      bg: Colors.teal.shade50,
-                      border: Border.all(color: Colors.teal.shade200),
-                      icon: Icons.person_add_alt_1,
-                      iconColor: Colors.teal,
-                      onTap: busy
-                          ? () {}
-                          : () => _confirmConvert(context, ctrl),
-                    ),
+                    if (_profileController.profile.value!.id == call.id)
+                      _actionIcon(
+                        bg: Colors.purple.shade50,
+                        border: Border.all(color: Colors.purple.shade200),
+                        icon: Icons.swap_horiz,
+                        iconColor: Colors.purple,
+                        onTap: busy ? () {} : () => _pickStatus(context, ctrl),
+                      ),
+                    if (_profileController.profile.value!.id == call.id)
+                      _actionIcon(
+                        bg: const Color.fromARGB(255, 39, 48, 48),
+                        border: Border.all(color: Colors.teal.shade200),
+                        icon: Icons.person_add_alt_1,
+                        iconColor: Colors.teal,
+                        onTap: busy
+                            ? () {}
+                            : () => _confirmConvert(context, ctrl),
+                      ),
                   ],
                 ),
               ],

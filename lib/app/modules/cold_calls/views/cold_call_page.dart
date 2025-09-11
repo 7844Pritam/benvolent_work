@@ -1,4 +1,3 @@
-// lib/app/modules/cold_calls/views/cold_calls_page.dart
 import 'package:benevolent_crm_app/app/modules/cold_calls/controllers/cold_call_controller.dart';
 
 import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/cold_call_card.dart';
@@ -23,7 +22,6 @@ class ColdCallPage extends StatelessWidget {
     final f = _controller.currentFilters.value;
     final chips = <Widget>[];
 
-    // Agent (string id or name you store)
     if (f.agentId.isNotEmpty) {
       chips.add(
         _chip('Agent: ${f.agentId}', () {

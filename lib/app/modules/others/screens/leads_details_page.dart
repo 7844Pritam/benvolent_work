@@ -1,6 +1,7 @@
 import 'package:benevolent_crm_app/app/modules/others/controller/notes_controller.dart';
 import 'package:benevolent_crm_app/app/modules/others/controller/lead_details_controller.dart';
 import 'package:benevolent_crm_app/app/modules/others/modals/lead_details_response.dart';
+import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
 import 'package:benevolent_crm_app/app/utils/helpers.dart';
 import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_select_field.dart';
@@ -35,6 +36,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
 
   final NotesController notesController = Get.put(NotesController());
   final TextEditingController noteInputController = TextEditingController();
+  final ProfileController _profileController = Get.find<ProfileController>();
 
   final List<String> notes = [
     "Called & discussed product features.",
@@ -139,7 +141,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                   const SizedBox(height: 6),
                   Obx(
                     () => Wrap(
-                      // Wrap in Obx to react to status changes
                       spacing: 8,
                       runSpacing: 6,
                       children: [
@@ -187,7 +188,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
               FontAwesomeIcons.whatsapp,
               "WhatsApp",
               () => HyperLinksNew.openWhatsApp(phone, name),
-              // () => _openWhatsApp(phone, name),
             ),
             _actionButton(Icons.email_outlined, "Email", () {
               print("Opening email: $email");
@@ -213,10 +213,30 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
           children: [
             _infoRow(Icons.person, "Assign To", agentName),
             const Divider(),
-            _copyRow("Lead Contact", lead.phone),
-            _copyRow("Alternate Contact", lead.altPhone),
-            _additionalNumberRow(lead.additionalPhone),
-            _copyRow("Email", lead.email),
+            // if ()
+            _copyRow(
+              "Lead Contact",
+              _profileController.profile.value!.id == lead.id
+                  ? Helpers.maskPhoneNumber(lead.phone)
+                  : lead.phone,
+            ),
+            _copyRow(
+              "Alternate Contact",
+              _profileController.profile.value!.id == lead.id
+                  ? Helpers.maskPhoneNumber(lead.altPhone)
+                  : lead.altPhone,
+            ),
+            _additionalNumberRow(
+              _profileController.profile.value!.id == lead.id
+                  ? Helpers.maskPhoneNumber(lead.additionalPhone)
+                  : lead.additionalPhone,
+            ),
+            _copyRow(
+              "Email",
+              _profileController.profile.value!.id == lead.id
+                  ? Helpers.maskEmail(lead.email)
+                  : lead.email,
+            ),
           ],
         ),
       ),
@@ -305,10 +325,8 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                 ),
         ),
 
-        // --- Divider
         const Divider(height: 1),
 
-        // --- Composer: input + send button ---
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
           child: Row(
@@ -334,7 +352,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
               ),
               const SizedBox(width: 8),
 
-              // Send button with loading state
               Obx(() {
                 final loading = notesController.isLoading.value;
                 return ElevatedButton.icon(
@@ -355,8 +372,7 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                           await notesController.addNotes(lead.id!, text);
 
                           if (!loading) {
-                            await c
-                                .refreshLead(); // reload lead to show latest notes
+                            await c.refreshLead();
                             noteInputController.clear();
                             FocusScope.of(context).unfocus();
                           }
@@ -541,7 +557,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                   FontAwesomeIcons.whatsapp,
                   color: Colors.green,
                 ),
-                // onPressed: () => _openSms(value),
                 onPressed: () => HyperLinksNew.openWhatsApp(
                   Helpers.normalizePhone(value, keepPlus: true),
                   c.model?.name ?? '',
@@ -702,8 +717,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     ),
   );
 
-  // =================== utils ===================
-
   Color? _hexColor(String? hex) {
     if (hex == null || hex.isEmpty) return null;
     var s = hex.replaceAll('#', '');
@@ -848,8 +861,6 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
                   CustomInputField(
                     label: "Comment (optional)",
                     controller: commentController,
-                    // validator: (v) =>
-                    //     Validators.validateEmpty(v, fieldName: "Comment"),
                   ),
                   const SizedBox(height: 12),
                   CustomButton(

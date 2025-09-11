@@ -27,7 +27,7 @@ class ConvertedCallCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Stack(
@@ -35,7 +35,6 @@ class ConvertedCallCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Name + Call Button
                 Row(
                   children: [
                     Expanded(
@@ -47,22 +46,6 @@ class ConvertedCallCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // InkWell(
-                    //   onTap: () => HyperLinksNew.openDialer(call.phone),
-                    //   borderRadius: BorderRadius.circular(50),
-                    //   child: Container(
-                    //     padding: const EdgeInsets.all(8),
-                    //     decoration: const BoxDecoration(
-                    //       color: Color(0xFF2ED573),
-                    //       shape: BoxShape.circle,
-                    //     ),
-                    //     child: const Icon(
-                    //       Icons.call,
-                    //       size: 18,
-                    //       color: Colors.white,
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 ),
 

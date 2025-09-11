@@ -156,7 +156,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ],
               ),
               TextButton(
-                onPressed: () => Get.toNamed('/profile'),
+                onPressed: () => Get.to(UserProfilePage()),
                 child: const Text(
                   'View Profile',
                   style: TextStyle(

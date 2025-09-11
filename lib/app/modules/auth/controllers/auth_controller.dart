@@ -5,6 +5,7 @@ import 'package:benevolent_crm_app/app/modules/auth/modals/reset_password_respon
 import 'package:benevolent_crm_app/app/services/auth_services.dart';
 import 'package:benevolent_crm_app/app/utils/api_exceptions.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
@@ -16,8 +17,14 @@ class AuthController extends GetxController {
   Future<void> login(String email, String password) async {
     try {
       isLoading.value = true;
-      final data = await authService.login(email, password);
+
+      String? deviceToken = await FirebaseMessaging.instance.getToken();
+      print('Device Token: $deviceToken');
+
+      final data = await authService.login(email, password, deviceToken);
+
       loginResponse.value = data;
+
       CustomSnackbar.show(
         title: 'Login Successful',
         message: 'Welcome ${data.results.data.firstName}',

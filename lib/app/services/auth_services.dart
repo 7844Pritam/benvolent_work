@@ -14,13 +14,22 @@ class AuthService {
 
   AuthService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
 
-  Future<LoginResponseModel> login(String email, String password) async {
+  Future<LoginResponseModel> login(
+    String email,
+    String password,
+    String? deviceToken,
+  ) async {
+    print("Device Token $deviceToken");
     try {
       print(email);
       print(password);
       final response = await _apiClient.post(
         ApiEndPoints.LOGIN_URL,
-        data: {'email': email, 'password': password, 'device_token': ""},
+        data: {
+          'email': email,
+          'password': password,
+          'device_token': deviceToken,
+        },
       );
 
       final token = response.data['results']['token'];

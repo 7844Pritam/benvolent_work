@@ -37,11 +37,11 @@ class DashboardController extends GetxController {
       );
     } catch (e) {
       print('Error fetching dashboard data: $e');
-      CustomSnackbar.show(
-        title: 'Error',
-        message: e.toString(),
-        type: ToastType.error,
-      );
+      // CustomSnackbar.show(
+      //   title: 'Error',
+      //   message: e.toString(),
+      //   type: ToastType.error,
+      // );
     } finally {
       isLoading.value = false;
     }

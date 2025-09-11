@@ -45,11 +45,11 @@ class ProfileController extends GetxController {
       addressController.text = result.data.address ?? "";
     } catch (e) {
       print("from profile controller");
-      CustomSnackbar.show(
-        title: "Error",
-        message: e.toString(),
-        type: ToastType.error,
-      );
+      // CustomSnackbar.show(
+      //   title: "Error",
+      //   message: e.toString(),
+      //   type: ToastType.error,
+      // );
     } finally {
       isLoading.value = false;
     }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "724636203630",
+    "project_id": "benevolentrealty-cfb1d",
+    "storage_bucket": "benevolentrealty-cfb1d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724636203630:android:2bdb2319a8fade157d847f",
+        "android_client_info": {
+          "package_name": "com.benevolent.crmapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDG9W2KhnFcLroVCoAizbq4w7rpe5izHck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
