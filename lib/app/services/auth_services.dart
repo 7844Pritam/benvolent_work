@@ -19,7 +19,7 @@ class AuthService {
     String password,
     String? deviceToken,
   ) async {
-    print("Device Token $deviceToken");
+    print("Device Token 22212121212121 $deviceToken");
     try {
       print(email);
       print(password);

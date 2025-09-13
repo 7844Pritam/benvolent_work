@@ -18,8 +18,11 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Step 1: Delete old token
+      await FirebaseMessaging.instance.deleteToken();
+
       String? deviceToken = await FirebaseMessaging.instance.getToken();
-      print('Device Token: $deviceToken');
+      print('New Device Token: $deviceToken');
 
       final data = await authService.login(email, password, deviceToken);
 
@@ -30,6 +33,7 @@ class AuthController extends GetxController {
         message: 'Welcome ${data.results.data.firstName}',
         type: ToastType.success,
       );
+
       Get.offAllNamed('/bottombar');
     } catch (e) {
       print('Login Failed Exception: $e');
