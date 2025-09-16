@@ -9,6 +9,7 @@ import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:collection/collection.dart';
 
 class ColdCallPage extends StatelessWidget {
   ColdCallPage({super.key});
@@ -22,12 +23,31 @@ class ColdCallPage extends StatelessWidget {
     final f = _controller.currentFilters.value;
     final chips = <Widget>[];
 
+    // if (f.agentId.isNotEmpty) {
+    //   chips.add(
+    //     _chip('Agent: ${f.agentId}', () {
+    //       _controller.removeTag('agent_id');
+    //     }),
+    //   );
+    // }
     if (f.agentId.isNotEmpty) {
-      chips.add(
-        _chip('Agent: ${f.agentId}', () {
-          _controller.removeTag('agent_id');
-        }),
-      );
+      final ids = f.agentId.split(',').where((e) => e.trim().isNotEmpty);
+      for (final raw in ids) {
+        final id = int.tryParse(raw);
+        final name = id == null
+            ? 'Agent $raw'
+            : (_filters.agentsList
+                      .expand((group) => group.agents) // flatten all groups
+                      .firstWhereOrNull((a) => a.id == id)
+                      ?.name ??
+                  'Agent $id');
+
+        chips.add(
+          _chip('Agent: $name', () {
+            _controller.removeTag('agent_id');
+          }),
+        );
+      }
     }
 
     // Date range
@@ -159,6 +179,38 @@ class ColdCallPage extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   itemCount: 6,
                   itemBuilder: (_, __) => const ColdCallShimmer(),
+                ),
+              ),
+            ],
+          );
+        }
+
+        if (_controller.coldCalls.isEmpty) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (chips.isNotEmpty)
+                _FilterChipsBar(
+                  chips: chips,
+                  onClear: _controller.clearFilters,
+                ),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(
+                        Icons.call_missed_outgoing,
+                        size: 60,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'No cold calls available',
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

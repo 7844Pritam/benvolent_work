@@ -17,7 +17,7 @@ Future<void> main() async {
   await NotificationService2.init();
   Get.put(NetworkController(), permanent: true);
   Get.put(AuthController());
-  Get.put(ProfileController());
+  Get.put(ProfileController(), permanent: true);
 
   runApp(const MyApp());
 

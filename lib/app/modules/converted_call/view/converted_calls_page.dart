@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../controller/converted_call_controller.dart';
+import 'package:collection/collection.dart';
 
 class ConvertedCallsPage extends StatelessWidget {
   final ConvertedCallController _controller = Get.put(
@@ -23,11 +24,32 @@ class ConvertedCallsPage extends StatelessWidget {
     final f = _controller.currentFilters.value;
     final chips = <Widget>[];
 
+    // if (f.agentId.isNotEmpty) {
+    //   chips.add(
+    //     _chip('Agent: ${f.agentId}', () => _controller.removeTag('agent_id')),
+    //   );
+    // }
+
     if (f.agentId.isNotEmpty) {
-      chips.add(
-        _chip('Agent: ${f.agentId}', () => _controller.removeTag('agent_id')),
-      );
+      final ids = f.agentId.split(',').where((e) => e.trim().isNotEmpty);
+      for (final raw in ids) {
+        final id = int.tryParse(raw);
+        final name = id == null
+            ? 'Agent $raw'
+            : (_filters.agentsList
+                      .expand((group) => group.agents) // flatten all groups
+                      .firstWhereOrNull((a) => a.id == id)
+                      ?.name ??
+                  'Agent $id');
+
+        chips.add(
+          _chip('Agent: $name', () {
+            _controller.removeTag('agent_id');
+          }),
+        );
+      }
     }
+
     if (f.fromDate.isNotEmpty || f.toDate.isNotEmpty) {
       final label =
           'Date: ${f.fromDate.isEmpty ? '...' : f.fromDate} → ${f.toDate.isEmpty ? '...' : f.toDate}';
@@ -158,8 +180,12 @@ class ConvertedCallsPage extends StatelessWidget {
                   vertical: 8,
                 ),
                 child: GestureDetector(
-                  onTap: () =>
-                      Get.to(() => ConvertedCallDetailPage(leadId: call.id)),
+                  onTap: () => Get.to(
+                    () => LeadsDetailsPage(
+                      leadId: call.id,
+                      agentId: (call.userId),
+                    ),
+                  ),
                   child: ConvertedCallCard(call: call),
                 ),
               ),

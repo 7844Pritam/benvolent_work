@@ -78,20 +78,20 @@ class LeadDetailsController extends GetxController {
 
       await refreshLead();
     } catch (e) {
-      // CustomSnackbar.show(
-      //   title: 'Success',
-      //   message: 'Additional phone updated successfully',
-      //   type: ToastType.success,
-      // );
+      CustomSnackbar.show(
+        title: 'Success',
+        message: 'Additional phone updated successfully',
+        type: ToastType.success,
+      );
       // Get.back();
       await refreshLead();
 
       print(e.toString());
-      // CustomSnackbar.show(
-      //   title: 'Error',
-      //   message: e.toString(),
-      //   type: ToastType.error,
-      // );
+      CustomSnackbar.show(
+        title: 'Error',
+        message: e.toString(),
+        type: ToastType.error,
+      );
     } finally {
       isSavingPhone.value = false;
     }

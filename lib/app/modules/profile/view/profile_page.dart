@@ -16,7 +16,7 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfileCardState extends State<UserProfilePage> {
-  final ProfileController profilecontroller = Get.find<ProfileController>();
+  final ProfileController profilecontroller = Get.put(ProfileController());
   void _showImageSourceDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,

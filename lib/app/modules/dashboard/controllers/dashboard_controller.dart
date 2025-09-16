@@ -8,11 +8,10 @@ class DashboardController extends GetxController {
 
   final Rx<DashboardModel> dashboardModel = DashboardModel(
     success: 0,
-    totColdCall: 0,
-    totLeads: 0,
-    totProperties: 0,
-    featuredProperties: [],
     message: '',
+    coldCallCounts: 0,
+    coldCallConvertsCounts: 0,
+    leadsCounts: 0,
   ).obs;
 
   final RxBool isLoading = false.obs;
@@ -28,8 +27,10 @@ class DashboardController extends GetxController {
       isLoading.value = true;
       final data = await _dashboardService.dashboardData();
       dashboardModel.value = data;
+
       print("hellodashboard");
-      print(data.featuredProperties.map((data) => data));
+      print(data.leadsCounts); // Example usage
+
       CustomSnackbar.show(
         title: 'Success',
         message: data.message,
@@ -37,11 +38,6 @@ class DashboardController extends GetxController {
       );
     } catch (e) {
       print('Error fetching dashboard data: $e');
-      // CustomSnackbar.show(
-      //   title: 'Error',
-      //   message: e.toString(),
-      //   type: ToastType.error,
-      // );
     } finally {
       isLoading.value = false;
     }

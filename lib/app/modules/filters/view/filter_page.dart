@@ -70,13 +70,47 @@ class _FilterPageState extends State<FilterPage> {
   Widget buildRightPanel() {
     switch (activeFilter) {
       case 'Agent':
-        return Column(
-          children: [
-            'John Mitchell',
-            'Sarah Johnson',
-            'Michael Chen',
-          ].map((name) => agentSingleSelectTile(name)).toList(),
-        );
+        return Obx(() {
+          if (_filtersController.isLoading.value &&
+              _filtersController.agentsList.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (_filtersController.errorMessage.isNotEmpty) {
+            return Text(_filtersController.errorMessage.value);
+          }
+
+          return Column(
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _filtersController.agentsList.map((group) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (group.groupName.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              group.groupName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                        ...group.agents.map(
+                          (agent) =>
+                              agentSingleSelectTile(agent.name, id: agent.id),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          );
+        });
 
       case 'Status':
         return Obx(() {
@@ -321,11 +355,10 @@ class _FilterPageState extends State<FilterPage> {
   }
 
   // ---- Tiles ----
-
-  Widget agentSingleSelectTile(String name) {
-    final isSelected = selectedAgent == name;
+  Widget agentSingleSelectTile(String name, {required int id}) {
+    final isSelected = selectedAgent == id.toString();
     return GestureDetector(
-      onTap: () => setState(() => selectedAgent = name),
+      onTap: () => setState(() => selectedAgent = id.toString()),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -1,8 +1,10 @@
+import 'package:benevolent_crm_app/app/modules/filters/modals/agents_response.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/campaigns_response.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/lead_status_response.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/source_request.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/source_response.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/sub_status_response.dart';
+import 'package:benevolent_crm_app/app/modules/others/modals/lead_details_response.dart';
 import 'package:benevolent_crm_app/app/services/filter_services.dart';
 import 'package:get/get.dart';
 
@@ -12,6 +14,9 @@ class FiltersController extends GetxController {
   var isLoading = false.obs;
   var errorMessage = ''.obs;
 
+  // var agentsLists = <AgentsResponse>[].obs;
+  var agentsList = <AgentGroup>[].obs;
+
   var campaignList = <Campaign>[].obs;
   var sourceList = <SourceData>[].obs;
   var statusList = <LeadStatus>[].obs;
@@ -20,10 +25,24 @@ class FiltersController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    fetchAgents();
     fetchStatus();
     fetchCampaigns();
     // fetchSources(campaignId: '2');
     fetchSubStatus();
+  }
+
+  Future<void> fetchAgents() async {
+    isLoading.value = true;
+    errorMessage.value = '';
+    try {
+      final response = await _filterService.getAgents();
+      agentsList.assignAll(response.data);
+    } catch (e) {
+      errorMessage.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   List<SubStatus> subStatusesFor(String statusId) {

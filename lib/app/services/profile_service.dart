@@ -14,6 +14,8 @@ class ProfileService {
     try {
       final response = await _apiClient.get('/edit-profile');
       final jsonData = response.data;
+      print("from profile service");
+      print(jsonData);
       return ProfileResponse.fromJson(jsonData);
     } on DioException catch (e) {
       throw ErrorHandler.handle(e);

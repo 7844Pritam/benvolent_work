@@ -18,6 +18,8 @@ class FiltersServices {
   Future<AgentsResponse> getAgents() async {
     try {
       final response = await _apiClient.get(ApiEndPoints.GET_AGENTS);
+      print('AgentsResponse:');
+      print(response.data);
       return AgentsResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handle(e);
@@ -25,6 +27,17 @@ class FiltersServices {
       rethrow;
     }
   }
+
+  // Future<AgentsResponse> getAgents() async {
+  //   try {
+  //     final response = await _apiClient.get(ApiEndPoints.GET_AGENTS);
+  //     return AgentsResponse.fromJson(response.data);
+  //   } on DioException catch (e) {
+  //     throw ErrorHandler.handle(e);
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
 
   Future<CampaignsResponse> getCampaigns() async {
     try {

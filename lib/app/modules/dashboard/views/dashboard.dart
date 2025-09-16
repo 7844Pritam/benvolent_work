@@ -1,4 +1,5 @@
 import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
+import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 
@@ -45,14 +46,18 @@ class Dashboard extends StatelessWidget {
                       _statCard(
                         onTap: () => {Get.to(AllLeadsPage())},
                         Icons.person,
-                        data.totLeads,
+                        data.leadsCounts,
                         " Total \nLeads",
                       ),
-                      _statCard(Icons.call, data.totColdCall, "Cold \nCalls"),
+                      _statCard(
+                        Icons.call,
+                        data.coldCallCounts,
+                        "Cold \nCalls",
+                      ),
 
                       _statCard(
                         Icons.home,
-                        data.totProperties,
+                        data.coldCallConvertsCounts,
                         "Converted Cold Calls",
                       ),
                     ],
@@ -90,33 +95,48 @@ class Dashboard extends StatelessWidget {
     IconData icon,
     int value,
     String label, {
-    VoidCallback? onTap, // optional callback
+    VoidCallback? onTap,
   }) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppThemes.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(width: 1, color: AppThemes.lightGreylittle),
+            borderRadius: BorderRadius.circular(20),
+
+            border: Border.all(
+              width: 1,
+              color: AppThemes.lightGreylittle.withOpacity(0.4),
+            ),
           ),
-          padding: const EdgeInsets.all(16),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 32, color: AppThemes.primaryColor),
-              const SizedBox(height: 8),
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: AppThemes.primaryColor.withOpacity(0.1),
+                child: Icon(icon, size: 28, color: AppThemes.primaryColor),
+              ),
+              const SizedBox(height: 12),
               Text(
                 value.toString(),
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
                   color: AppThemes.backgroundColor,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(label, style: const TextStyle(color: Colors.grey)),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
         ),

@@ -21,19 +21,22 @@ import 'package:benevolent_crm_app/app/modules/others/modals/schedule_request_mo
 
 import 'package:benevolent_crm_app/app/modules/others/screens/change_status_sheet.dart';
 
-class ConvertedCallDetailPage extends StatefulWidget {
+class LeadsDetailsPage extends StatefulWidget {
   final int leadId;
-  const ConvertedCallDetailPage({super.key, required this.leadId});
+  final int agentId;
+  const LeadsDetailsPage({
+    super.key,
+    required this.leadId,
+    required this.agentId,
+  });
 
   @override
-  State<ConvertedCallDetailPage> createState() =>
-      _ConvertedCallDetailPageState();
+  State<LeadsDetailsPage> createState() => _LeadsDetailsPageState();
 }
 
-class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
+class _LeadsDetailsPageState extends State<LeadsDetailsPage> {
   final LeadDetailsController c = Get.put(LeadDetailsController());
   final ScheduleController scheduleController = Get.put(ScheduleController());
-
   final NotesController notesController = Get.put(NotesController());
   final TextEditingController noteInputController = TextEditingController();
   final ProfileController _profileController = Get.find<ProfileController>();
@@ -50,6 +53,15 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
   void initState() {
     super.initState();
     c.load(widget.leadId);
+    print("000000000000000");
+    print(_profileController.profile.value?.id.toString());
+    print(widget.agentId);
+    // _profileController.profile.value?.id == 4334;
+
+    print("000000000000000");
+    print("lead data ${c.lead.value?.lead.toJson()}");
+    print("lead agent Id 7657657 ${c.lead.value?.lead.agentId}");
+    print(_profileController.profile.value?.id.toString());
   }
 
   @override
@@ -58,10 +70,19 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     super.dispose();
   }
 
+  bool _isMasked(String? value) {
+    if (value == null || value.isEmpty) return false;
+    return value.contains("*"); // adjust if your mask format is different
+  }
+
   @override
   Widget build(BuildContext context) {
-    print("sldfksdjflsdfjsdlfjsdlfjsdlkjflsd");
     print(c.statusName);
+    setState(() {
+      widget.agentId == 819;
+    });
+    print("lkdjflsdkjf");
+    print(widget.agentId);
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
@@ -96,6 +117,8 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
           _schedulesLoaded = true;
           scheduleController.loadSchedules(widget.leadId);
         }
+        print("from uper");
+        print(lead.agentId);
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -128,47 +151,79 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
         ? DateFormat('yyyy-MM-dd').format(lead.date!)
         : '-';
 
-    return _card(
-      Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(lead.name ?? '-', style: TextStyles.Text18700),
-                  const SizedBox(height: 6),
-                  Obx(
-                    () => Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: [
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        // border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Lead ID
+                Text(
+                  "Lead ID: ${lead.id}",
+                  style: TextStyles.Text14400.copyWith(color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 4),
+
+                Text(
+                  lead.name ?? '-',
+                  style: TextStyles.Text18700.copyWith(fontSize: 20),
+                ),
+                const SizedBox(height: 10),
+
+                Obx(
+                  () => Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      _chip(
+                        campaignName.isEmpty ? 'No Campaign' : campaignName,
+                      ),
+                      _chip(
+                        'Status: ${c.statusName.trim().isEmpty ? 'None' : c.statusName}',
+                        bg: statusColor.withOpacity(.15),
+                        fg: statusColor,
+                      ),
+                      _chip('Date: $dateStr'),
+                      if ((lead.priority ?? '').isNotEmpty)
+                        _chip('Priority: ${lead.priority}'),
+                      if (lead.isFresh == 1)
                         _chip(
-                          campaignName.isEmpty ? 'No Campaign' : campaignName,
+                          'Fresh',
+                          bg: Colors.green.withOpacity(.15),
+                          fg: Colors.green,
                         ),
-                        _chip(
-                          'Status: ${c.statusName.trim().isEmpty ? 'None' : c.statusName}',
-                          bg: statusColor.withOpacity(.12),
-                          fg: statusColor,
-                        ),
-                        _chip('Date: $dateStr'),
-                        if ((lead.priority ?? '').isNotEmpty)
-                          _chip('Priority: ${lead.priority}'),
-                        if (lead.isFresh == 1)
-                          _chip(
-                            'Fresh',
-                            bg: Colors.green.withOpacity(.12),
-                            fg: Colors.green,
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // Container(
+          //   padding: const EdgeInsets.all(6),
+          //   decoration: BoxDecoration(
+          //     color: statusColor.withOpacity(.15),
+          //     shape: BoxShape.circle,
+          //   ),
+          //   child: Icon(Icons.circle, color: statusColor, size: 14),
+          // ),
+        ],
       ),
     );
   }
@@ -204,6 +259,8 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
     final agentName = (c.lead.value?.lead.agents.isNotEmpty ?? false)
         ? (c.lead.value!.lead.agents.first.fullName ?? '—')
         : '—';
+    print("slkfsdlfkkdsfkdsfdsf 12121212");
+    print(lead.agentId);
 
     return _card(
       Padding(
@@ -216,24 +273,24 @@ class _ConvertedCallDetailPageState extends State<ConvertedCallDetailPage> {
             // if ()
             _copyRow(
               "Lead Contact",
-              _profileController.profile.value!.id == lead.id
+              _profileController.profile.value!.id != widget.agentId
                   ? Helpers.maskPhoneNumber(lead.phone)
                   : lead.phone,
             ),
             _copyRow(
               "Alternate Contact",
-              _profileController.profile.value!.id == lead.id
+              _profileController.profile.value!.id != widget.agentId
                   ? Helpers.maskPhoneNumber(lead.altPhone)
                   : lead.altPhone,
             ),
             _additionalNumberRow(
-              _profileController.profile.value!.id == lead.id
+              _profileController.profile.value!.id != widget.agentId
                   ? Helpers.maskPhoneNumber(lead.additionalPhone)
                   : lead.additionalPhone,
             ),
             _copyRow(
               "Email",
-              _profileController.profile.value!.id == lead.id
+              _profileController.profile.value!.id != widget.agentId
                   ? Helpers.maskEmail(lead.email)
                   : lead.email,
             ),

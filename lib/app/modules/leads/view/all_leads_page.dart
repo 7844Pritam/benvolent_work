@@ -10,6 +10,7 @@ import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:collection/collection.dart';
 
 class AllLeadsPage extends StatelessWidget {
   AllLeadsPage({super.key});
@@ -27,12 +28,31 @@ class AllLeadsPage extends StatelessWidget {
     final f = _controller.currentFilters.value;
     final chips = <Widget>[];
 
+    // if (f.agentId.isNotEmpty) {
+    //   chips.add(
+    //     _chip('Agent: ${f.agentId}', () {
+    //       _controller.removeTag('agent_id');
+    //     }),
+    //   );
+    // }
     if (f.agentId.isNotEmpty) {
-      chips.add(
-        _chip('Agent: ${f.agentId}', () {
-          _controller.removeTag('agent_id');
-        }),
-      );
+      final ids = f.agentId.split(',').where((e) => e.trim().isNotEmpty);
+      for (final raw in ids) {
+        final id = int.tryParse(raw);
+        final name = id == null
+            ? 'Agent $raw'
+            : (_filters.agentsList
+                      .expand((group) => group.agents) // flatten all groups
+                      .firstWhereOrNull((a) => a.id == id)
+                      ?.name ??
+                  'Agent $id');
+
+        chips.add(
+          _chip('Agent: $name', () {
+            _controller.removeTag('agent_id');
+          }),
+        );
+      }
     }
 
     if (f.fromDate.isNotEmpty || f.toDate.isNotEmpty) {
@@ -222,12 +242,16 @@ class AllLeadsPage extends StatelessWidget {
           widgets.add(_DateHeader(label: key));
           final items = grouped[key] ?? const [];
           for (final lead in items) {
+            print("lead id the");
+            print(lead.agentId);
             widgets.add(const SizedBox(height: 8));
             widgets.add(
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: GestureDetector(
-                  onTap: () => Get.to(ConvertedCallDetailPage(leadId: lead.id)),
+                  onTap: () => Get.to(
+                    LeadsDetailsPage(leadId: lead.id, agentId: lead.agentId),
+                  ),
                   child: LeadCard(lead: lead),
                 ),
               ),

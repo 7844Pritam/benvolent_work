@@ -55,6 +55,8 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
 
   void _logout() {
     box.erase();
+    Get.delete<ProfileController>(force: true);
+
     Get.offAllNamed('/login');
   }
 
