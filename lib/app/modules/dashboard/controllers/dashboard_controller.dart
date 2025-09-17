@@ -12,6 +12,12 @@ class DashboardController extends GetxController {
     coldCallCounts: 0,
     coldCallConvertsCounts: 0,
     leadsCounts: 0,
+    coldCallLabels: [],
+    coldCallData: [],
+    coldCallConvertLabels: [],
+    coldCallConvertData: [],
+    leadsLabels: [],
+    leadsData: [],
   ).obs;
 
   final RxBool isLoading = false.obs;
@@ -37,6 +43,11 @@ class DashboardController extends GetxController {
         type: ToastType.success,
       );
     } catch (e) {
+      CustomSnackbar.show(
+        title: 'error',
+        message: e.toString(),
+        type: ToastType.error,
+      );
       print('Error fetching dashboard data: $e');
     } finally {
       isLoading.value = false;
