@@ -8,13 +8,27 @@ class NotificationService2 {
       FlutterLocalNotificationsPlugin();
 
   static Future<void> init() async {
+    // Android settings
     const AndroidInitializationSettings initSettingsAndroid =
         AndroidInitializationSettings('@mipmap/launcher_icon');
 
+    // iOS / macOS settings (Darwin)
+    const DarwinInitializationSettings initSettingsDarwin =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+          // onDidReceiveLocalNotification: (id, title, body, payload) async {},
+        );
+
+    // Combined settings
     const InitializationSettings initSettings = InitializationSettings(
       android: initSettingsAndroid,
+      iOS: initSettingsDarwin,
+      macOS: initSettingsDarwin,
     );
 
+    // Initialize plugin
     await _notificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
@@ -22,14 +36,15 @@ class NotificationService2 {
       },
     );
 
+    // Handle foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
         _notificationsPlugin.show(
           0,
           message.notification?.title,
           message.notification?.body,
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
+          NotificationDetails(
+            android: const AndroidNotificationDetails(
               'default_channel',
               'General',
               channelDescription: 'General notifications',
@@ -37,8 +52,9 @@ class NotificationService2 {
               priority: Priority.high,
               playSound: true,
               enableVibration: true,
-              icon: '@mipmap/ic_launcher', // ✅ Only app icon
+              icon: '@mipmap/ic_launcher',
             ),
+            iOS: const DarwinNotificationDetails(),
           ),
         );
       }

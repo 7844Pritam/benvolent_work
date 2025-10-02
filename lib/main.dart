@@ -13,31 +13,23 @@ import 'app/routes/app_routes.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
   await NotificationService2.init();
   Get.put(NetworkController(), permanent: true);
   Get.put(AuthController());
   Get.put(ProfileController(), permanent: true);
-
   runApp(const MyApp());
-
-  // ✅ Request token after app is up
   _initFCM();
 }
 
 Future<void> _initFCM() async {
   try {
-    // Try to get the initial token
     String? token = await FirebaseMessaging.instance.getToken();
-    print('🔥 Initial FCM Token: $token');
+    print(' Initial FCM Token: $token');
   } catch (e) {
-    print('❌ Error fetching initial FCM token: $e');
+    print(' Error fetching initial FCM token: $e');
   }
-
-  // Listen for token refresh
   FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-    print('♻️ FCM Token refreshed: $newToken');
-    // Save to backend or local storage
+    print(' FCM Token refreshed: $newToken');
   });
 }
 

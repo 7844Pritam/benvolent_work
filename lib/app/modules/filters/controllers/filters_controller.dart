@@ -4,7 +4,6 @@ import 'package:benevolent_crm_app/app/modules/filters/modals/lead_status_respon
 import 'package:benevolent_crm_app/app/modules/filters/modals/source_request.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/source_response.dart';
 import 'package:benevolent_crm_app/app/modules/filters/modals/sub_status_response.dart';
-import 'package:benevolent_crm_app/app/modules/others/modals/lead_details_response.dart';
 import 'package:benevolent_crm_app/app/services/filter_services.dart';
 import 'package:get/get.dart';
 

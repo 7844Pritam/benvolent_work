@@ -129,36 +129,36 @@ class SignupScreen extends StatelessWidget {
                         onPressed: () => Get.to(() => VerifyScreen(email: '')),
                       ),
                       const SizedBox(height: 22),
-                      RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: TextStyles.terms.copyWith(
-                            fontSize: 14,
-                            color: AppThemes.lightGreylittle,
-                          ),
-                          children: [
-                            const TextSpan(
-                              text: 'By signing up I agree to the ',
-                            ),
-                            TextSpan(
-                              text: 'Terms  and \nConditions',
-                              style: TextStyles.terms.copyWith(
-                                fontSize: 14,
-                                color: AppThemes.primaryColor,
-                              ),
-                            ),
-                            const TextSpan(text: ' and '),
-                            TextSpan(
-                              text: 'Privacy Policy',
-                              style: TextStyles.terms.copyWith(
-                                fontSize: 14,
-                                color: AppThemes.primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10),
+                      // RichText(
+                      //   textAlign: TextAlign.center,
+                      //   text: TextSpan(
+                      //     style: TextStyles.terms.copyWith(
+                      //       fontSize: 14,
+                      //       color: AppThemes.lightGreylittle,
+                      //     ),
+                      //     children: [
+                      //       const TextSpan(
+                      //         text: 'By signing up I agree to the ',
+                      //       ),
+                      //       TextSpan(
+                      //         text: 'Terms  and \nConditions',
+                      //         style: TextStyles.terms.copyWith(
+                      //           fontSize: 14,
+                      //           color: AppThemes.primaryColor,
+                      //         ),
+                      //       ),
+                      //       const TextSpan(text: ' and '),
+                      //       TextSpan(
+                      //         text: 'Privacy Policy',
+                      //         style: TextStyles.terms.copyWith(
+                      //           fontSize: 14,
+                      //           color: AppThemes.primaryColor,
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // SizedBox(height: 10),
                     ],
                   ),
                 ),

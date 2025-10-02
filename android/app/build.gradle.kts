@@ -26,8 +26,8 @@ android {
         applicationId = "com.benevolent.crmapp"
         minSdk = 24
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.0.6"
+        versionCode = 10
+        versionName = "1.0.9"
     }
 
     signingConfigs {

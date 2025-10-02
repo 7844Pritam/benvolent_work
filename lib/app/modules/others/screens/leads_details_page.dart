@@ -70,10 +70,10 @@ class _LeadsDetailsPageState extends State<LeadsDetailsPage> {
     super.dispose();
   }
 
-  bool _isMasked(String? value) {
-    if (value == null || value.isEmpty) return false;
-    return value.contains("*"); // adjust if your mask format is different
-  }
+  // bool _isMasked(String? value) {
+  //   if (value == null || value.isEmpty) return false;
+  //   return value.contains("*");
+  // }
 
   @override
   Widget build(BuildContext context) {
