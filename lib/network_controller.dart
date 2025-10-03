@@ -40,11 +40,8 @@ class NetworkController extends GetxController {
   }
 
   void _showNoInternetDialog() {
-    if (!(Get.isDialogOpen ?? false)) {
-      Get.dialog(
-        const NoInternetDialog(), // 👈 animated alert box
-        barrierDismissible: false,
-      );
+    if (Get.context != null && !(Get.isDialogOpen ?? false)) {
+      Get.dialog(const NoInternetDialog(), barrierDismissible: false);
     }
   }
 }

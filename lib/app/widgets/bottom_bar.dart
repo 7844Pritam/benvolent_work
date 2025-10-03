@@ -9,8 +9,6 @@ import 'package:benevolent_crm_app/app/widgets/bottom_nav_widget.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class CustomBottomBar extends StatefulWidget {
   const CustomBottomBar({Key? key}) : super(key: key);

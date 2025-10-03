@@ -36,7 +36,6 @@ class AppThemes {
     colorScheme: const ColorScheme.light().copyWith(
       primary: AppColors.primaryColor,
       secondary: AppColors.accentColor,
-      background: AppColors.white,
       surface: AppColors.greyLighter,
     ),
     appBarTheme: const AppBarTheme(
@@ -80,7 +79,6 @@ class AppThemes {
     colorScheme: const ColorScheme.dark().copyWith(
       primary: AppColors.greyDark,
       secondary: AppColors.accentColor,
-      background: AppColors.backgroundColor,
       surface: AppColors.primaryColor,
     ),
     appBarTheme: const AppBarTheme(

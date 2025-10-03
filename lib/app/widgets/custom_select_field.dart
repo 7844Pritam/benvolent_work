@@ -26,7 +26,7 @@ class CustomSelectField<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           onChanged: enabled ? onChanged : null,
           validator: validator,
           autovalidateMode: AutovalidateMode.onUserInteraction,

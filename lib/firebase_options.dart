@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '724636203630',
     projectId: 'benevolentrealty-cfb1d',
     storageBucket: 'benevolentrealty-cfb1d.firebasestorage.app',
-    iosBundleId: 'com.example.benevolentCrmApp',
+    iosBundleId: 'com.benevolent.crmapp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '724636203630',
     projectId: 'benevolentrealty-cfb1d',
     storageBucket: 'benevolentrealty-cfb1d.firebasestorage.app',
-    iosBundleId: 'com.example.benevolentCrmApp',
+    iosBundleId: 'com.benevolent.crmapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

@@ -7,7 +7,6 @@ import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

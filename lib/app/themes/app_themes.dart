@@ -20,7 +20,6 @@ class AppThemes {
       primary: backgroundColor,
       secondary: textColorSecondary,
       surface: white,
-      background: white,
     ),
     scaffoldBackgroundColor: backgroundColor,
     appBarTheme: const AppBarTheme(
@@ -53,7 +52,6 @@ class AppThemes {
       primary: darkGrey,
       secondary: textColorSecondary,
       surface: backgroundColor,
-      background: backgroundColor,
     ),
     scaffoldBackgroundColor: backgroundColor,
     appBarTheme: const AppBarTheme(

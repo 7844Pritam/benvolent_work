@@ -13,14 +13,35 @@ class AuthController extends GetxController {
 
   var isLoading = false.obs;
   var loginResponse = Rxn<LoginResponseModel>();
+  Future<void> requestNotificationPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    print("User granted permission: ${settings.authorizationStatus}");
+  }
 
   Future<void> login(String email, String password) async {
     try {
       isLoading.value = true;
 
-      // Step 1: Delete old token
+      // Ensure permissions are requested before fetching token
+      await requestNotificationPermission();
+
+      // Delete old token
       await FirebaseMessaging.instance.deleteToken();
 
+      // iOS: wait for APNs token before fetching FCM token
+      if (GetPlatform.isIOS) {
+        String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        print("APNs Token: $apnsToken");
+      }
+
+      // Now get FCM token
       String? deviceToken = await FirebaseMessaging.instance.getToken();
       print('New Device Token: $deviceToken');
 

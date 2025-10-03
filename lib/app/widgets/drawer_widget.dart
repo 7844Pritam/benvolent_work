@@ -28,7 +28,7 @@ class ModernDrawerWrapper extends StatefulWidget {
 class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
   final _advancedDrawerController = AdvancedDrawerController();
   final box = GetStorage();
-  final ProfileController controller = Get.find<ProfileController>();
+  final ProfileController controller = Get.put(ProfileController());
   String _appVersion = '';
   // ignore: unused_field
   final NotificationController _c = Get.put(NotificationController());
