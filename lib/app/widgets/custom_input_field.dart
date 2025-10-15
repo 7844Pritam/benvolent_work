@@ -31,7 +31,6 @@ class CustomInputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
@@ -65,10 +64,10 @@ class CustomInputField extends StatelessWidget {
                 ? IconButton(icon: suffixIcon!, onPressed: onSuffixTap)
                 : null,
             labelStyle: TextStyles.label.copyWith(color: AppThemes.lightGrey),
-            counterText: "", // hides the default maxLength indicator
+            counterText: "",
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
       ],
     );
   }

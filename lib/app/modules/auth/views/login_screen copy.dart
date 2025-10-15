@@ -67,7 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                           /// 🔒 Password Input
-                          const SizedBox(height: 12),
                           CustomInputField(
                             label: 'Password',
                             controller: passwordController,
@@ -106,6 +105,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           Row(
                             children: [
+                              // Expanded(
+                              //   child: CustomButton(
+                              //     text: 'Signup',
+                              //     isFilled: false,
+                              //     onPressed: () => Get.toNamed('/signup'),
+                              //   ),
+                              // ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: CustomButton(
@@ -127,29 +133,36 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                           const SizedBox(height: 22),
-
-                          // if new user then show signup option
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Don't have an account?",
-                                style: TextStyles.label.copyWith(
-                                  color: AppThemes.lightGreylittle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () => Get.toNamed('/signup'),
-                                child: Text(
-                                  'Sign Up',
-                                  style: TextStyles.label.copyWith(
-                                    color: AppThemes.primaryColor,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // RichText(
+                          //   textAlign: TextAlign.center,
+                          //   text: TextSpan(
+                          //     style: TextStyles.terms.copyWith(
+                          //       fontSize: 14,
+                          //       color: AppThemes.lightGreylittle,
+                          //     ),
+                          //     children: [
+                          //       const TextSpan(
+                          //         text: 'By signing up I agree to the ',
+                          //       ),
+                          //       TextSpan(
+                          //         text: 'Terms and \nConditions',
+                          //         style: TextStyles.terms.copyWith(
+                          //           fontSize: 14,
+                          //           color: AppThemes.primaryColor,
+                          //         ),
+                          //       ),
+                          //       const TextSpan(text: ' and '),
+                          //       TextSpan(
+                          //         text: 'Privacy Policy',
+                          //         style: TextStyles.terms.copyWith(
+                          //           fontSize: 14,
+                          //           color: AppThemes.primaryColor,
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -158,6 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
 
+            /// Loader in center
             if (loginController.isLoading.value)
               Container(
                 color: Colors.black45,

@@ -2,6 +2,7 @@ import 'package:benevolent_crm_app/app/modules/auth/modals/change_password_respo
 import 'package:benevolent_crm_app/app/modules/auth/modals/login_response_modal.dart';
 import 'package:benevolent_crm_app/app/modules/auth/modals/otp_verify_response.dart';
 import 'package:benevolent_crm_app/app/modules/auth/modals/reset_password_response.dart';
+import 'package:benevolent_crm_app/app/modules/auth/modals/signup_response_modal.dart';
 import 'package:benevolent_crm_app/app/services/api/api_client.dart';
 import 'package:benevolent_crm_app/app/services/api/api_end_points.dart';
 import 'package:benevolent_crm_app/app/utils/error_handler.dart';
@@ -13,6 +14,37 @@ class AuthService {
   final box = GetStorage();
 
   AuthService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+
+  Future<SignupResponse> signup({
+    required String firstName,
+    required String lastName,
+    required String phone,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiEndPoints.SIGNUP_URL,
+        data: {
+          'first_name': firstName,
+          'last_name': lastName,
+          'phone': phone,
+          'email': email,
+          'password': password,
+          'confirm_password': confirmPassword,
+        },
+      );
+
+      print('Signup response: ${response.data}');
+      return SignupResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      print('DioException: $e');
+      throw ErrorHandler.handle(e);
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Future<LoginResponseModel> login(
     String email,

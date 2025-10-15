@@ -9,7 +9,6 @@ import 'app/themes/app_themes.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 
-// 🔹 Background handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print("📩 Background message: ${message.messageId}");

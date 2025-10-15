@@ -1,19 +1,15 @@
 class ProfileResponse {
   final int success;
   final String message;
-  final Profile data;
+  final Profile? data;
 
-  ProfileResponse({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
+  ProfileResponse({required this.success, required this.message, this.data});
 
   factory ProfileResponse.fromJson(Map<String, dynamic> json) {
     return ProfileResponse(
-      success: json['success'],
-      message: json['message'],
-      data: Profile.fromJson(json['data']),
+      success: json['success'] ?? 0,
+      message: json['message'] ?? '',
+      data: json['data'] != null ? Profile.fromJson(json['data']) : null,
     );
   }
 }
@@ -35,26 +31,26 @@ class Profile {
     required this.firstName,
     required this.lastName,
     required this.email,
-    required this.dob,
+    this.dob,
     required this.phone,
-    required this.atContact,
-    required this.address,
+    this.atContact,
+    this.address,
     required this.availability,
     required this.imageUrl,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
-      id: json['id'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      email: json['email'],
-      dob: json['dob'],
-      phone: json['phone'].toString(),
-      atContact: json['at_contact'],
-      address: json['address'],
-      availability: json['availability'],
-      imageUrl: json['user_profile'],
+      id: json['id'] ?? 0,
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      email: json['email'] ?? '',
+      dob: json['dob']?.toString(),
+      phone: json['phone']?.toString() ?? '',
+      atContact: json['at_contact']?.toString(),
+      address: json['address']?.toString(),
+      availability: json['availability'] ?? 'Unavailable',
+      imageUrl: json['user_profile'] ?? '',
     );
   }
 
@@ -63,10 +59,11 @@ class Profile {
       "first_name": firstName,
       "last_name": lastName,
       "email": email,
-      "dob": dob,
+      "dob": dob ?? '',
       "phone": phone,
-      "at_contact": atContact,
-      "address": address,
+      "at_contact": atContact ?? '',
+      "address": address ?? '',
+      "availability": availability,
       "user_profile": imageUrl,
     };
   }
@@ -75,6 +72,7 @@ class Profile {
     String? firstName,
     String? lastName,
     String? email,
+    String? dob,
     String? phone,
     String? atContact,
     String? address,
@@ -86,12 +84,12 @@ class Profile {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
-      dob: dob,
+      dob: dob ?? this.dob,
       phone: phone ?? this.phone,
       atContact: atContact ?? this.atContact,
       address: address ?? this.address,
       availability: availability ?? this.availability,
-      imageUrl: imageUrl ?? "",
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

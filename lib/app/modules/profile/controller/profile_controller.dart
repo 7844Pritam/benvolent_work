@@ -38,15 +38,15 @@ class ProfileController extends GetxController {
       print("Profile fetched: ${result.data}");
 
       profile.value = result.data;
+      firstNameController.text = result.data!.firstName;
+      lastNameController.text = result.data!.lastName;
+      emailController.text = result.data!.email;
+      phoneController.text = result.data!.phone.toString();
+      userIdController.text = result.data!.id.toString();
+      imageUrlController.text = result.data!.imageUrl;
+      alternateController.text = result.data!.atContact ?? "";
+      addressController.text = result.data!.address ?? "";
 
-      firstNameController.text = result.data.firstName;
-      lastNameController.text = result.data.lastName;
-      emailController.text = result.data.email;
-      phoneController.text = result.data.phone.toString();
-      userIdController.text = result.data.id.toString();
-      imageUrlController.text = result.data.imageUrl;
-      alternateController.text = result.data.atContact ?? "";
-      addressController.text = result.data.address ?? "";
       print("Profile controllers updated with fetched data.");
     } catch (e) {
       print("Error in loadProfile: $e");

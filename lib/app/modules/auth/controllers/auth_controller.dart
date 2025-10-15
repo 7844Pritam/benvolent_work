@@ -2,6 +2,8 @@ import 'package:benevolent_crm_app/app/modules/auth/modals/change_password_respo
 import 'package:benevolent_crm_app/app/modules/auth/modals/login_response_modal.dart';
 import 'package:benevolent_crm_app/app/modules/auth/modals/otp_verify_response.dart';
 import 'package:benevolent_crm_app/app/modules/auth/modals/reset_password_response.dart';
+import 'package:benevolent_crm_app/app/modules/auth/modals/signup_response_modal.dart';
+import 'package:benevolent_crm_app/app/modules/auth/views/login_screen.dart';
 import 'package:benevolent_crm_app/app/services/auth_services.dart';
 import 'package:benevolent_crm_app/app/utils/api_exceptions.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
@@ -13,6 +15,54 @@ class AuthController extends GetxController {
 
   var isLoading = false.obs;
   var loginResponse = Rxn<LoginResponseModel>();
+  var signupResponse = Rxn<SignupResponse>();
+
+  Future<void> signup({
+    required String firstName,
+    required String lastName,
+    required String phone,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      isLoading.value = true;
+      final response = await authService.signup(
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      );
+      signupResponse.value = response;
+
+      if (response.success) {
+        CustomSnackbar.show(
+          title: 'Signup Successful',
+          message: response.message,
+          type: ToastType.success,
+        );
+        Get.to(() => LoginScreen());
+      } else {
+        CustomSnackbar.show(
+          title: 'Signup Failed',
+          message: response.message,
+          type: ToastType.error,
+        );
+      }
+    } catch (e) {
+      print('Signup Error: $e');
+      CustomSnackbar.show(
+        title: 'Signup Error',
+        message: e.toString(),
+        type: ToastType.error,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> requestNotificationPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -29,19 +79,15 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Ensure permissions are requested before fetching token
       await requestNotificationPermission();
 
-      // Delete old token
       await FirebaseMessaging.instance.deleteToken();
 
-      // iOS: wait for APNs token before fetching FCM token
       if (GetPlatform.isIOS) {
         String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
         print("APNs Token: $apnsToken");
       }
 
-      // Now get FCM token
       String? deviceToken = await FirebaseMessaging.instance.getToken();
       print('New Device Token: $deviceToken');
 
@@ -51,7 +97,7 @@ class AuthController extends GetxController {
 
       CustomSnackbar.show(
         title: 'Login Successful',
-        message: 'Welcome ${data.results.data.firstName}',
+        message: 'Welcome ${data.results!.data?.firstName ?? ''}',
         type: ToastType.success,
       );
 

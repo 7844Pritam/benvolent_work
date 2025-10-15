@@ -1,19 +1,21 @@
 class LoginResponseModel {
   final int success;
   final String message;
-  final LoginResult results;
+  final LoginResult? results;
 
   LoginResponseModel({
     required this.success,
     required this.message,
-    required this.results,
+    this.results,
   });
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     return LoginResponseModel(
-      success: json['success'],
-      message: json['message'],
-      results: LoginResult.fromJson(json['results']),
+      success: json['success'] ?? 0,
+      message: json['message'] ?? '',
+      results: json['results'] != null
+          ? LoginResult.fromJson(json['results'])
+          : null,
     );
   }
 }
@@ -23,23 +25,23 @@ class LoginResult {
   final String tokenType;
   final String expiresAt;
   final String role;
-  final UserData data;
+  final UserData? data;
 
   LoginResult({
     required this.token,
     required this.tokenType,
     required this.expiresAt,
     required this.role,
-    required this.data,
+    this.data,
   });
 
   factory LoginResult.fromJson(Map<String, dynamic> json) {
     return LoginResult(
-      token: json['token'],
-      tokenType: json['token_type'],
-      expiresAt: json['expires_at'],
-      role: json['role'],
-      data: UserData.fromJson(json['data']),
+      token: json['token'] ?? '',
+      tokenType: json['token_type'] ?? '',
+      expiresAt: json['expires_at'] ?? '',
+      role: json['role'] ?? '',
+      data: json['data'] != null ? UserData.fromJson(json['data']) : null,
     );
   }
 }
@@ -62,18 +64,18 @@ class UserData {
     this.atContact,
     this.address,
     required this.userProfile,
-    required this.phone,
+    this.phone,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      email: json['email'],
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      email: json['email'] ?? '',
       dob: json['dob'],
       atContact: json['at_contact'],
       address: json['address'],
-      userProfile: json['user_profile'],
+      userProfile: json['user_profile'] ?? '',
       phone: json['phone'],
     );
   }
