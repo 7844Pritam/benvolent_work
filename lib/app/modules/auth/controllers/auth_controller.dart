@@ -79,19 +79,19 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      await requestNotificationPermission();
+      // await requestNotificationPermission();
 
-      await FirebaseMessaging.instance.deleteToken();
+      // await FirebaseMessaging.instance.deleteToken();
 
-      if (GetPlatform.isIOS) {
-        String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-        print("APNs Token: $apnsToken");
-      }
+      // if (GetPlatform.isIOS) {
+      //   String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+      //   print("APNs Token: $apnsToken");
+      // }
 
-      String? deviceToken = await FirebaseMessaging.instance.getToken();
-      print('New Device Token: $deviceToken');
+      // String? deviceToken = await FirebaseMessaging.instance.getToken();
+      // print('New Device Token: $deviceToken');
 
-      final data = await authService.login(email, password, deviceToken);
+      final data = await authService.login(email, password, "");
 
       loginResponse.value = data;
 

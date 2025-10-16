@@ -21,7 +21,7 @@ Future<void> main() async {
   await Firebase.initializeApp();
 
   // Init local notifications (your custom service)
-  await NotificationService2.init();
+  // await NotificationService2.init();
 
   // GetX Controllers
   Get.put(NetworkController(), permanent: true);
@@ -29,7 +29,7 @@ Future<void> main() async {
   // Get.put(ProfileController());
 
   // Init FCM
-  await _initFCM();
+  // await _initFCM();
 
   runApp(const MyApp());
 }
