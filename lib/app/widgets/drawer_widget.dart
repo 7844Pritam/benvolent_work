@@ -16,6 +16,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ModernDrawerWrapper extends StatefulWidget {
   final Widget child;
@@ -268,6 +269,47 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 onTap: () =>
                     Get.to(CreatePasswordScreen(email: email, flag: 2)),
               ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.white),
+                title: const Text(
+                  'Delete Account',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () async {
+                  try {
+                    _advancedDrawerController.hideDrawer();
+
+                    await Future.delayed(const Duration(milliseconds: 300));
+
+                    final url = Uri.parse(
+                      'https://benevolentrealty.com/delete-account',
+                    );
+                    var value = await canLaunchUrl(url);
+                    print('Can launch: $value');
+                    if (value) {
+                      await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      Get.snackbar(
+                        'Error',
+                        'Could not open Delete Account link.',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  } catch (e) {
+                    Get.snackbar(
+                      'Exception',
+                      'An unexpected error occurred: $e',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red.shade400,
+                      colorText: Colors.white,
+                    );
+                  }
+                },
+              ),
+
               ListTile(
                 leading: const Icon(LucideIcons.logOut, color: Colors.white),
                 title: const Text(

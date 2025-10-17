@@ -7,10 +7,10 @@ import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -66,7 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             validator: Validators.validateEmail,
                           ),
 
-                          /// 🔒 Password Input
                           const SizedBox(height: 12),
                           CustomInputField(
                             label: 'Password',
@@ -149,6 +148,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          GestureDetector(
+                            onTap: () async {
+                              final url = Uri.parse(
+                                'https://benevolentrealty.com/terms-conditions',
+                              );
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(
+                                  url,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } else {
+                                Get.snackbar(
+                                  'Error',
+                                  'Could not open Terms & Conditions link',
+                                );
+                              }
+                            },
+                            child: Text(
+                              'Terms & Conditions',
+                              style: TextStyles.label.copyWith(
+                                color: AppThemes.primaryColor,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
                           ),
                         ],
                       ),
