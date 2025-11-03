@@ -7,6 +7,7 @@ import 'package:benevolent_crm_app/app/modules/leads/widget/lead_card.dart';
 import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/cold_call_shimmer.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -155,7 +156,10 @@ class AllLeadsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 1,
-        title: const Text('Leads', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Leads',
+          style: TextStyles.Text18700.copyWith(color: Colors.white),
+        ),
         backgroundColor: AppColors.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -164,9 +168,10 @@ class AllLeadsPage extends StatelessWidget {
               _controller.totalCount.value > 0
                   ? '(${_controller.totalCount.value})'
                   : 'No Leads',
-              style: const TextStyle(color: Colors.white, fontSize: 22),
+              style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
+
           // Text(
           //   style: const TextStyle(color: Colors.white, fontSize: 22),
           //   _controller.totalCount.value > 0
@@ -174,7 +179,7 @@ class AllLeadsPage extends StatelessWidget {
           //       : 'No Leads',
           // ),
           IconButton(
-            icon: const Icon(LucideIcons.filter, color: Colors.white),
+            icon: const Icon(LucideIcons.filter, color: Colors.white, size: 18),
 
             onPressed: () =>
                 Get.to(() => const FilterPage(flag: "fromAllLeads")),

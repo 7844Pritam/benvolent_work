@@ -11,8 +11,8 @@ class ApiClient {
     : _dio = dio ?? Dio(),
       _tokenStorage = tokenStorage ?? TokenStorage() {
     _dio.options.baseUrl = ApiEndPoints.BASEURL;
-    _dio.options.connectTimeout = const Duration(seconds: 10);
-    _dio.options.receiveTimeout = const Duration(seconds: 10);
+    _dio.options.connectTimeout = const Duration(seconds: 50);
+    _dio.options.receiveTimeout = const Duration(seconds: 50);
 
     _dio.interceptors.add(
       InterceptorsWrapper(

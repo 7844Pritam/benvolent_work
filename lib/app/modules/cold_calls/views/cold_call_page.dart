@@ -6,6 +6,7 @@ import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_cal
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -133,8 +134,10 @@ class ColdCallPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 1,
-        title: const Text('Cold Calls', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Cold Calls',
+          style: TextStyles.Text18700.copyWith(color: Colors.white),
+        ),
         backgroundColor: AppColors.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -143,11 +146,11 @@ class ColdCallPage extends StatelessWidget {
               _controller.totalCount.value > 0
                   ? '(${_controller.totalCount.value})'
                   : 'No Leads',
-              style: const TextStyle(color: Colors.white, fontSize: 22),
+              style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
           IconButton(
-            icon: const Icon(LucideIcons.filter, color: Colors.white),
+            icon: const Icon(LucideIcons.filter, color: Colors.white, size: 18),
             onPressed: () =>
                 Get.to(() => const FilterPage(flag: "fromColdCalls")),
           ),

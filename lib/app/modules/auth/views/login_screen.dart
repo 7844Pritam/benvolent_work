@@ -5,6 +5,7 @@ import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:benevolent_crm_app/app/utils/validators.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
+import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -127,7 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           const SizedBox(height: 22),
 
-                          // if new user then show signup option
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -150,24 +150,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-
                           GestureDetector(
                             onTap: () async {
-                              final url = Uri.parse(
+                              final Uri url = Uri.parse(
                                 'https://benevolentrealty.com/terms-conditions',
                               );
-                              if (await canLaunchUrl(url)) {
-                                await launchUrl(
-                                  url,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              } else {
-                                Get.snackbar(
-                                  'Error',
-                                  'Could not open Terms & Conditions link',
+
+                              if (!await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              )) {
+                                CustomSnackbar.show(
+                                  title: "Error",
+                                  message:
+                                      "Could not open Terms & Conditions link",
                                 );
                               }
                             },
+
                             child: Text(
                               'Terms & Conditions',
                               style: TextStyles.label.copyWith(

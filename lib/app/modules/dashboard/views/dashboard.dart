@@ -1,3 +1,5 @@
+import 'package:benevolent_crm_app/app/modules/cold_calls/views/cold_call_page.dart';
+import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
 import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
@@ -60,12 +62,16 @@ class Dashboard extends StatelessWidget {
                           Colors.blue,
                         ),
                         _statCard(
+                          onTap: () => Get.to(ColdCallPage()),
+
                           Icons.call,
                           data.coldCallCounts,
                           "Cold Calls",
                           Colors.orange,
                         ),
                         _statCard(
+                          onTap: () => Get.to(ConvertedCallsPage()),
+
                           Icons.check_circle,
                           data.coldCallConvertsCounts,
                           "Conversions",

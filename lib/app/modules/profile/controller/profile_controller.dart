@@ -35,7 +35,7 @@ class ProfileController extends GetxController {
       print("Loading profile...");
       isLoading.value = true;
       final result = await _profileService.fetchProfile();
-      print("Profile fetched: ${result.data}");
+      print("Profile fetched: ${result.data!.toJson()}");
 
       profile.value = result.data;
       firstNameController.text = result.data!.firstName;

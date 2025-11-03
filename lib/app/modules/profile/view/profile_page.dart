@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:benevolent_crm_app/app/utils/validators.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_button.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_input_field.dart';
@@ -52,7 +53,10 @@ class _UserProfileCardState extends State<UserProfilePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Profile", style: TextStyle(color: Colors.white)),
+        title: Text(
+          "Profile",
+          style: TextStyles.Text18700.copyWith(color: Colors.white),
+        ),
       ),
       body: Center(
         child: Obx(() {

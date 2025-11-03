@@ -1,4 +1,5 @@
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:benevolent_crm_app/app/utils/helpers.dart';
 import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,16 @@ class ConvertedCallCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
+
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
@@ -40,10 +50,7 @@ class ConvertedCallCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         call.name,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20,
-                        ),
+                        style: TextStyles.Text18700.copyWith(),
                       ),
                     ),
                   ],
@@ -54,7 +61,7 @@ class ConvertedCallCard extends StatelessWidget {
                 // Email
                 Text(
                   call.email,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyles.Text13500,
                   overflow: TextOverflow.ellipsis,
                 ),
 
@@ -85,7 +92,7 @@ class ConvertedCallCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _actionIcon(
-                      bg: const Color(0xFF22C55E),
+                      bg: const Color.fromARGB(255, 42, 100, 64),
                       icon: FontAwesomeIcons.whatsapp,
                       onTap: () => HyperLinksNew.openWhatsApp(
                         call.phone,

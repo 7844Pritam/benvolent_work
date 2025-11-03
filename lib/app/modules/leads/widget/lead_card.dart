@@ -4,6 +4,7 @@ import 'package:benevolent_crm_app/app/utils/helpers.dart';
 import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
 import 'package:benevolent_crm_app/app/modules/leads/modals/leads_response.dart';
 import 'package:benevolent_crm_app/app/modules/leads/controller/leads_controller.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -16,11 +17,9 @@ class LeadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final LeadsController controller = Get.find<LeadsController>();
 
     return Obx(() {
-      // Fetch the latest lead from the controller's reactive list
       final currentLead = controller.leads.firstWhere(
         (l) => l.id == lead.id,
         orElse: () => lead,
@@ -33,6 +32,14 @@ class LeadCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         margin: const EdgeInsets.symmetric(vertical: 10),
         child: Padding(
@@ -42,15 +49,14 @@ class LeadCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Lead ID + call button
+                  // Lead ID
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           'Lead ID : ${currentLead.id}',
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontSize: 18,
-                            color: Colors.black87,
+                          style: TextStyles.Text14400.copyWith(
+                            color: AppColors.greyDark,
                           ),
                         ),
                       ),
@@ -61,10 +67,7 @@ class LeadCard extends StatelessWidget {
                   // Name
                   Text(
                     currentLead.name,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 20,
-                    ),
+                    style: TextStyles.Text18700.copyWith(),
                   ),
                   const SizedBox(height: 8),
 
@@ -101,11 +104,12 @@ class LeadCard extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
+                  // Action Icons Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _actionIcon(
-                        bg: const Color(0xFF22C55E),
+                        bg: const Color.fromARGB(255, 42, 100, 64),
                         icon: FontAwesomeIcons.whatsapp,
                         onTap: () => HyperLinksNew.openWhatsApp(
                           currentLead.phone,
@@ -133,6 +137,8 @@ class LeadCard extends StatelessWidget {
                   ),
                 ],
               ),
+
+              // Call button
               Positioned(
                 right: 0,
                 child: InkWell(
@@ -178,13 +184,9 @@ class LeadCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Text(
+                child: Text(
                   'Accept',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                  ),
+                  style: TextStyles.Text16700.copyWith(color: Colors.white),
                 ),
               ),
             ),
@@ -203,7 +205,7 @@ class LeadCard extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            style: TextStyles.Text14400.copyWith(color: Colors.black87),
           ),
         ),
       ],
@@ -226,14 +228,7 @@ class LeadCard extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: color),
         const SizedBox(width: 6),
-        Text(
-          status,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          ),
-        ),
+        Text(status, style: TextStyles.Text13500.copyWith(color: color)),
       ],
     );
   }

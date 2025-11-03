@@ -2,6 +2,7 @@ class ColdCall {
   final int id;
   final String name;
   final String date;
+  final String agent_id;
   final String agent;
   final String phone;
   final String source;
@@ -13,6 +14,7 @@ class ColdCall {
     required this.id,
     required this.name,
     required this.date,
+    required this.agent_id,
     required this.agent,
     required this.phone,
     required this.source,
@@ -26,6 +28,7 @@ class ColdCall {
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       date: json['date'] ?? '',
+      agent_id: json['agent_id']?.toString() ?? '',
       agent: json['agent'] ?? '',
       phone: json['phone'] ?? '',
       source: json['source'] ?? '',

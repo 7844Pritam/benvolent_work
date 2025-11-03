@@ -4,6 +4,7 @@ import 'package:benevolent_crm_app/app/modules/converted_call/widgets/converted_
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/filters/view/filter_page.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -117,11 +118,10 @@ class ConvertedCallsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 1,
-        toolbarHeight: 52,
         backgroundColor: AppColors.primaryColor,
-        title: const Text(
+        title: Text(
           'Converted Calls',
-          style: TextStyle(color: Colors.white),
+          style: TextStyles.Text18700.copyWith(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -130,11 +130,11 @@ class ConvertedCallsPage extends StatelessWidget {
               _controller.totalCount.value > 0
                   ? '(${_controller.totalCount.value})'
                   : 'No Calls',
-              style: const TextStyle(color: Colors.white, fontSize: 22),
+              style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
           IconButton(
-            icon: const Icon(LucideIcons.filter, color: Colors.white),
+            icon: const Icon(LucideIcons.filter, color: Colors.white, size: 18),
             onPressed: () =>
                 Get.to(() => const FilterPage(flag: "fromConvertedCalls")),
           ),

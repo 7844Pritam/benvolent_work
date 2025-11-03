@@ -1,9 +1,13 @@
+import 'dart:convert';
+
+import 'package:benevolent_crm_app/app/modules/cold_calls/widgets/dialog_box.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/constants/call_constants.dart';
 import 'package:benevolent_crm_app/app/modules/filters/controllers/filters_controller.dart';
 import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
 import 'package:benevolent_crm_app/app/themes/app_color.dart';
 import 'package:benevolent_crm_app/app/utils/helpers.dart';
 import 'package:benevolent_crm_app/app/utils/hyper_links/hyper_links.dart';
+import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -24,11 +28,36 @@ class ColdCallCard extends StatelessWidget {
     final busy = ctrl.workingIds.contains(call.id);
     final ProfileController _profileController = Get.find<ProfileController>();
 
+    print("sldkjfldsjfsdf");
+
+    print("id coming from profile");
+    final profile = _profileController.profile.value;
+    if (profile != null) {
+      print(const JsonEncoder.withIndent('  ').convert(profile.toJson()));
+    } else {
+      print("⚠️ Profile not loaded yet!");
+    }
+    print("profile id here here r");
+    print(_profileController.profile.value!.id);
+
+    print("id is coming from converted card data ");
+    print(ctrl.coldCalls.map((value) => print(value.agent_id)));
+    final isOwner =
+        '${_profileController.profile.value!.id}' == call.agent_id.toString();
+
     final card = Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Padding(
@@ -51,7 +80,6 @@ class ColdCallCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 8),
 
                 _infoRow(
@@ -80,44 +108,58 @@ class ColdCallCard extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                // Bottom Actions
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _actionIcon(
-                      bg: const Color(0xFF22C55E),
+                      bg: const Color.fromARGB(
+                        255,
+                        22,
+                        122,
+                        59,
+                      ).withOpacity(isOwner ? 1 : 0.4),
                       icon: FontAwesomeIcons.whatsapp,
-                      onTap: () => HyperLinksNew.openWhatsApp(
-                        call.phone,
-                        'Hi ${call.name}, ',
-                      ),
+                      onTap: isOwner
+                          ? () => HyperLinksNew.openWhatsApp(
+                              call.phone,
+                              'Hi ${call.name}, ',
+                            )
+                          : () => _showNotAllowedPopup(),
                     ),
-
                     _actionIcon(
-                      bg: Colors.white,
+                      bg: Colors.white.withOpacity(isOwner ? 1 : 0.4),
                       border: Border.all(color: Colors.black26),
                       icon: Icons.copy_rounded,
                       iconColor: Colors.grey.shade800,
-                      onTap: () => Helpers.copyClipboard(call.phone),
+                      onTap: isOwner
+                          ? () => Helpers.copyClipboard(call.phone)
+                          : () => _showNotAllowedPopup(),
                     ),
-                    if (_profileController.profile.value!.id == call.id)
-                      _actionIcon(
-                        bg: Colors.purple.shade50,
-                        border: Border.all(color: Colors.purple.shade200),
-                        icon: Icons.swap_horiz,
-                        iconColor: Colors.purple,
-                        onTap: busy ? () {} : () => _pickStatus(context, ctrl),
-                      ),
-                    if (_profileController.profile.value!.id == call.id)
-                      _actionIcon(
-                        bg: const Color.fromARGB(255, 39, 48, 48),
-                        border: Border.all(color: Colors.teal.shade200),
-                        icon: Icons.person_add_alt_1,
-                        iconColor: Colors.teal,
-                        onTap: busy
-                            ? () {}
-                            : () => _confirmConvert(context, ctrl),
-                      ),
+                    _actionIcon(
+                      bg: Colors.purple.shade50.withOpacity(isOwner ? 1 : 0.4),
+                      border: Border.all(color: Colors.purple.shade200),
+                      icon: Icons.swap_horiz,
+                      iconColor: Colors.purple,
+                      onTap: isOwner
+                          ? (busy ? () {} : () => _pickStatus(context, ctrl))
+                          : () => _showNotAllowedPopup(),
+                    ),
+                    _actionIcon(
+                      bg: const Color.fromARGB(
+                        255,
+                        185,
+                        216,
+                        216,
+                      ).withOpacity(isOwner ? 1 : 0.4),
+                      border: Border.all(color: Colors.teal.shade200),
+                      icon: Icons.person_add_alt_1,
+                      iconColor: Colors.teal,
+                      onTap: isOwner
+                          ? (busy
+                                ? () {}
+                                : () => _confirmConvert(context, ctrl))
+                          : () => _showNotAllowedPopup(),
+                    ),
                   ],
                 ),
               ],
@@ -126,12 +168,20 @@ class ColdCallCard extends StatelessWidget {
             Positioned(
               right: 0,
               child: InkWell(
-                onTap: () => HyperLinksNew.openDialer(call.phone),
+                onTap: () {
+                  if (!isOwner) {
+                    _showNotAllowedPopup();
+                  } else {
+                    HyperLinksNew.openDialer(call.phone);
+                  }
+                },
                 borderRadius: BorderRadius.circular(50),
-                child: const Icon(
+                child: Icon(
                   Icons.call,
                   size: 28,
-                  color: AppColors.primaryColor,
+                  color: isOwner
+                      ? AppColors.primaryColor
+                      : Colors.grey.shade400,
                 ),
               ),
             ),
@@ -335,16 +385,30 @@ class ColdCallCard extends StatelessWidget {
   }
 
   void _confirmConvert(BuildContext context, ColdCallController ctrl) {
-    Get.defaultDialog(
-      title: 'Convert to Lead?',
-      middleText: 'This will create a lead from this cold call.',
-      textCancel: 'Cancel',
-      textConfirm: 'Convert',
-      confirmTextColor: Colors.white,
-      onConfirm: () async {
-        Get.back();
-        await ctrl.convertColdCallToLead(callId: call.id);
-      },
+    Get.dialog(
+      ConfirmConvertDialog(
+        onConfirm: () async {
+          await ctrl.convertColdCallToLead(callId: call.id);
+          Get.snackbar(
+            'Converted',
+            '${call.name} is now a lead!',
+            backgroundColor: AppColors.green.withOpacity(0.1),
+            colorText: AppColors.primaryColor,
+            icon: const Icon(Icons.check_circle, color: AppColors.green),
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+          );
+        },
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  void _showNotAllowedPopup() {
+    CustomSnackbar.show(
+      title: 'Access Denied',
+      message:
+          'This action is not allowed. The cold call is not assigned to you.',
     );
   }
 }

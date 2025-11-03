@@ -7,6 +7,7 @@ import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
 import 'package:benevolent_crm_app/app/modules/notification/controller/notification_controller.dart';
 import 'package:benevolent_crm_app/app/modules/notification/view/notification_page.dart';
 import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:benevolent_crm_app/app/widgets/confirm_status_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
@@ -86,7 +87,8 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
           final availability = profile?.availability ?? 'Available';
 
           return ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+
             children: [
               const SizedBox(height: 20),
               GestureDetector(
@@ -110,22 +112,22 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   );
                 },
                 child: CircleAvatar(
-                  radius: 50,
+                  radius: 40,
                   backgroundColor: Colors.grey.shade200,
                   child: ClipOval(
                     child: controller.pickedImageFilePath.isNotEmpty
                         ? Image.file(
                             File(controller.pickedImageFilePath.value),
                             fit: BoxFit.contain,
-                            width: 100,
-                            height: 100,
+                            width: 80,
+                            height: 80,
                           )
                         : controller.imageUrlController.text.startsWith('http')
                         ? Image.network(
                             controller.imageUrlController.text,
                             fit: BoxFit.contain,
-                            width: 100,
-                            height: 100,
+                            width: 80,
+                            height: 80,
                           )
                         : Image.file(
                             File(controller.imageUrlController.text),
@@ -143,17 +145,14 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 children: [
                   Text(
                     'Hello, $firstName $lastName',
-                    style: const TextStyle(
+                    style: TextStyles.Text18700.copyWith(
                       color: AppThemes.textColorWhite,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     'User ID: $userId',
-                    style: const TextStyle(
+                    style: TextStyles.Text14400.copyWith(
                       color: AppThemes.textColorWhite,
-                      fontSize: 14,
                     ),
                   ),
                 ],
@@ -162,10 +161,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 onPressed: () => Get.to(UserProfilePage()),
                 child: const Text(
                   'View Profile',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    decoration: TextDecoration.underline,
-                  ),
+                  style: TextStyle(color: Colors.white70),
                 ),
               ),
               const SizedBox(height: 12),
@@ -215,65 +211,100 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
               const Divider(color: Colors.white38, height: 32),
 
               ListTile(
+                minTileHeight: 0,
                 leading: const Icon(
                   LucideIcons.layoutDashboard,
                   color: Colors.white,
+                  size: 20,
                 ),
-                title: const Text(
+                title: Text(
                   'Dashboard',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () => _advancedDrawerController.toggleDrawer(),
               ),
               ListTile(
-                leading: const Icon(LucideIcons.user, color: Colors.white),
-                title: const Text(
+                minTileHeight: 0,
+
+                leading: const Icon(
+                  LucideIcons.user,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                title: Text(
                   'Leads',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () => Get.to(AllLeadsPage()),
               ),
               ListTile(
-                leading: const Icon(LucideIcons.phoneCall, color: Colors.white),
-                title: const Text(
+                minTileHeight: 0,
+
+                leading: const Icon(
+                  LucideIcons.phoneCall,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                title: Text(
                   'Cold Calls',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () => Get.to(ColdCallPage()),
               ),
               ListTile(
+                minTileHeight: 0,
+
                 leading: const Icon(
                   LucideIcons.checkCircle2,
                   color: Colors.white,
+                  size: 20,
                 ),
-                title: const Text(
+                title: Text(
                   'Converted Cold Calls',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () => Get.to(ConvertedCallsPage()),
               ),
               ListTile(
-                leading: const Icon(LucideIcons.bell, color: Colors.white),
-                title: const Text(
+                minTileHeight: 0,
+
+                leading: const Icon(
+                  LucideIcons.bell,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                title: Text(
                   'Notifications',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () => Get.to(NotificationPage()),
               ),
               ListTile(
-                leading: const Icon(LucideIcons.eye, color: Colors.white),
-                title: const Text(
+                minTileHeight: 0,
+
+                leading: const Icon(
+                  LucideIcons.eye,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                title: Text(
                   'Change Password',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () =>
                     Get.to(CreatePasswordScreen(email: email, flag: 2)),
               ),
               ListTile(
-                leading: const Icon(Icons.delete, color: Colors.white),
-                title: const Text(
+                minTileHeight: 0,
+
+                leading: const Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                title: Text(
                   'Delete Account',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () async {
                   try {
@@ -311,14 +342,21 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
               ),
 
               ListTile(
-                leading: const Icon(LucideIcons.logOut, color: Colors.white),
-                title: const Text(
+                minTileHeight: 0,
+
+                leading: const Icon(
+                  LucideIcons.logOut,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                title: Text(
                   'Logout',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: _logout,
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 25),
+
               Center(
                 child: Text(
                   _appVersion,
