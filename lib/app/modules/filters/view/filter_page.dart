@@ -32,7 +32,6 @@ class _FilterPageState extends State<FilterPage> {
   final FiltersController _filtersController = Get.put(FiltersController());
   String? _isFresh;
 
-  // NEW: track which campaignId sources are loaded for
   int? _sourcesForCampaignId;
 
   final List<String> filterOptions = [
@@ -45,6 +44,11 @@ class _FilterPageState extends State<FilterPage> {
     'Keyword',
     // 'Sub Status',
   ];
+
+  void initstate() {
+    super.initState();
+    _filtersController.fetchAgents();
+  }
 
   void clearFilters() {
     setState(() {

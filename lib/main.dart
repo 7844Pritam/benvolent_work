@@ -20,15 +20,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Init local notifications (your custom service)
   // await NotificationService2.init();
 
-  // GetX Controllers
   Get.put(NetworkController(), permanent: true);
   Get.put(AuthController());
   // Get.put(ProfileController());
 
-  // Init FCM
   // await _initFCM();
 
   runApp(const MyApp());

@@ -38,7 +38,10 @@ class ColdCallPage extends StatelessWidget {
         final name = id == null
             ? 'Agent $raw'
             : (_filters.agentsList
-                      .expand((group) => group.agents) // flatten all groups
+                      .cast<dynamic>()
+                      .expand(
+                        (group) => (group as dynamic)?.agents ?? [],
+                      ) // flatten all groups
                       .firstWhereOrNull((a) => a.id == id)
                       ?.name ??
                   'Agent $id');

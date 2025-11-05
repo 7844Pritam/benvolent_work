@@ -7,13 +7,10 @@ class NotificationService2 {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  /// Initialize local notification plugin + setup FCM foreground handler
   static Future<void> init() async {
-    // 🔹 Android initialization
     const AndroidInitializationSettings initSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // 🔹 iOS / macOS initialization
     const DarwinInitializationSettings initSettingsDarwin =
         DarwinInitializationSettings(
           requestAlertPermission: true,
@@ -21,38 +18,31 @@ class NotificationService2 {
           requestSoundPermission: true,
         );
 
-    // 🔹 Combined initialization
     const InitializationSettings initSettings = InitializationSettings(
       android: initSettingsAndroid,
       iOS: initSettingsDarwin,
       macOS: initSettingsDarwin,
     );
 
-    // 🔹 Initialize plugin
     await _notificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle notification tap
         _handleNotificationClick(response.payload);
       },
     );
 
-    // 🔹 Create Android notification channel
     await _createNotificationChannel();
-
-    // 🔹 Handle foreground FCM messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
         showNotification(
           title: message.notification?.title,
           body: message.notification?.body,
-          payload: message.data['route'], // Optional: pass navigation route
+          payload: message.data['route'],
         );
       }
     });
   }
 
-  /// Show a local notification
   static Future<void> showNotification({
     required String? title,
     required String? body,
@@ -79,11 +69,10 @@ class NotificationService2 {
     );
   }
 
-  /// Create Android notification channel (needed for >= Android 8.0)
   static Future<void> _createNotificationChannel() async {
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'default_channel', // id
-      'General', // name
+      'default_channel',
+      'General',
       description: 'General notifications',
       importance: Importance.max,
     );
@@ -97,14 +86,10 @@ class NotificationService2 {
         ?.createNotificationChannel(channel);
   }
 
-  /// Handle notification click → navigate inside app
   static void _handleNotificationClick(String? payload) {
-    // Example: navigate to splash screen or use payload for routing
     if (payload != null && payload.isNotEmpty) {
-      // If payload contains route name, use it
       Get.toNamed(payload);
     } else {
-      // Default → splash screen
       Get.to(() => const SplashScreen());
     }
   }

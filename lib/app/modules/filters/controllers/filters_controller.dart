@@ -35,10 +35,14 @@ class FiltersController extends GetxController {
     isLoading.value = true;
     errorMessage.value = '';
     try {
+      print('Agents fetched new ');
+
       final response = await _filterService.getAgents();
+      print('Agents fetched: ${response.data}');
       agentsList.assignAll(response.data);
     } catch (e) {
       errorMessage.value = e.toString();
+      print('Error fetching agents: $e');
     } finally {
       isLoading.value = false;
     }
