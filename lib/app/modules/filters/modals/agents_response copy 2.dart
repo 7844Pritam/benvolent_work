@@ -1,5 +1,4 @@
 // file: app/modules/filters/modals/agents_response.dart
-import 'dart:convert';
 
 class AgentsResponse {
   final int success;
