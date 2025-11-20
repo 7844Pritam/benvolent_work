@@ -6,6 +6,7 @@ import 'package:benevolent_crm_app/app/modules/auth/modals/signup_response_modal
 import 'package:benevolent_crm_app/app/modules/auth/views/login_screen.dart';
 import 'package:benevolent_crm_app/app/services/auth_services.dart';
 import 'package:benevolent_crm_app/app/utils/api_exceptions.dart';
+import 'package:benevolent_crm_app/app/utils/token_storage.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
@@ -99,6 +100,17 @@ class AuthController extends GetxController {
       final data = await authService.login(email, password, deviceToken);
 
       loginResponse.value = data;
+
+      // Save role to SharedPreferences
+      if (data.results?.role != null) {
+        final tokenStorage = TokenStorage();
+        await tokenStorage.saveRole(data.results!.role);
+        print("Role saved: ${data.results!.role}");
+        final savedRole = await tokenStorage.getRole();
+        print("Role retrieved: $savedRole");
+        final isAdminCheck = await tokenStorage.isAdmin();
+        print("Is Admin check: $isAdminCheck");
+      }
 
       CustomSnackbar.show(
         title: 'Login Successful',

@@ -15,17 +15,40 @@ import 'package:get/get.dart';
 import '../modals/cold_call_model.dart';
 import '../controllers/cold_call_controller.dart';
 
-class ColdCallCard extends StatelessWidget {
+class ColdCallCard extends StatefulWidget {
   final ColdCall call;
   final bool showConvert;
 
   const ColdCallCard({super.key, required this.call, this.showConvert = false});
 
   @override
+  State<ColdCallCard> createState() => _ColdCallCardState();
+}
+
+class _ColdCallCardState extends State<ColdCallCard> {
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final isAdmin = await Helpers.isAdmin();
+    print("ColdCallCard - Admin check result: $isAdmin");
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final ctrl = Get.find<ColdCallController>();
-    final busy = ctrl.workingIds.contains(call.id);
+    final busy = ctrl.workingIds.contains(widget.call.id);
     final ProfileController _profileController = Get.find<ProfileController>();
 
     print("sldkjfldsjfsdf");
@@ -43,7 +66,10 @@ class ColdCallCard extends StatelessWidget {
     print("id is coming from converted card data ");
     print(ctrl.coldCalls.map((value) => print(value.agent_id)));
     final isOwner =
-        '${_profileController.profile.value!.id}' == call.agent_id.toString();
+        '${_profileController.profile.value!.id}' == widget.call.agent_id.toString();
+    final canAccess = _isAdmin || isOwner;
+    
+    print("ColdCallCard - isOwner: $isOwner, _isAdmin: $_isAdmin, canAccess: $canAccess");
 
     final card = Container(
       decoration: BoxDecoration(
@@ -71,7 +97,7 @@ class ColdCallCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        call.name.isNotEmpty ? call.name : 'Unnamed',
+                        widget.call.name.isNotEmpty ? widget.call.name : 'Unnamed',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
@@ -84,14 +110,14 @@ class ColdCallCard extends StatelessWidget {
 
                 _infoRow(
                   Icons.badge_outlined,
-                  call.agent.isNotEmpty ? call.agent : 'Unassigned',
+                  widget.call.agent.isNotEmpty ? widget.call.agent : 'Unassigned',
                   Colors.indigo,
                 ),
                 const SizedBox(height: 6),
 
                 _infoRow(
                   Icons.campaign_outlined,
-                  call.sourceName,
+                  widget.call.sourceName,
                   Colors.orange,
                 ),
                 const SizedBox(height: 6),
@@ -102,7 +128,7 @@ class ColdCallCard extends StatelessWidget {
                       child: Divider(color: Colors.black12, thickness: 1),
                     ),
                     const SizedBox(width: 8),
-                    _buildStatusChip(call.statusName),
+                    _buildStatusChip(widget.call.statusName),
                   ],
                 ),
 
@@ -117,31 +143,31 @@ class ColdCallCard extends StatelessWidget {
                         22,
                         122,
                         59,
-                      ).withOpacity(isOwner ? 1 : 0.4),
+                      ).withOpacity(canAccess ? 1 : 0.4),
                       icon: FontAwesomeIcons.whatsapp,
-                      onTap: isOwner
+                      onTap: canAccess
                           ? () => HyperLinksNew.openWhatsApp(
-                              call.phone,
-                              'Hi ${call.name}, ',
+                              widget.call.phone,
+                              'Hi ${widget.call.name}, ',
                             )
                           : () => _showNotAllowedPopup(),
                     ),
                     _actionIcon(
-                      bg: Colors.white.withOpacity(isOwner ? 1 : 0.4),
+                      bg: Colors.white.withOpacity(canAccess ? 1 : 0.4),
                       border: Border.all(color: Colors.black26),
                       icon: Icons.copy_rounded,
                       iconColor: Colors.grey.shade800,
-                      onTap: isOwner
-                          ? () => Helpers.copyClipboard(call.phone)
+                      onTap: canAccess
+                          ? () => Helpers.copyClipboard(widget.call.phone)
                           : () => _showNotAllowedPopup(),
                     ),
                     _actionIcon(
-                      bg: Colors.purple.shade50.withOpacity(isOwner ? 1 : 0.4),
+                      bg: Colors.purple.shade50.withOpacity(canAccess ? 1 : 0.4),
                       border: Border.all(color: Colors.purple.shade200),
                       icon: Icons.swap_horiz,
                       iconColor: Colors.purple,
-                      onTap: isOwner
-                          ? (busy ? () {} : () => _pickStatus(context, ctrl))
+                      onTap: canAccess
+                          ? (busy ? () {} : () => _pickStatus(context, ctrl, widget.call))
                           : () => _showNotAllowedPopup(),
                     ),
                     _actionIcon(
@@ -150,14 +176,14 @@ class ColdCallCard extends StatelessWidget {
                         185,
                         216,
                         216,
-                      ).withOpacity(isOwner ? 1 : 0.4),
+                      ).withOpacity(canAccess ? 1 : 0.4),
                       border: Border.all(color: Colors.teal.shade200),
                       icon: Icons.person_add_alt_1,
                       iconColor: Colors.teal,
-                      onTap: isOwner
+                      onTap: canAccess
                           ? (busy
                                 ? () {}
-                                : () => _confirmConvert(context, ctrl))
+                                : () => _confirmConvert(context, ctrl, widget.call))
                           : () => _showNotAllowedPopup(),
                     ),
                   ],
@@ -169,17 +195,17 @@ class ColdCallCard extends StatelessWidget {
               right: 0,
               child: InkWell(
                 onTap: () {
-                  if (!isOwner) {
+                  if (!canAccess) {
                     _showNotAllowedPopup();
                   } else {
-                    HyperLinksNew.openDialer(call.phone);
+                    HyperLinksNew.openDialer(widget.call.phone);
                   }
                 },
                 borderRadius: BorderRadius.circular(50),
                 child: Icon(
                   Icons.call,
                   size: 28,
-                  color: isOwner
+                  color: canAccess
                       ? AppColors.primaryColor
                       : Colors.grey.shade400,
                 ),
@@ -190,44 +216,44 @@ class ColdCallCard extends StatelessWidget {
       ),
     );
 
-    // Optionally show convert ribbon
-    if (!showConvert) return card;
+        // Optionally show convert ribbon
+        if (!widget.showConvert) return card;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        card,
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: -14,
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.teal,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            card,
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: -14,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.teal,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: const Text(
-                'Convert',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.4,
+                  child: const Text(
+                    'Convert',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      ],
-    );
+          ],
+        );
   }
 
   // ---- Helpers ----
@@ -298,7 +324,7 @@ class ColdCallCard extends StatelessWidget {
     );
   }
 
-  void _pickStatus(BuildContext context, ColdCallController ctrl) {
+  void _pickStatus(BuildContext context, ColdCallController ctrl, ColdCall call) {
     final filters = Get.isRegistered<FiltersController>()
         ? Get.find<FiltersController>()
         : Get.put(FiltersController(), permanent: true);
@@ -366,7 +392,7 @@ class ColdCallCard extends StatelessWidget {
                             onTap: () async {
                               Navigator.pop(context);
                               await ctrl.changeColdCallStatus(
-                                callId: call.id,
+                                callId: widget.call.id,
                                 statusId: s.id,
                               );
                             },
@@ -384,14 +410,14 @@ class ColdCallCard extends StatelessWidget {
     );
   }
 
-  void _confirmConvert(BuildContext context, ColdCallController ctrl) {
+  void _confirmConvert(BuildContext context, ColdCallController ctrl, ColdCall call) {
     Get.dialog(
       ConfirmConvertDialog(
         onConfirm: () async {
-          await ctrl.convertColdCallToLead(callId: call.id);
+          await ctrl.convertColdCallToLead(callId: widget.call.id);
           Get.snackbar(
             'Converted',
-            '${call.name} is now a lead!',
+            '${widget.call.name} is now a lead!',
             backgroundColor: AppColors.green.withOpacity(0.1),
             colorText: AppColors.primaryColor,
             icon: const Icon(Icons.check_circle, color: AppColors.green),

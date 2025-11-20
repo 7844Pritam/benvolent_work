@@ -1,3 +1,4 @@
+import 'package:benevolent_crm_app/app/utils/token_storage.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -91,5 +92,10 @@ class Helpers {
 
     // Optionally format it to look like a phone number
     return masked;
+  }
+
+  static Future<bool> isAdmin() async {
+    final tokenStorage = TokenStorage();
+    return await tokenStorage.isAdmin();
   }
 }

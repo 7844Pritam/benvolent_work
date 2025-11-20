@@ -48,11 +48,13 @@ class _LeadsDetailsPageState extends State<LeadsDetailsPage> {
   ];
 
   bool _schedulesLoaded = false;
+  bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
     c.load(widget.leadId);
+    _checkAdminStatus();
     print("000000000000000");
     print(_profileController.profile.value?.id.toString());
     print(widget.agentId);
@@ -62,6 +64,13 @@ class _LeadsDetailsPageState extends State<LeadsDetailsPage> {
     print("lead data ${c.lead.value?.lead.toJson()}");
     print("lead agent Id 7657657 ${c.lead.value?.lead.agentId}");
     print(_profileController.profile.value?.id.toString());
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final isAdmin = await Helpers.isAdmin();
+    setState(() {
+      _isAdmin = isAdmin;
+    });
   }
 
   @override
@@ -262,6 +271,9 @@ class _LeadsDetailsPageState extends State<LeadsDetailsPage> {
     print("slkfsdlfkkdsfkdsfdsf 12121212");
     print(lead.agentId);
 
+    // Show unmasked data if user is admin or is the assigned agent
+    final shouldShowUnmasked = _isAdmin || _profileController.profile.value!.id == widget.agentId;
+
     return _card(
       Padding(
         padding: const EdgeInsets.all(16),
@@ -273,26 +285,26 @@ class _LeadsDetailsPageState extends State<LeadsDetailsPage> {
             // if ()
             _copyRow(
               "Lead Contact",
-              _profileController.profile.value!.id != widget.agentId
-                  ? Helpers.maskPhoneNumber(lead.phone)
-                  : lead.phone,
+              shouldShowUnmasked
+                  ? lead.phone
+                  : Helpers.maskPhoneNumber(lead.phone),
             ),
             _copyRow(
               "Alternate Contact",
-              _profileController.profile.value!.id != widget.agentId
-                  ? Helpers.maskPhoneNumber(lead.altPhone)
-                  : lead.altPhone,
+              shouldShowUnmasked
+                  ? lead.altPhone
+                  : Helpers.maskPhoneNumber(lead.altPhone),
             ),
             _additionalNumberRow(
-              _profileController.profile.value!.id != widget.agentId
-                  ? Helpers.maskPhoneNumber(lead.additionalPhone)
-                  : lead.additionalPhone,
+              shouldShowUnmasked
+                  ? lead.additionalPhone
+                  : Helpers.maskPhoneNumber(lead.additionalPhone),
             ),
             _copyRow(
               "Email",
-              _profileController.profile.value!.id != widget.agentId
-                  ? Helpers.maskEmail(lead.email)
-                  : lead.email,
+              shouldShowUnmasked
+                  ? lead.email
+                  : Helpers.maskEmail(lead.email),
             ),
           ],
         ),
