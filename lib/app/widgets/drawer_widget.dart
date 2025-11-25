@@ -18,6 +18,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/modules/profile/controller/profile_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:benevolent_crm_app/app/routes/app_routes.dart';
 
 class ModernDrawerWrapper extends StatefulWidget {
   final Widget child;
@@ -264,6 +265,20 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   style: TextStyles.Text16400.copyWith(color: Colors.white),
                 ),
                 onTap: () => Get.to(ConvertedCallsPage()),
+              ),
+              ListTile(
+                minTileHeight: 0,
+
+                leading: const Icon(
+                  LucideIcons.pieChart,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                title: Text(
+                  'Follow',
+                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                ),
+                onTap: () => Get.toNamed(AppRoutes.campaignSummary),
               ),
               ListTile(
                 minTileHeight: 0,

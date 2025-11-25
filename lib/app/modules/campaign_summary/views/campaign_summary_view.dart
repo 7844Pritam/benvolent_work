@@ -1,0 +1,143 @@
+import 'package:benevolent_crm_app/app/modules/campaign_summary/controllers/campaign_summary_controller.dart';
+import 'package:benevolent_crm_app/app/themes/app_themes.dart';
+import 'package:benevolent_crm_app/app/themes/text_styles.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class CampaignSummaryView extends GetView<CampaignSummaryController> {
+  const CampaignSummaryView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Campaign Summary'),
+        centerTitle: true,
+        backgroundColor: AppThemes.primaryColor,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (controller.campaignSummaryData.isEmpty) {
+          return const Center(child: Text("No Data Available"));
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              _buildChartSection(),
+              const SizedBox(height: 20),
+              _buildListSection(),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildChartSection() {
+    final data = controller.campaignSummaryData;
+    final total = data.fold<int>(0, (sum, item) => sum + (item.noOfLeads ?? 0));
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text("Lead Distribution", style: TextStyles.Text18700),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 250,
+            child: PieChart(
+              PieChartData(
+                centerSpaceRadius: 40,
+                sectionsSpace: 2,
+                sections: data.map((item) {
+                  final value = item.noOfLeads ?? 0;
+                  final color = _parseColor(item.colorCode);
+                  final percentage = total > 0 ? (value / total) * 100 : 0.0;
+
+                  return PieChartSectionData(
+                    value: value.toDouble(),
+                    color: color,
+                    title: percentage > 5 ? "${percentage.toStringAsFixed(1)}%" : "",
+                    radius: 80,
+                    titleStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListSection() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: controller.campaignSummaryData.length,
+      itemBuilder: (context, index) {
+        final item = controller.campaignSummaryData[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 10),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: _parseColor(item.colorCode),
+              radius: 8,
+            ),
+            title: Text(
+              item.statusName ?? "Unknown",
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            trailing: Text(
+              "${item.noOfLeads}",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppThemes.primaryColor,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Color _parseColor(String? hexColor) {
+    if (hexColor == null || hexColor.isEmpty) return Colors.grey;
+    try {
+      return Color(int.parse(hexColor.replaceAll("#", "0xFF")));
+    } catch (_) {
+      return Colors.grey;
+    }
+  }
+}

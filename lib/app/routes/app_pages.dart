@@ -11,6 +11,8 @@ import 'package:benevolent_crm_app/app/widgets/dummy_page.dart';
 import 'package:get/get.dart';
 import '../modules/auth/views/login_screen.dart';
 import '../modules/auth/views/signup_screen.dart';
+import 'package:benevolent_crm_app/app/modules/campaign_summary/bindings/campaign_summary_binding.dart';
+import 'package:benevolent_crm_app/app/modules/campaign_summary/views/campaign_summary_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -61,5 +63,10 @@ class AppPages {
     ),
     GetPage(name: '/bottombar', page: () => CustomBottomBar()),
     GetPage(name: '/profile', page: () => UserProfileCard()),
+    GetPage(
+      name: AppRoutes.campaignSummary,
+      page: () => const CampaignSummaryView(),
+      binding: CampaignSummaryBinding(),
+    ),
   ];
 }

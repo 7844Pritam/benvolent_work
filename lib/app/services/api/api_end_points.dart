@@ -32,4 +32,6 @@ class ApiEndPoints {
       '/lead_update_additional_phone/$id';
 
   static String ADD_NOTES = '/addLeadComment';
+
+  static const CAMPAIGN_SUMMARY_REPORT_URL = "/campaign-summary-report";
 }
