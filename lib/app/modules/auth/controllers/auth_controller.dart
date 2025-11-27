@@ -108,8 +108,7 @@ class AuthController extends GetxController {
         print("Role saved: ${data.results!.role}");
         final savedRole = await tokenStorage.getRole();
         print("Role retrieved: $savedRole");
-        final isAdminCheck = await tokenStorage.isAdmin();
-        print("Is Admin check: $isAdminCheck");
+        // print("Is Admin check: $isAdminCheck");
       }
 
       CustomSnackbar.show(

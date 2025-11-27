@@ -7,4 +7,6 @@ class AppRoutes {
   static const String splash = '/splash';
   static const String dashboard = '/dashboard';
   static const String campaignSummary = '/campaign-summary';
+
+  static const String leadDistribution = "/leadDistribution";
 }

@@ -64,4 +64,8 @@ class TextStyles {
     fontWeight: FontWeight.normal,
     color: AppThemes.primaryColor,
   );
+
+  static get Text14500 => null;
+
+  static get Text15400 => null;
 }

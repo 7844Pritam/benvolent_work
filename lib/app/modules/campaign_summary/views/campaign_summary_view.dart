@@ -1,4 +1,5 @@
 import 'package:benevolent_crm_app/app/modules/campaign_summary/controllers/campaign_summary_controller.dart';
+import 'package:benevolent_crm_app/app/modules/campaign_summary/views/widgets/campaign_filter_bottom_sheet.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -22,7 +23,23 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
+
+        // -------------------------
+        // FILTER BUTTON RIGHT SIDE
+        // -------------------------
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list, color: Colors.white),
+            onPressed: () {
+              Get.bottomSheet(
+                CampaignFilterBottomSheet(),
+                isScrollControlled: true,
+              );
+            },
+          ),
+        ],
       ),
+
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -36,6 +53,7 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              _buildSelectedFilters(),
               _buildChartSection(),
               const SizedBox(height: 20),
               _buildListSection(),
@@ -46,6 +64,9 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
     );
   }
 
+  // -------------------------
+  // CHART SECTION
+  // -------------------------
   Widget _buildChartSection() {
     final data = controller.campaignSummaryData;
     final total = data.fold<int>(0, (sum, item) => sum + (item.noOfLeads ?? 0));
@@ -81,7 +102,9 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
                   return PieChartSectionData(
                     value: value.toDouble(),
                     color: color,
-                    title: percentage > 5 ? "${percentage.toStringAsFixed(1)}%" : "",
+                    title: percentage > 5
+                        ? "${percentage.toStringAsFixed(1)}%"
+                        : "",
                     radius: 80,
                     titleStyle: const TextStyle(
                       fontSize: 12,
@@ -98,6 +121,9 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
     );
   }
 
+  // -------------------------
+  // LIST SECTION
+  // -------------------------
   Widget _buildListSection() {
     return ListView.builder(
       shrinkWrap: true,
@@ -108,7 +134,9 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
         return Card(
           margin: const EdgeInsets.only(bottom: 10),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: _parseColor(item.colorCode),
@@ -129,6 +157,93 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSelectedFilters() {
+    return Obx(() {
+      final campaigns = controller.selectedCampaigns;
+      final sources = controller.selectedSources;
+      final fromDate = controller.fromDate.value;
+      final toDate = controller.toDate.value;
+
+      if (campaigns.isEmpty && sources.isEmpty && fromDate == null) {
+        return const SizedBox.shrink();
+      }
+
+      final List<Widget> chips = [];
+
+      // Campaigns
+      for (var id in campaigns) {
+        final campaign = controller.filtersController.campaignList
+            .firstWhereOrNull((c) => c.id == id);
+        if (campaign != null) {
+          chips.add(
+            _buildFilterChip(campaign.name, () {
+              controller.selectedCampaigns.remove(id);
+              controller.getCampaignSummaryReport();
+            }),
+          );
+        }
+      }
+
+      // Sources
+      for (var id in sources) {
+        final source = controller.filtersController.sourceList.firstWhereOrNull(
+          (s) => s.id == id,
+        );
+        if (source != null) {
+          chips.add(
+            _buildFilterChip(source.name, () {
+              controller.selectedSources.remove(id);
+              controller.getCampaignSummaryReport();
+            }),
+          );
+        }
+      }
+
+      // Date Range
+      if (fromDate != null && toDate != null) {
+        final dateStr =
+            "${fromDate.toString().split(' ')[0]} - ${toDate.toString().split(' ')[0]}";
+        chips.add(
+          _buildFilterChip(dateStr, () {
+            controller.fromDate.value = null;
+            controller.toDate.value = null;
+            controller.getCampaignSummaryReport();
+          }),
+        );
+      }
+
+      if (chips.isEmpty) return const SizedBox.shrink();
+
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 16),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: chips
+                .map(
+                  (c) => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: c,
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildFilterChip(String label, VoidCallback onDeleted) {
+    return Chip(
+      label: Text(label, style: const TextStyle(fontSize: 12)),
+      deleteIcon: const Icon(Icons.close, size: 16),
+      onDeleted: onDeleted,
+      backgroundColor: Colors.blue.shade50,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );
   }
 

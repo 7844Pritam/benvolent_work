@@ -8,6 +8,7 @@ import 'package:benevolent_crm_app/app/modules/notification/controller/notificat
 import 'package:benevolent_crm_app/app/modules/notification/view/notification_page.dart';
 import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
+import 'package:benevolent_crm_app/app/utils/token_storage.dart';
 import 'package:benevolent_crm_app/app/widgets/confirm_status_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
@@ -32,9 +33,13 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
   final _advancedDrawerController = AdvancedDrawerController();
   final box = GetStorage();
   final ProfileController controller = Get.put(ProfileController());
+  final NotificationController _notificationController = Get.put(
+    NotificationController(),
+  );
+
   String _appVersion = '';
-  // ignore: unused_field
-  final NotificationController _c = Get.put(NotificationController());
+  bool isAdmin = false;
+  bool reportExpanded = false; // For expandable Reports menu
 
   final List<String> _statusOptions = [
     'Available',
@@ -50,7 +55,10 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
   }
 
   Future<void> _loadAppVersion() async {
+    final tokenStorage = TokenStorage();
     final info = await PackageInfo.fromPlatform();
+    isAdmin = await tokenStorage.isAdmin();
+
     setState(() {
       _appVersion = "v${info.version}";
     });
@@ -59,7 +67,6 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
   void _logout() {
     box.erase();
     Get.delete<ProfileController>(force: true);
-
     Get.offAllNamed('/login');
   }
 
@@ -72,8 +79,6 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
       animationDuration: const Duration(milliseconds: 300),
       openRatio: 0.75,
       openScale: 0.85,
-      rtlOpening: false,
-      disabledGestures: false,
       childDecoration: const BoxDecoration(
         boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
         borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -89,7 +94,6 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
 
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-
             children: [
               const SizedBox(height: 20),
               GestureDetector(
@@ -139,20 +143,19 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'Hello, $firstName $lastName',
-                    style: TextStyles.Text18700.copyWith(
+                    style: (TextStyles.Text18700 ?? const TextStyle()).copyWith(
                       color: AppThemes.textColorWhite,
                     ),
                   ),
                   Text(
                     'User ID: $userId',
-                    style: TextStyles.Text14400.copyWith(
+                    style: (TextStyles.Text14400 ?? const TextStyle()).copyWith(
                       color: AppThemes.textColorWhite,
                     ),
                   ),
@@ -166,20 +169,18 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
               ),
               const SizedBox(height: 12),
+              // Status Dropdown
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   color: Colors.white10,
                   borderRadius: BorderRadius.circular(8),
                 ),
-
                 child: DropdownButton<String>(
                   value: availability,
-                  iconDisabledColor: Colors.white,
-
                   underline: Container(),
                   dropdownColor: AppThemes.primaryColor,
-                  iconEnabledColor: AppThemes.white,
+                  iconEnabledColor: Colors.white,
                   style: const TextStyle(
                     color: AppThemes.textColorSecondary,
                     fontSize: 14,
@@ -190,7 +191,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                       value: status,
                       child: Text(
                         status,
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     );
                   }).toList(),
@@ -208,9 +209,9 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                   },
                 ),
               ),
-
               const Divider(color: Colors.white38, height: 32),
 
+              // MENU ITEMS
               ListTile(
                 minTileHeight: 0,
                 leading: const Icon(
@@ -220,13 +221,14 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Dashboard',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: () => _advancedDrawerController.toggleDrawer(),
               ),
               ListTile(
                 minTileHeight: 0,
-
                 leading: const Icon(
                   LucideIcons.user,
                   color: Colors.white,
@@ -234,13 +236,14 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Leads',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: () => Get.to(AllLeadsPage()),
               ),
               ListTile(
                 minTileHeight: 0,
-
                 leading: const Icon(
                   LucideIcons.phoneCall,
                   color: Colors.white,
@@ -248,13 +251,14 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Cold Calls',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: () => Get.to(ColdCallPage()),
               ),
               ListTile(
                 minTileHeight: 0,
-
                 leading: const Icon(
                   LucideIcons.checkCircle2,
                   color: Colors.white,
@@ -262,27 +266,69 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Converted Cold Calls',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: () => Get.to(ConvertedCallsPage()),
               ),
+
+              // -------------------------------
+              //      REPORTS (EXPANDABLE)
+              // -------------------------------
+              if (isAdmin) ...[
+                ListTile(
+                  minTileHeight: 0,
+                  leading: const Icon(
+                    LucideIcons.pieChart,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  title: Text(
+                    'Reports',
+                    style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                  trailing: Icon(
+                    reportExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      reportExpanded = !reportExpanded;
+                    });
+                  },
+                ),
+                if (reportExpanded)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 50),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          minTileHeight: 0,
+                          title: Text(
+                            'Campaign Summary',
+                            style: (TextStyles.Text15400 ?? const TextStyle())
+                                .copyWith(color: Colors.white),
+                          ),
+                          onTap: () async {
+                            _advancedDrawerController.hideDrawer();
+                            await Future.delayed(
+                              const Duration(milliseconds: 250),
+                            );
+                            Get.toNamed(AppRoutes.campaignSummary);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+
               ListTile(
                 minTileHeight: 0,
-
-                leading: const Icon(
-                  LucideIcons.pieChart,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                title: Text(
-                  'Follow',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
-                ),
-                onTap: () => Get.toNamed(AppRoutes.campaignSummary),
-              ),
-              ListTile(
-                minTileHeight: 0,
-
                 leading: const Icon(
                   LucideIcons.bell,
                   color: Colors.white,
@@ -290,13 +336,14 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Notifications',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: () => Get.to(NotificationPage()),
               ),
               ListTile(
                 minTileHeight: 0,
-
                 leading: const Icon(
                   LucideIcons.eye,
                   color: Colors.white,
@@ -304,14 +351,15 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Change Password',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: () =>
                     Get.to(CreatePasswordScreen(email: email, flag: 2)),
               ),
               ListTile(
                 minTileHeight: 0,
-
                 leading: const Icon(
                   Icons.delete,
                   color: Colors.white,
@@ -319,46 +367,29 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Delete Account',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: () async {
-                  try {
-                    _advancedDrawerController.hideDrawer();
-
-                    await Future.delayed(const Duration(milliseconds: 300));
-
-                    final url = Uri.parse(
-                      'https://benevolentrealty.com/delete-account',
-                    );
-                    var value = await canLaunchUrl(url);
-                    print('Can launch: $value');
-                    if (value) {
-                      await launchUrl(
-                        url,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    } else {
-                      Get.snackbar(
-                        'Error',
-                        'Could not open Delete Account link.',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    }
-                  } catch (e) {
+                  _advancedDrawerController.hideDrawer();
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  final url = Uri.parse(
+                    'https://benevolentrealty.com/delete-account',
+                  );
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  } else {
                     Get.snackbar(
-                      'Exception',
-                      'An unexpected error occurred: $e',
+                      'Error',
+                      'Could not open Delete Account link.',
                       snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.red.shade400,
-                      colorText: Colors.white,
                     );
                   }
                 },
               ),
-
               ListTile(
                 minTileHeight: 0,
-
                 leading: const Icon(
                   LucideIcons.logOut,
                   color: Colors.white,
@@ -366,12 +397,13 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                 ),
                 title: Text(
                   'Logout',
-                  style: TextStyles.Text16400.copyWith(color: Colors.white),
+                  style: (TextStyles.Text16400 ?? const TextStyle()).copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 onTap: _logout,
               ),
               const SizedBox(height: 25),
-
               Center(
                 child: Text(
                   _appVersion,
@@ -408,8 +440,6 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                     color: Colors.white,
                     onPressed: () async {
                       await Get.to(() => NotificationPage());
-                      // Optionally refresh or mark read after visiting:
-                      // n.markAllRead();
                       n.refreshNotifications();
                     },
                   ),
@@ -431,7 +461,6 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
             ),
           ],
         ),
-
         body: widget.child,
       ),
     );
