@@ -17,7 +17,7 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
       appBar: AppBar(
         title: const Text('Campaign Summary'),
         centerTitle: true,
-        backgroundColor:AppColors.primaryColor,
+        backgroundColor: AppColors.primaryColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         titleTextStyle: const TextStyle(
@@ -44,24 +44,55 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
 
       body: Obx(() {
         if (controller.isLoading.value) {
-        if (controller.isLoading.value) {
-          return _buildShimmerLoading();
-        }
+          if (controller.isLoading.value) {
+            return _buildShimmerLoading();
+          }
         }
 
         if (controller.campaignSummaryData.isEmpty) {
-          return const Center(child: Text("No Data Available"));
+          return RefreshIndicator(
+            onRefresh: () async {
+              await controller.getCampaignSummaryReport();
+            },
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: constraints.maxHeight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _buildSelectedFilters(),
+                          const Expanded(
+                            child: Center(child: Text("No Data Available")),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _buildSelectedFilters(),
-              _buildChartSection(),
-              const SizedBox(height: 20),
-              _buildListSection(),
-            ],
+        return RefreshIndicator(
+          onRefresh: () async {
+            await controller.getCampaignSummaryReport();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildSelectedFilters(),
+                _buildChartSection(),
+                const SizedBox(height: 20),
+                _buildListSection(),
+              ],
+            ),
           ),
         );
       }),
@@ -259,6 +290,7 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
       return Colors.grey;
     }
   }
+
   Widget _buildShimmerLoading() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),

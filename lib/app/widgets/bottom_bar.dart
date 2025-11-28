@@ -7,6 +7,7 @@ import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
 
 import 'package:benevolent_crm_app/app/widgets/bottom_nav_widget.dart';
 import 'package:benevolent_crm_app/app/widgets/custom_snackbar.dart';
+import 'package:benevolent_crm_app/app/widgets/drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -57,11 +58,13 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
         }
         return true;
       },
-      child: Scaffold(
-        body: _screens[_selectedIndex],
-        bottomNavigationBar: BottomNavBarWidget(
-          selectedIndex: _selectedIndex,
-          onTap: _onItemTapped,
+      child: ModernDrawerWrapper(
+        child: Scaffold(
+          body: _screens[_selectedIndex],
+          bottomNavigationBar: BottomNavBarWidget(
+            selectedIndex: _selectedIndex,
+            onTap: _onItemTapped,
+          ),
         ),
       ),
     );

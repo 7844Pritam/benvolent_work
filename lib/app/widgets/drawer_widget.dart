@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:benevolent_crm_app/app/controllers/global_drawer_controller.dart';
 
 import 'package:benevolent_crm_app/app/modules/auth/views/create_password_screen.dart';
 import 'package:benevolent_crm_app/app/modules/cold_calls/views/cold_call_page.dart';
@@ -30,7 +31,9 @@ class ModernDrawerWrapper extends StatefulWidget {
 }
 
 class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
-  final _advancedDrawerController = AdvancedDrawerController();
+  final GlobalDrawerController _advancedDrawerController = Get.put(
+    GlobalDrawerController(),
+  );
   final box = GetStorage();
   final ProfileController controller = Get.put(ProfileController());
   final NotificationController _notificationController = Get.put(
@@ -74,7 +77,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
   Widget build(BuildContext context) {
     return AdvancedDrawer(
       backdropColor: AppThemes.primaryColor,
-      controller: _advancedDrawerController,
+      controller: _advancedDrawerController.advancedDrawerController,
       animationCurve: Curves.easeInOut,
       animationDuration: const Duration(milliseconds: 300),
       openRatio: 0.75,
@@ -420,89 +423,7 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
           );
         }),
       ),
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
-          titleTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-          title: const Text('Dashboard'),
-          leading: IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: _advancedDrawerController.showDrawer,
-          ),
-          actions: [
-            Obx(() {
-              final n = Get.find<NotificationController>();
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  IconButton(
-                    iconSize: 30,
-                    icon: const Icon(Icons.notifications),
-                    color: Colors.white,
-                    onPressed: () async {
-                      await Get.to(() => NotificationPage());
-                      n.refreshNotifications();
-                    },
-                  ),
-                  if (n.unreadCount.value > 0)
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: _CountBadge(count: n.unreadCount.value),
-                    ),
-                ],
-              );
-            }),
-            const SizedBox(width: 4),
-            IconButton(
-              iconSize: 30,
-              icon: const Icon(Icons.account_circle),
-              color: Colors.white,
-              onPressed: () => Get.to(() => UserProfilePage()),
-            ),
-          ],
-        ),
-        body: widget.child,
-      ),
-    );
-  }
-}
-
-class _CountBadge extends StatelessWidget {
-  final int count;
-  const _CountBadge({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    final display = count > 99 ? '99+' : '$count';
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 180),
-      transitionBuilder: (child, anim) =>
-          ScaleTransition(scale: anim, child: child),
-      child: Container(
-        key: ValueKey(display),
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-        child: Text(
-          display,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10.5,
-            fontWeight: FontWeight.bold,
-            height: 1.1,
-          ),
-        ),
-      ),
+      child: Scaffold(body: widget.child),
     );
   }
 }

@@ -1,9 +1,12 @@
+import 'package:benevolent_crm_app/app/controllers/global_drawer_controller.dart';
 import 'package:benevolent_crm_app/app/modules/cold_calls/views/cold_call_page.dart';
 import 'package:benevolent_crm_app/app/modules/converted_call/view/converted_calls_page.dart';
 import 'package:benevolent_crm_app/app/modules/leads/view/all_leads_page.dart';
+import 'package:benevolent_crm_app/app/modules/notification/controller/notification_controller.dart';
+import 'package:benevolent_crm_app/app/modules/notification/view/notification_page.dart';
+import 'package:benevolent_crm_app/app/modules/profile/view/profile_page.dart';
 import 'package:benevolent_crm_app/app/themes/app_themes.dart';
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
-import 'package:benevolent_crm_app/app/widgets/drawer_widget.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,113 +25,159 @@ class Dashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ModernDrawerWrapper(
-      child: Scaffold(
-        backgroundColor: AppThemes.white,
-        body: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        title: const Text('Dashboard'),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Get.find<GlobalDrawerController>().showDrawer();
+          },
+        ),
+        actions: [
+          Obx(() {
+            final n = Get.find<NotificationController>();
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  iconSize: 30,
+                  icon: const Icon(Icons.notifications),
+                  color: Colors.white,
+                  onPressed: () async {
+                    await Get.to(() => NotificationPage());
+                    n.refreshNotifications();
+                  },
+                ),
+                if (n.unreadCount.value > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: _CountBadge(count: n.unreadCount.value),
+                  ),
+              ],
+            );
+          }),
+          const SizedBox(width: 4),
+          IconButton(
+            iconSize: 30,
+            icon: const Icon(Icons.account_circle),
+            color: Colors.white,
+            onPressed: () => Get.to(() => UserProfilePage()),
+          ),
+        ],
+      ),
+      backgroundColor: AppThemes.white,
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          final data = controller.dashboardModel.value;
+        final data = controller.dashboardModel.value;
 
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                /// ===== OVERVIEW HEADING =====
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Text("Overview", style: TextStyles.Text18700),
+        return RefreshIndicator(
+          onRefresh: _refresh,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              /// ===== OVERVIEW HEADING =====
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Text("Overview", style: TextStyles.Text18700),
+                ),
+              ),
+
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _statCard(
+                        onTap: () => Get.to(AllLeadsPage()),
+                        Icons.person,
+                        data.leadsCounts,
+                        "Total Leads",
+                        Colors.blue,
+                      ),
+                      _statCard(
+                        onTap: () => Get.to(ColdCallPage()),
+
+                        Icons.call,
+                        data.coldCallCounts,
+                        "Cold Calls",
+                        Colors.orange,
+                      ),
+                      _statCard(
+                        onTap: () => Get.to(ConvertedCallsPage()),
+
+                        Icons.check_circle,
+                        data.coldCallConvertsCounts,
+                        "Conversions",
+                        Colors.green,
+                      ),
+                    ],
                   ),
                 ),
+              ),
 
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverToBoxAdapter(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _statCard(
-                          onTap: () => Get.to(AllLeadsPage()),
-                          Icons.person,
-                          data.leadsCounts,
-                          "Total Leads",
-                          Colors.blue,
-                        ),
-                        _statCard(
-                          onTap: () => Get.to(ColdCallPage()),
+              /// ===== CHARTS =====
+              _chartSection(
+                "Leads",
+                _barChart(data.leadsLabels, data.leadsData),
+              ),
+              _chartSection(
+                "Cold Calls",
+                _barChart(data.coldCallLabels, data.coldCallData),
+              ),
+              _chartSection(
+                "Converted Calls",
+                _lineChart(
+                  data.coldCallConvertLabels,
+                  data.coldCallConvertData,
+                ),
+              ),
+              _chartSection(
+                "Sales Pipeline",
+                _doughnutChart(
+                  data.coldCallCounts,
+                  data.coldCallConvertsCounts,
+                  data.leadsCounts,
+                ),
+              ),
 
-                          Icons.call,
-                          data.coldCallCounts,
-                          "Cold Calls",
-                          Colors.orange,
-                        ),
-                        _statCard(
-                          onTap: () => Get.to(ConvertedCallsPage()),
-
-                          Icons.check_circle,
-                          data.coldCallConvertsCounts,
-                          "Conversions",
-                          Colors.green,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                /// ===== CHARTS =====
-                _chartSection(
-                  "Leads",
-                  _barChart(data.leadsLabels, data.leadsData),
-                ),
-                _chartSection(
-                  "Cold Calls",
-                  _barChart(data.coldCallLabels, data.coldCallData),
-                ),
-                _chartSection(
-                  "Converted Calls",
-                  _lineChart(
-                    data.coldCallConvertLabels,
-                    data.coldCallConvertData,
-                  ),
-                ),
-                _chartSection(
-                  "Sales Pipeline",
-                  _doughnutChart(
-                    data.coldCallCounts,
-                    data.coldCallConvertsCounts,
-                    data.leadsCounts,
-                  ),
-                ),
-
-                /// ===== FOOTER =====
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Center(
-                      child: Text(
-                        "— Benevolent CRM —",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1.2,
-                        ),
+              /// ===== FOOTER =====
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Center(
+                    child: Text(
+                      "— Benevolent CRM —",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          );
-        }),
-      ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
@@ -483,6 +532,40 @@ class Dashboard extends StatelessWidget {
             }),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CountBadge extends StatelessWidget {
+  final int count;
+  const _CountBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final display = count > 99 ? '99+' : '$count';
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      transitionBuilder: (child, anim) =>
+          ScaleTransition(scale: anim, child: child),
+      child: Container(
+        key: ValueKey(display),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+        child: Text(
+          display,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10.5,
+            fontWeight: FontWeight.bold,
+            height: 1.1,
+          ),
+        ),
       ),
     );
   }
