@@ -302,29 +302,35 @@ class _ModernDrawerWrapperState extends State<ModernDrawerWrapper> {
                     });
                   },
                 ),
-                if (reportExpanded)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 50),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          minTileHeight: 0,
-                          title: Text(
-                            'Campaign Summary',
-                            style: (TextStyles.Text15400 ?? const TextStyle())
-                                .copyWith(color: Colors.white),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: SizedBox(
+                    height: reportExpanded ? null : 0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 50),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            minTileHeight: 0,
+                            title: Text(
+                              'Campaign Summary',
+                              style: (TextStyles.Text15400 ?? const TextStyle())
+                                  .copyWith(color: Colors.white),
+                            ),
+                            onTap: () async {
+                              _advancedDrawerController.hideDrawer();
+                              await Future.delayed(
+                                const Duration(milliseconds: 300),
+                              );
+                              Get.toNamed(AppRoutes.campaignSummary);
+                            },
                           ),
-                          onTap: () async {
-                            _advancedDrawerController.hideDrawer();
-                            await Future.delayed(
-                              const Duration(milliseconds: 250),
-                            );
-                            Get.toNamed(AppRoutes.campaignSummary);
-                          },
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                ),
               ],
 
               ListTile(

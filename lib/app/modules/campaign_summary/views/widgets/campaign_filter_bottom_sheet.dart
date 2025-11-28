@@ -74,7 +74,7 @@ class _CampaignFilterBottomSheetState extends State<CampaignFilterBottomSheet> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Get.back(),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -149,13 +149,13 @@ class _CampaignFilterBottomSheetState extends State<CampaignFilterBottomSheet> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
+                      Navigator.of(context).pop();
                       _controller.applyFilters(
                         campaigns: _selectedCampaigns,
                         sources: _selectedSources,
                         start: _fromDate,
                         end: _toDate,
                       );
-                      Get.back();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,

@@ -1,10 +1,12 @@
 import 'package:benevolent_crm_app/app/modules/campaign_summary/controllers/campaign_summary_controller.dart';
 import 'package:benevolent_crm_app/app/modules/campaign_summary/views/widgets/campaign_filter_bottom_sheet.dart';
-import 'package:benevolent_crm_app/app/themes/app_themes.dart';
+import 'package:benevolent_crm_app/app/themes/app_color.dart';
+import 'package:benevolent_crm_app/app/themes/app_themes.dart' hide AppThemes;
 import 'package:benevolent_crm_app/app/themes/text_styles.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CampaignSummaryView extends GetView<CampaignSummaryController> {
   const CampaignSummaryView({super.key});
@@ -15,7 +17,7 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
       appBar: AppBar(
         title: const Text('Campaign Summary'),
         centerTitle: true,
-        backgroundColor: AppThemes.primaryColor,
+        backgroundColor:AppColors.primaryColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         titleTextStyle: const TextStyle(
@@ -42,7 +44,9 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
 
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+        if (controller.isLoading.value) {
+          return _buildShimmerLoading();
+        }
         }
 
         if (controller.campaignSummaryData.isEmpty) {
@@ -148,10 +152,10 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
             ),
             trailing: Text(
               "${item.noOfLeads}",
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: AppThemes.primaryColor,
+                color: AppColors.primaryColor,
               ),
             ),
           ),
@@ -254,5 +258,57 @@ class CampaignSummaryView extends GetView<CampaignSummaryController> {
     } catch (_) {
       return Colors.grey;
     }
+  }
+  Widget _buildShimmerLoading() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Shimmer.fromColors(
+        baseColor: const Color.fromARGB(255, 14, 70, 85),
+        highlightColor: const Color.fromARGB(255, 14, 70, 85),
+        child: Column(
+          children: [
+            // Filter chips placeholder
+            Row(
+              children: List.generate(
+                3,
+                (index) => Container(
+                  margin: const EdgeInsets.only(right: 8, bottom: 16),
+                  width: 80,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ),
+            // Chart placeholder
+            Container(
+              height: 300,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // List items placeholder
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 5,
+              itemBuilder: (_, __) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                height: 72,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
